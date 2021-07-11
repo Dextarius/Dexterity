@@ -23,16 +23,6 @@ namespace Causality
         //^ We changed this from isObservationActive to isObservationPaused because there's no easy way
         //  to set the value of a ThreadStatic field, now when it will behave appropriately because the value will default to false.
 
-        private static long revisionNumber = long.MinValue; 
-        //- Can a revision number ever be lower than what an up to date Outcome has?  
-        //- If not then we could just use Observer.revisionNumber != Outcome.revisionNumber to see if it's changed.
-
-        //- Could we use a SortedDictionary to allow us to keep outcomes in a queue that would also allow us to
-        //  check if they're already in progress without having to iterate over all of the active Events?
-        
-        //- If we can figure out the issue of making a ThreadStatic flow across async bounds,
-        //  we could just implement this as recursive stack calls.
-        
         [NotNull, ItemNotNull]
         private static Stack<CausalEvent> EventPool            => eventPool?? (eventPool = new Stack<CausalEvent>());
         public static bool                IsCurrentlyObserving => currentEvent != null  &&  isObservationPaused is false;
