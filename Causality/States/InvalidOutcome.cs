@@ -1,23 +1,27 @@
-﻿using Core.Causality;
+﻿using System;
+using Core.Causality;
 using Core.Factors;
 
 namespace Causality.States
 {
     public class InvalidOutcome : IOutcome
     {
-        #region Static Properties
+        #region Instance Fields
 
-        public static readonly InvalidOutcome Default = new InvalidOutcome();
+        //- It almost seems a waste to have this, but not having it has led to bugs with classes expecting to
+        //  be able to set a callback and have HasCallback be true, so we might as well implement it properly
+        //  until we find a better solution.
+        protected WeakReference<INotifiable> callbackReference;
 
         #endregion
-
+        
         #region Properties
 
-        public bool IsBeingAffected { get; }
+        public bool IsBeingAffected => false;
         public bool IsConsequential => false;
         public bool IsInvalid       => true;
         public bool IsValid         => false;
-        public bool HasCallback     => false;
+        public bool HasCallback     => callbackReference != null;
 
         #endregion
 
@@ -54,21 +58,22 @@ namespace Causality.States
         
         public void SetCallback(INotifiable objectToNotify)
         {
+            callbackReference = new WeakReference<INotifiable>(objectToNotify);  
+            objectToNotify.Notify();
+            
             //- TODO : Consider if immediately calling the object being notified is what most people would expect to
             //         happen when they set a callback to an already invalid outcome?
-            objectToNotify.Notify();
         }
 
-        public void DisableCallback() { }
+        public void DisableCallback() => callbackReference = null;
 
         #endregion
     }
 
     public class InvalidOutcome<T> : InvalidOutcome, IOutcome<T>
     {
-        public new static readonly InvalidOutcome<T> Default = new InvalidOutcome<T>();
-
         public T Value { get; set; } = default(T);
+        public T Peek() => Value;
     }
 
 }

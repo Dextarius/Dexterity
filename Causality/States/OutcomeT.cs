@@ -24,7 +24,14 @@ namespace Causality.States
             }
             set => currentValue = value;
         }
-        
+
+        #endregion
+
+
+        #region Instance Methods
+
+        public T Peek() => currentValue;
+
         #endregion
 
 

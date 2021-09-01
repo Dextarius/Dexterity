@@ -2,14 +2,19 @@
 using System.Diagnostics;
 using System.Threading;
 using Core.Causality;
-using Core.Factors;
 using JetBrains.Annotations;
-using static Core.InterlockedUtils;
 
 namespace Causality.States
 {
-    public class Outcome : State, IOutcome
+    public class ReusableOutcome<T> : State, IOutcome
     {
+        #region Constants
+
+        protected const int PotentiallyInvalid   = 0b1000_0000;
+        
+        #endregion
+        
+        
         #region Static Fields
 
         protected static readonly WeakReference<INotifiable> invalidReference      = new WeakReference<INotifiable>(null);
@@ -23,11 +28,24 @@ namespace Causality.States
         [NotNull] 
         protected IState[]                   influences = Array.Empty<IState>();
         protected WeakReference<INotifiable> callbackReference;
+        protected T                          currentValue;
+        protected IProcess<T>                valueProcess;
 
         #endregion
-
+        
 
         #region Instance Properties
+        
+                
+        public T Value
+        {
+            get
+            {
+                Observer.NotifyInvolved(this);
+                return currentValue;
+            }
+            protected set => currentValue = value;
+        }
         
         public bool IsBeingAffected => influences.Length > 0;
         public bool HasCallback     => callbackReference != null; 
@@ -148,44 +166,58 @@ namespace Causality.States
                 }
             }
         }
+        
+        public T Peek() => currentValue;
 
-        //public bool CheckIfInvalid()
-        //{
-        //    for (int i = 0; i < influences.Length; i++)
-        //    {
-        //        var currentInfluence = influences[i];
-        //
-        //        if (currentInfluence.IsInvalid)
-        //        {
-        //            Invalidate(currentInfluence);
-        //        }
-        //    }
-        //}
+
+        public bool IsValid()
+        {
+            if (status == 0)
+            {
+                return true;
+            }
+            else if ((status & PotentiallyInvalid) == PotentiallyInvalid)
+            {
+                return CheckIfInvalid();
+            }
+            else return false;
+        }
+        
+        public bool CheckIfInvalid()
+        {
+            T updatedValue = Observer.ObserveInteractions(valueProcess, this);
+
+            if (updatedValue.Equals())
+            {
+                
+            }
+            
+            for (int i = 0; i < influences.Length; i++)
+            {
+                var currentInfluence = influences[i];
+        
+                if (currentInfluence.IsInvalid)
+                {
+                    Invalidate(currentInfluence);
+                }
+            }
+        }
 
         #endregion
 
 
         #region Constructors
         
-        public Outcome(INotifiable objectToNotify) 
+        public ReusableOutcome(INotifiable objectToNotify) 
         {
             callbackReference = objectToNotify != null?  new WeakReference<INotifiable>(objectToNotify) :
                                                          default;
         }
 
-        public Outcome() : this(null)
+        public ReusableOutcome() : this(null)
         {
         }
         
         #endregion
     }
-
-    //public class Continuum
-    //{
-    //    private IOutcome[] outcomes;
-    //    private int[] potentiallyInvalidOutcomes = ;  //- TODO : Come back to this.  Maybe we can have outcomes reference each other by index, instead of by reference.
-    //    
-    //    
-    //
-    //}
 }

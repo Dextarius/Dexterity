@@ -111,24 +111,19 @@ namespace Core.Tools
 
         private static ITheType CreateTheTypeInstanceForType(Type typeToCreateInstanceFor)
         {
-            Type            constructedGenericType = typeof(TheType<>).MakeGenericType(typeToCreateInstanceFor);
+            Type            staticType             = typeof(TheType<>);//.MakeGenericType(typeToCreateInstanceFor);
             string          nameOfInstanceType     = nameof(TheType<object>.Instance);
-            Type            instanceType           = constructedGenericType.GetNestedType(nameOfInstanceType);
-            ConstructorInfo instanceConstructor    = instanceType.GetConstructor(Type.EmptyTypes) ?? 
+            Type            instanceType           = staticType.GetNestedType(nameOfInstanceType);
+            var             genericInstanceType    = instanceType.MakeGenericType(typeToCreateInstanceFor);
+            ConstructorInfo instanceConstructor    = genericInstanceType.GetConstructor(Type.EmptyTypes)?? 
                                                         throw MissingConstructorException(nameOfInstanceType);
             ITheType        createdInstance        = (ITheType)(instanceConstructor.Invoke(new object[] {}));
-
-            
             
             return createdInstance;
-            
-            #region Local Functions
-
-            MissingMethodException MissingConstructorException(string nameOfType) =>
-                new MissingMethodException($" The class {nameof(TheType)}.{nameOfType} was expected to have a default constructor, but none was found.");
-
-            #endregion
         }
+
+       private static MissingMethodException MissingConstructorException(string nameOfType) =>
+            new MissingMethodException($" The class {nameof(TheType)}.{nameOfType} was expected to have a default constructor, but none was found.");
     }
 
     public interface ITheType

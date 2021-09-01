@@ -25,7 +25,7 @@ namespace Factors
 
         protected Factor(string nameToGive = DefaultName)
         {
-            Name = nameToGive ?? DefaultName; 
+            Name = nameToGive ?? DefaultName;
         }
         
         #endregion

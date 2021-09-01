@@ -8,5 +8,8 @@ namespace Causality
         {
             Observer.ResumeObservation();
         }
+        
+        //- If we ever change the Observer to be fully instance based,
+        //  we'll have to add a field to this to access that instance.
     }
 }

@@ -38,15 +38,11 @@ namespace Tests
             endEvent.Reset();
         }
         
-        
-
-        
         [MethodImpl(MethodImplOptions.NoOptimization)]
         private void UpdateReactive()
         {
             T valueToTest = Reactive.Value;
         }
-
         
         private T WaitAndReturnSourceValue()
         {

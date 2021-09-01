@@ -141,9 +141,12 @@ namespace Subscriptions
                 return;
             }
 
-            foreach (var subscription in subscribers)
+            if (subscribers.Length > 0)
             {
-                subscription.Execute(newValue, oldValue);
+                foreach (var subscription in subscribers)
+                {
+                    subscription.Execute(newValue, oldValue);
+                }
             }
         }
 

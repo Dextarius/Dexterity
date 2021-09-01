@@ -25,14 +25,15 @@ namespace Factors
 
         protected static int defaultSettings = 0;
 
-        protected const int Updating   = 0b0000_0010;
-        protected const int Reflexive  = 0b0000_0100;
-        protected const int Executing  = 0b0000_0000;
-        protected const int Exclusive  = 0b0000_0000;
-        protected const int Disposed   = 0b0000_0000;
-        protected const int Patient    = 0b0000_0000;
-        protected const int Recursive  = 0b0000_0000;
-        protected const int ThreadSafe = 0b0000_0000;
+        protected const int Updating            = 0b0000_0010;
+        protected const int Reflexive           = 0b0000_0100;
+        protected const int PotentiallyInvalid  = 0b0000_0000;
+        protected const int Executing           = 0b0000_0000;
+        protected const int Exclusive           = 0b0000_0000;
+        protected const int Disposed            = 0b0000_0000;
+        protected const int Patient             = 0b0000_0000;
+        protected const int Recursive           = 0b0000_0000;
+        protected const int ThreadSafe          = 0b0000_0000;
 
         #endregion
 

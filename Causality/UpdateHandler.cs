@@ -14,6 +14,7 @@ namespace Causality
         //- TODO : We need to make sure something actually executes the updates returned by StopQueuingUpdates().
         //         The ConsequenceTracker might actually work well for that since it knows when updates start and end.
         //- TODO : We should provide some way to forward the updates to a derived handler so that UI updates can be handled separately
+        //- TODO : Consider reworking this to accept instances of the IProcess interface, instead of just Actions 
 
         #region Static Fields
         

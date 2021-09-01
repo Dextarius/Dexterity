@@ -120,6 +120,11 @@ namespace Tests
         
         public static IProcess GetProcessThatCreatesADependencyOn(IState stateToBeDependentOn) => 
             new ActionProcess(() => Observer.NotifyInvolved(stateToBeDependentOn));
+        
+        
+        public static void DoNothing() { }
+
+        public static bool ConvertBinaryIntToBool(int value) =>  (value == 1)?  true : false;
     }
     
 

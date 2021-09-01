@@ -8,7 +8,7 @@ using static Core.Tools.Types;
 
 namespace Factors
 {
-    public class Proactive<T> : ProactiveValue<T>
+    public class Proactive<T> : ProactiveValue<T>, IProcess<T>
     {
         #region Instance Fields
 
@@ -95,6 +95,13 @@ namespace Factors
         {
             valueComparer = comparer?? DefaultValueComparer;
         }
+
+        #endregion
+
+
+        #region Explicit Implementations
+
+        T IProcess<T>.Execute() => Value;
 
         #endregion
     }

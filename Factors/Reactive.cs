@@ -25,16 +25,16 @@ namespace Factors
         private const int Exclusive   = 0b000_0000_0010;
     }
     
-    public class Reactive<T> : SubscribableReactor<T,T>
+    public class Reactive<T> : SubscribableReactor<T,T>, IProcess<T>
     {
-
         #region Instance Fields
 
-        [NotNull]
-        protected          IOutcome<T>          outcome = InvalidOutcome<T>.Default;
+        [NotNull]  
+        protected          IOutcome<T>          outcome = new InvalidOutcome<T>();
         protected readonly IProcess<T>          reactionProcess;
         protected readonly IEqualityComparer<T> valueComparer;
-
+        
+        //- TODO : Consider just making outcome null by default, so we're not creating an object that's likely just going to be thrown away.
         #endregion
         
         
@@ -70,7 +70,7 @@ namespace Factors
             IOutcome<T> newOutcome = IsReflexive?  new Outcome<T>(this)  :  new Outcome<T>();
             T           newValue   = Observer.ObserveInteractions(reactionProcess, newOutcome);
 
-            using (Observer.PauseObservation()) //- To prevent us from adding dependencies to any other observations this one might be nested in. 
+            using (Observer.PauseObservation()) //- To prevent us from adding dependencies to any other observations this one might be nested inside of. 
             {
                 newOutcome.Value = newValue;
                 outcome          = newOutcome;
@@ -81,15 +81,25 @@ namespace Factors
                 }
                 else
                 {
-                    SubscriptionManager.Publish(newValue, oldOutcome.Value);
+                    if (Subscriptions.HasSubscribers)
+                    {
+                        UpdateHandler.RequestUpdate(PublishValues);  
+                        //- Check to see if it's possible for us to create an exception, if another thread somehow disposes of the
+                        //  SubscriptionManager in between us queuing this and it getting run.
+                    }
 
                     return true;
                 }
+
+
+                void PublishValues() => SubscriptionManager.Publish(newValue, oldOutcome.Value);
                 
                 //- TODO : Consider if we want Outcomes to remain valid if the new value is equal to the old value?  We'd
                 //         have to rewrite them to keep their dependents until the value was recalculated.
             }
         }
+
+        public T Peek() => outcome.Peek();
 
         #endregion
 
@@ -114,14 +124,10 @@ namespace Factors
         {
             
         }
-
-        //- TODO : We commented out the use of GetClassAndMethodName() in this constructor because
-        //         it was throwing an exception we couldn't solve at the moment, and providing names
-        //         for the Reactives wasn't exactly high priority.  When you have time uncomment it and 
-        //         try to fix whatever is causing the exception.
+        
         public Reactive(Func<T> functionToDetermineValue, IEqualityComparer<T> comparer, string name = null) : 
             this(FunctionalProcess.CreateFrom(functionToDetermineValue), comparer,
-                 name?? "Unnamed" /* GetClassAndMethodName(functionToDetermineValue) */ )
+                 name?? CreateDefaultName<Reactive<T>>(functionToDetermineValue) )
         {
             if (functionToDetermineValue == null) { throw new ArgumentNullException(
                                                    $"A Reactive value cannot be constructed with a null " +
@@ -135,6 +141,13 @@ namespace Factors
             this(functionToDetermineValue, DefaultValueComparer, name)
         {
         }
+
+        #endregion
+        
+        
+        #region Explicit Implementations
+
+        T IProcess<T>.Execute() => Value;
 
         #endregion
     }

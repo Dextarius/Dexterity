@@ -19,7 +19,7 @@ namespace Factors.Collections
         #region Instance Fields
 
         [NotNull]
-        protected          IOutcome<TCollection>         outcome = InvalidOutcome<TCollection>.Default;
+        protected          IOutcome<TCollection>         outcome = new InvalidOutcome<TCollection>();
         protected readonly IEqualityComparer<TValue>     itemComparer;
         protected readonly IProcess<IEnumerable<TValue>> reactionProcess;
 
@@ -109,7 +109,7 @@ namespace Factors.Collections
         }
         
         protected ReactiveCollection([NotNull] IProcess<IEnumerable<TValue>> processToGenerateItems, string nameToGive = null) : 
-            this(processToGenerateItems, EqualityComparer<TValue>.Default, nameToGive )
+            this(processToGenerateItems, EqualityComparer<TValue>.Default, nameToGive)
         {
             
         }

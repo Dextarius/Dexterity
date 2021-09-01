@@ -14,7 +14,7 @@ namespace Factors
         #region Instance Fields
 
         [NotNull]
-        protected          IOutcome outcome = InvalidOutcome.Default;
+        protected          IOutcome outcome = new InvalidOutcome();
         protected readonly IProcess reactionProcess;
 
         #endregion
@@ -53,7 +53,7 @@ namespace Factors
         }
         
         public Reaction(Action actionToExecute, string name = null) : 
-            this(new ActionProcess(actionToExecute), name?? GetClassAndMethodName(actionToExecute))
+            this(new ActionProcess(actionToExecute), name?? CreateDefaultName<Reaction>(actionToExecute))
         {
             if(actionToExecute == null) { throw new ArgumentNullException(nameof(actionToExecute)); }
         }

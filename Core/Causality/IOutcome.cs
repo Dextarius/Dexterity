@@ -5,8 +5,9 @@ namespace Core.Causality
 {
     public interface IOutcome : IState
     {
-        bool HasCallback     { get; }
-        bool IsBeingAffected { get; }
+     // bool PotentiallyInvalid  { get; } //- TODO : Can we make this work and avoid recalculating a Reactor if the parent is still the same after they recalculate?
+        bool HasCallback         { get; }
+        bool IsBeingAffected     { get; }
 
         void SetInfluences([NotNull] IState[] newInfluences);
         bool Invalidate(IState invalidParentState);
@@ -17,5 +18,7 @@ namespace Core.Causality
     public interface IOutcome<T> : IOutcome
     {
         T Value { get; set; }
+
+        T Peek();
     }
 }
