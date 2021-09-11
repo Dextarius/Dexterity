@@ -9,10 +9,19 @@ namespace Core.Causality
         bool HasCallback         { get; }
         bool IsBeingAffected     { get; }
 
+        bool IsReflexive { get; set; }
+        bool IsDirty { get; set; }
+
         void SetInfluences([NotNull] IState[] newInfluences);
         bool Invalidate(IState invalidParentState);
         void SetCallback(INotifiable objectToNotify);
         void DisableCallback();
+        void Recalculate();
+        bool MarkDirty(int currentDepth);
+
+        bool MarkUnstable(int currentDepth);
+        void NotifyParentChanged(IState outcome, long newVersionNumber, int currentDepth);
+        bool NotifyParentUnstable(IState outcome, long unstableVersionNumber);
     }
     
     public interface IOutcome<T> : IOutcome

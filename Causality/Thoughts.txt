@@ -1,0 +1,38 @@
+﻿
+1. Might it be worth adding an option that detects if recalculating an Outcome takes a 'long' time, 
+   and if that Outcome is made unstable, check up the dependency graph to see if the parent that 
+   originally dirtied it actually changed?
+   
+2. Could we make a Recursive<T> class that keeps track of one or more of its previous values, so that the current value 
+   could be based on the previous value?  i.e. An Outcome that returns its 'current' value + the value of another State.
+   
+   This could probably just be specified in the calculation process actually.
+   
+   
+3. Could we pass along a 'version ID' and use something similar to pins, to make it so that the value returned from an 
+   Outcome is always whatever it was for that particular update?  Probably not worth it, but an interesting idea.
+   
+4. An array of bits where each bit keeps track of whether a particular Outcome needs to be/is being recalculated.  
+   Might be useful in multithreading?
+   
+   
+5. If we decide we don't like the performance of walking down the tree to find out if any nodes are Reflexive, and then back 
+   up again to actually recalculate, we could try implement the 'Intersection' nodes we were brainstorming about, where any  
+   if a Reactive depended on 2 or more parents instead of being tied directly to those parent States, we would maintain a 
+   tree of Intersection nodes that represented the combination of any 2 given States, and Reactives would subscribe to those
+   instead.  It would cut down on the number of connections in cases where a lot of nodes share the same parents.  It would 
+   also be really easy to give each Intersection an Id string that was a sequence of characters representing the Id of each 
+   parent node you travel down to get to that node.  If we had that in place we could probably rig it so that any time a 
+   Reactive wanted to set itself as Reflexive it would notify the Intersection node, that node would add the Reactive to 
+   a HashSet containing all of the Reflexive dependents for that particular combination of states, and then if that is the 
+   first Reflexive dependent the Intersection has, it can send its Id string to the root of the tree so that it knows both
+   that it has Reflexive dependents, and knows ahead of time what paths to take to get to them.
+   
+  
+6. If we ever decide to play with parallelism, red-green trees seem like an interesting option for creating 'immutable' 
+   versions of a tree that the threads can share.
+   
+
+7. 
+ 
+    

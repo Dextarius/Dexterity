@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using Core.Causality;
 using Core.Factors;
@@ -7,10 +8,6 @@ using static Core.InterlockedUtils;
 
 namespace Causality.States
 {
-    //- TODO : We need to do some research and find out for sure if we need to be using Volatile.Read() or using 
-    //         memory barriers to make sure each thread always reads the correct vale for all of these
-    //         fields we're setting using Interlocked methods.  Joe Duffy is the expert in this area, so read his blog
-    //         or we also have a copy of his book on concurrency.
     public class State : IState
     {
         #region Constants
@@ -24,17 +21,26 @@ namespace Causality.States
         #region Instance Fields
 
         [NotNull, ItemNotNull]
-        protected ImmutableHashSet<IOutcome> affectedOutcomes = ImmutableHashSet<IOutcome>.Empty;
-        protected int status;
-
+        protected HashSet<IOutcome> affectedOutcomes = null;
+        protected int               status;
+        protected long              versionNumber;
+        //- We may want to combine status and version number into a long, so that we can change both in a single action
+        //  with Interlocked.CompareExchange()
+        
         #endregion
 
 
         #region Properties
 
+        public long CurrentVersion
+        {
+                      get => versionNumber;
+            protected set => versionNumber = value;
+        }
+
         public bool IsInvalid       => (status & Invalid) == Invalid;
         public bool IsValid         => IsInvalid == false;
-        public bool IsConsequential => (affectedOutcomes != ImmutableHashSet<IOutcome>.Empty) && IsValid;
+        public bool IsConsequential => (affectedOutcomes.Count > 0)  &&  IsValid;
         //^ Make sure to check the conditions in this order, if we check in the opposite order
         //  we might return the wrong result if a process marks this as invalid right after we check, but doesn't 
         //  clear affectedResults before we check it.
@@ -48,16 +54,10 @@ namespace Causality.States
         
         public virtual bool Invalidate()
         {
-            int formerState = status;
-            
-            while ((formerState & Invalid)  ==  False)
+            if ((status & Invalid)  ==  False)
             {
-                if (TryCompareExchangeOrSet(ref status, (formerState | Invalid), ref formerState))
-                {
-                    InvalidateDependents();
-
-                    return true;
-                }
+                InvalidateDependents();
+                return true;
             }
 
             return false;
@@ -67,13 +67,12 @@ namespace Causality.States
         {
             var formerDependents = affectedOutcomes;
 
-            if (TryExchangeUntilSetIsEmpty(ref affectedOutcomes))
+            foreach (var factor in formerDependents)
             {
-                foreach (var factor in formerDependents)
-                {
-                    factor.Invalidate(this);
-                }
+                factor.Invalidate(this);
             }
+            
+            // Clear?
         }
 
         public bool AddDependent(IOutcome dependentToAdd)
@@ -118,7 +117,7 @@ namespace Causality.States
 
     public class State<T> : State, IState<T>
     {
-        protected readonly T value;
+        protected T value;
         
         public virtual T Value 
         {
@@ -127,6 +126,7 @@ namespace Causality.States
                 Observer.NotifyInvolved(this);
                 return value;
             }
+            set => this.value = value;
         }
 
         public State(T value)
