@@ -20,18 +20,13 @@ namespace Factors.Collections
             get => Collection[index];
             set
             {
-                List<T>         collection    = Collection;
-                IState<List<T>> previousState = state;
-                IState<List<T>> newState      = new State<List<T>>(collection);
-                
-                lock (syncLock)
+                var collection   = state.Peek();
+                var currentValue = collection[index];
+
+                if (itemComparer.Equals(currentValue, value) is false)
                 {
-                    state = newState;
                     collection[index] = value;
                 }
-                
-                previousState.Invalidate();
-                Observer.NotifyChanged(previousState);
             }
         }
 
@@ -42,164 +37,99 @@ namespace Factors.Collections
         
         #region Instance Methods 
         
-        public int IndexOf(T item)
-        {
-            lock (syncLock)
-            {
-                return Collection.IndexOf(item);
-            }
-        }
+        public int IndexOf(T item) => Collection.IndexOf(item);
 
         public void Insert(int index, T item)
         {
-            List<T>         collection    = Collection;
-            IState<List<T>> previousState = state;
-            IState<List<T>> newState      = new State<List<T>>(collection);
-                
-            lock (syncLock)
-            {
-                state = newState;
-                collection.Insert(index, item);
-            }
-                
-            previousState.Invalidate();
-            Observer.NotifyChanged(previousState);
+            List<T> collection = state.Peek();
+            
+            collection.Insert(index, item);
+            state.OnChanged();
         }
         
         public void InsertRange(int index, IEnumerable<T> elements)
         {
-            List<T>         collection    = Collection;
-            IState<List<T>> previousState = state;
-            IState<List<T>> newState      = new State<List<T>>(collection);
-                
-            lock (syncLock)
-            {
-                state = newState;
-                collection.InsertRange(index, elements);
-            }
-                
-            previousState.Invalidate();
-            Observer.NotifyChanged(previousState);
+            List<T> collection = state.Peek();
+            
+            collection.InsertRange(index, elements);
+            state.OnChanged();
         }
         
         public void RemoveAt(int index)
         {
-            List<T>         collection    = Collection;
-            IState<List<T>> previousState = state;
-            IState<List<T>> newState      = new State<List<T>>(collection);
-                
-            lock (syncLock)
-            {
-                state = newState;
-                collection.RemoveAt(index);
-            }
-                
-            previousState.Invalidate();
-            Observer.NotifyChanged(previousState);
+            List<T> collection = state.Peek();
+            
+            collection.RemoveAt(index);
+            state.OnChanged();
         }
         
         public int RemoveAll(Predicate<T> predicate)
         {
-            List<T>         collection    = Collection;
-            IState<List<T>> previousState = state;
-            int             elementsRemoved;
- 
-            lock (syncLock)
-            {
-                elementsRemoved = collection.RemoveAll(predicate);
-
-                if (elementsRemoved > 0)
-                {
-                    state = new State<List<T>>(collection);
-                }
-            }
+            List<T> collection      = state.Peek();
+            int     elementsRemoved = collection.RemoveAll(predicate);
 
             if (elementsRemoved > 0)
             {
-                previousState.Invalidate();
-                Observer.NotifyChanged(previousState);
+                state.OnChanged();
             }
             
             return elementsRemoved;
         }
+        //- TODO : Figure out if we think that methods which modify the collection, but also return a value,
+        //         should call/not call NotifyInvolved(), since people may expect Reactors to be invalidated
+        //         if the method might return a different value.
         
         public void RemoveRange(int index, int count)
         {
-            List<T>         collection    = Collection;
-            IState<List<T>> previousState = state;
-            IState<List<T>> newState      = new State<List<T>>(collection);
- 
-            lock (syncLock)
+            List<T> collection = state.Peek();
+
+            if (count > 0)
             {
-                state = newState;
-                Collection.RemoveRange(index, count);
+                collection.RemoveRange(index, count);
+                state.OnChanged();
             }
-
-            previousState.Invalidate();
-            Observer.NotifyChanged(previousState); 
+            else if (count < 0)
+            {
+                throw new ArgumentException($"{nameof(count)} cannot be less than 0. ");
+            }
         }
-
         
-        //- TODO: A few of these methods could avoid creating a new state if the changes have no effect
-        //        on the collection (i.e. reversing a list with 1 element)
         public void Reverse(int index, int count)
         {
-            if (this.Count > 1  && count > 1)
+            List<T> collection = state.Peek();
+
+            if (collection.Count > 1 && count > 1) //- No point in reversing 1 element.
             {
-                List<T>         collection    = Collection;
-                IState<List<T>> newState      = new State<List<T>>(collection);
-                IState<List<T>> previousState;
-
-                lock (syncLock)
-                {
-                    previousState = state;
-                    state = newState;
-                    Collection.Reverse(index, count);
-                }
-
-                previousState.Invalidate();
-                Observer.NotifyChanged(previousState); 
+                collection.Reverse(index, count);
+                state.OnChanged();
             }
         }
         
         public void Reverse() => Reverse(0, Count);
 
+        //- TODO : If we write our own sorting methods we can keep track of whether anything actually changes or not. 
         public void Sort(int index, int count, IComparer<T> comparer)
         {
-            List<T>         collection    = Collection;
-            IState<List<T>> newState      = new State<List<T>>(collection);
-            IState<List<T>> previousState;
+            List<T> collection = state.Peek();
 
-            lock (syncLock)
+            if (collection.Count > 1 && count > 1)
             {
-                previousState = state;
-                state = newState;
-                Collection.Sort(index, count, comparer);
+                collection.Sort(index, count, comparer);
+                state.OnChanged();
             }
-
-            previousState.Invalidate();
-            Observer.NotifyChanged(previousState); 
         }
 
         public void Sort(Comparison<T> comparison)
         {
-            List<T>         collection    = Collection;
-            IState<List<T>> newState      = new State<List<T>>(collection);
-            IState<List<T>> previousState;
+            List<T> collection = state.Peek();
 
-            lock (syncLock)
+            if (collection.Count > 1)
             {
-                previousState = state;
-                state = newState;
                 Collection.Sort(comparison);
+                state.OnChanged();
             }
-
-            previousState.Invalidate();
-            Observer.NotifyChanged(previousState); 
         }
 
-        //- TODO: We're probably going to need to do more thread synchronization for these methods 
-        
         public void Sort(IComparer<T> comparer) => Sort(0, Count, comparer);
         public void Sort()                      => Sort(0, Count, Comparer<T>.Default);
 
@@ -239,22 +169,26 @@ namespace Factors.Collections
         
         #region Constructors
         
-        public ProactiveList(IEqualityComparer<T> comparer = null, string name = null) : 
-            this(new List<T>(), comparer, name)
+        public ProactiveList(string name = null) : 
+            this(new List<T>(), null, name)
         {
-            
         }
         
-        public ProactiveList(ICollection<T> collectionToUse, IEqualityComparer<T> comparer = null, string name = null) : 
-            this(new List<T>(collectionToUse), comparer, name)
+        public ProactiveList(IEqualityComparer<T> comparerForItems = null, string name = null) : 
+            this(new List<T>(), comparerForItems, name)
         {
-            
+        }
+        
+        public ProactiveList(
+            ICollection<T> collectionToCopy, IEqualityComparer<T> comparerForItems = null, string name = null) : 
+                this(new List<T>(collectionToCopy), comparerForItems, name)
+        {
         }
 
-        public ProactiveList(List<T> listToUse, IEqualityComparer<T> comparer, string name) : 
-            base(listToUse, comparer, name ?? NameOf<ProactiveList<T>>())
+        public ProactiveList(List<T> listToUse, IEqualityComparer<T> comparerForItems, string name) : 
+            base(listToUse, comparerForItems, name?? NameOf<ProactiveList<T>>())
         {
-            
+            state.Value = listToUse;
         }
 
         #endregion
@@ -273,20 +207,12 @@ namespace Factors.Collections
             if (value is T ||
                 value == null  &&  TheType<T>.IsNullable)
             {
-                IList           collection    = Collection;
-                IState<List<T>> previousState = state;
-                IState<List<T>> newState      = new State<List<T>>(Collection);
-                int             indexOfItem;
-
-                lock (syncLock)
-                {
-                    indexOfItem = collection.Add(value);
-                    state       = newState;
-                }
-
-                previousState.Invalidate();
-                Observer.NotifyChanged(previousState);
-
+                IList           collection    = state.Peek();
+                int             indexOfItem   = collection.Add(value);
+                
+                state.OnChanged();
+                state.NotifyInvolved();
+                
                 return indexOfItem;
             }
             else

@@ -1,25 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using Causality.Processes;
+using Causality.States.CollectionStates;
 using Core.Causality;
 using Core.Factors;
+using Core.States;
 using Factors.Exceptions;
 using JetBrains.Annotations;
 
 namespace Factors.Collections
 {
-    public class ReactiveSet<T> : ReactiveCollection<HashSet<T>, T>, ISet<T>
+    public class ReactiveSet<T> : ReactiveCollection<IHashsetResult<T>, HashSet<T>, T>, ISet<T>
     {
-        #region Static Properties
-
-        public static IEqualityComparer<T> DefaultValueComparer { get; } = EqualityComparer<T>.Default;
-
-        #endregion
-
-
         #region Instance Methods
-
-        protected override HashSet<T> CreateCollectionFromElements(IEnumerable<T> elements) => new HashSet<T>(elements);
+        
+        //- TODO : We should probably move these into the HashsetOutcome class. 
 
         public bool IsProperSupersetOf(IEnumerable<T> other) => Collection.IsProperSupersetOf(other);
         public bool   IsProperSubsetOf(IEnumerable<T> other) => Collection.IsProperSubsetOf(other);
@@ -34,26 +29,26 @@ namespace Factors.Collections
         #region Constructors
 
         public ReactiveSet([NotNull] Func<IEnumerable<T>> functionToGenerateItems, string nameToGive = null) : 
-            this(functionToGenerateItems, DefaultValueComparer, nameToGive)
+            this(functionToGenerateItems, null, nameToGive)
         {
-            
         }
         
         public ReactiveSet([NotNull] Func<IEnumerable<T>> functionToGenerateItems, 
-                           IEqualityComparer<T> comparer, string nameToGive = null) : 
-            this(FunctionalProcess.CreateFrom(functionToGenerateItems), comparer, nameToGive)
+                           IEqualityComparer<T> comparerForItems, string nameToGive = null) : 
+            this(FunctionalProcess.CreateFrom(functionToGenerateItems), comparerForItems, nameToGive)
         {
         }
 
         public ReactiveSet([NotNull] IProcess<IEnumerable<T>> processToGenerateItems, string nameToGive = null) :
-            this(processToGenerateItems, DefaultValueComparer, nameToGive)
+            this(processToGenerateItems, null, nameToGive)
         {
         }
 
         public ReactiveSet([NotNull] IProcess<IEnumerable<T>> processToGenerateItems, 
-                           IEqualityComparer<T> comparerForValues, string name = null) : 
-            base(processToGenerateItems, comparerForValues, name)
+                           IEqualityComparer<T> comparerForItems, string name = null) : 
+            base(name)
         {
+            outcome = new HashSetResult<T>(this, processToGenerateItems, comparerForItems);
         }
 
         #endregion

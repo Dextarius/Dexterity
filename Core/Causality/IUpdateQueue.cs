@@ -2,9 +2,14 @@
 
 namespace Core.Causality
 {
-    public interface IUpdateQueue
+    // public interface IUpdateQueue
+    // {
+    //     Action EndQueue();
+    //     void Dispose();
+    // }
+    
+    public interface IUpdateQueue : IQueue
     {
-        Action EndQueue();
-        void Dispose();
+        void RunUpdates();
     }
 }

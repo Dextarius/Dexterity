@@ -24,40 +24,25 @@ namespace Factors.Collections
         
         
         #region Properties
-
-        protected IEqualityComparer<TValue> ValueComparer => valueComparer ?? EqualityComparer<TValue>.Default;
-
+        
         public TValue this[TKey key]
         {
             get => Collection[key];
             set
             {
-                Dictionary<TKey, TValue> collection = Collection;
-                IState<Dictionary<TKey, TValue>> previousState;
-                
-                lock (syncLock)
+                Dictionary<TKey, TValue> collection = state.Peek();
+
+                if (collection.TryGetValue(key, out TValue currentValue) is false || 
+                    valueComparer.Equals(value, currentValue) is false)
                 {
-                    if (collection.TryGetValue(key, out TValue currentValue) && valueComparer.Equals(value, currentValue))
-                    {
-                        return;
-                    }
-                    else
-                    {
-                        IState<Dictionary<TKey, TValue>> newState = new State<Dictionary<TKey, TValue>>(collection);
-
-                        collection[key] = value;
-                        previousState   = state;
-                        state           = newState;
-                    }
+                    collection[key] = value;
+                    state.OnChanged();
                 }
-
-                previousState.Invalidate();
-                Observer.NotifyChanged(previousState);
             }
         }
         
-        public ICollection<TKey>   Keys        => keys   ?? (keys   = new ProactiveKeyConservator(this));
-        public ICollection<TValue> Values      => values ?? (values = new ProactiveValueConservator(this));
+        public ICollection<TKey>   Keys        => keys??= new ProactiveKeyConservator(this);
+        public ICollection<TValue> Values      => values??= new ProactiveValueConservator(this);
         public bool                IsFixedSize => false;
         public bool                IsReadOnly  => false;
 
@@ -66,65 +51,32 @@ namespace Factors.Collections
         #region Instance Methods
 
         //- TODO: We could save a lot of hassle by just making a CollectionState class that doesn't need to be recreated
-        //        every time something changes.
-        
-        //- TODO : Some of these methods create new state instances inside the lock, some outside it, we should make them all consistent.
-        //- TODO : Only some of these are thread-safe, we should make them all consistent.
-        //- TODO : A lot of these methods grab Collection before getting the lock.  If we ever actually changed the
-        //         collection it might create bugs if it grabs the value right before another thread changes it.
-        
+        //        every time something changes.  It would also let us avoid having to use Peek() all of the time.
+
         public void Add(TKey key, TValue value)
         {
-            Dictionary<TKey, TValue>         collection = Collection;
-            IState<Dictionary<TKey, TValue>> newState   = new State<Dictionary<TKey, TValue>>(collection);
-            IState<Dictionary<TKey, TValue>> previousState;
+            Dictionary<TKey, TValue> collection = state.Peek();
 
-            lock (syncLock)
-            {
-                previousState = state;
-                state = newState;
-                collection.Add(key, value);
-            }
-                
-            previousState.Invalidate();
-            Observer.NotifyChanged(previousState);
+            collection.Add(key, value);
+            state.OnChanged();
         }
 
         public bool ContainsKey(TKey key) => Collection.ContainsKey(key);
 
         public bool Remove(TKey key)
         {
-            Dictionary<TKey, TValue>         collection    = Collection;
-            IState<Dictionary<TKey, TValue>> previousState = null;
-            bool wasSuccessful;
-
-            lock (syncLock)
-            {
-                wasSuccessful = collection.Remove(key);
-                
-                if (wasSuccessful)
-                {
-                    previousState = state;
-                    state = new State<Dictionary<TKey, TValue>>(collection);
-                }
-            }
+            var  collection    = state.Peek();
+            bool wasSuccessful = collection.Remove(key);
 
             if (wasSuccessful)
             {
-                previousState.Invalidate();
-                Observer.NotifyChanged(previousState);
+                state.OnChanged();
             }
-            
+
             return wasSuccessful;
         }
 
-        public bool TryGetValue(TKey key, out TValue value)
-        {
-            lock (syncLock)
-            {
-                return Collection.TryGetValue(key, out value);
-            }
-        }
+        public bool TryGetValue(TKey key, out TValue value) => Collection.TryGetValue(key, out value);
 
         public void Add(object key, object value)
         {
@@ -132,19 +84,7 @@ namespace Factors.Collections
             {
                 if (value is TValue valueOfCorrectType)
                 {
-                    Dictionary<TKey, TValue>         collection = Collection;
-                    State<Dictionary<TKey, TValue>>  newState   = new State<Dictionary<TKey, TValue>>(collection);
-                    IState<Dictionary<TKey, TValue>> previousState;
-
-                    lock (syncLock)
-                    {
-                        previousState = state;
-                        collection.Add(keyOfCorrectType, valueOfCorrectType);
-                        state = newState;
-                    }
-
-                    previousState.Invalidate();
-                    Observer.NotifyChanged(previousState);
+                    Add(keyOfCorrectType, valueOfCorrectType);
                 }
                 else
                 {
@@ -157,20 +97,18 @@ namespace Factors.Collections
                 throw new ArgumentException("A process attempted to add a key of type " +
                                             $"{key?.GetType()} to a {NameOf<ProactiveDictionary<TKey, TValue>>()}");
             }
+            
         }
 
         public bool Contains(object key)
         {
-            lock (syncLock)
+            if (key is TKey keyOfCorrectType)
             {
-                if (key is TKey keyOfCorrectType)
-                {
-                    return Collection.ContainsKey(keyOfCorrectType);
-                }
-                else
-                {
-                    return false;
-                }
+                return ContainsKey(keyOfCorrectType);
+            }
+            else
+            {
+                return false;
             }
         }
 
@@ -178,28 +116,7 @@ namespace Factors.Collections
         {
             if (key is TKey keyOfCorrectType)
             {
-                IState<Dictionary<TKey, TValue>> previousState = null;
-                bool keyWasRemoved = false;
-
-                lock (keyOfCorrectType)
-                {
-                    var collection = Collection;
-
-                    if (collection.Remove(keyOfCorrectType))
-                    {
-                        var newState = new State<Dictionary<TKey, TValue>>(collection);
-
-                        previousState = state;
-                        keyWasRemoved = true;
-                        state         = newState;
-                    }
-                }
-
-                if (keyWasRemoved)
-                {
-                    previousState.Invalidate();
-                    Observer.NotifyChanged(previousState);
-                }
+                Remove(keyOfCorrectType);
             }
         }
 
@@ -214,29 +131,37 @@ namespace Factors.Collections
 
         //- TODO : Add a constructor that lets users specify a comparer for keys and/or values.
         
-        public ProactiveDictionary(string name = null) : 
-            this(new Dictionary<TKey, TValue>(), EqualityComparer<KeyValuePair<TKey, TValue>>.Default, name)
+        public ProactiveDictionary(string name = null) : this(new Dictionary<TKey, TValue>(), null, name)
         {
         }
         
-        public ProactiveDictionary(IEqualityComparer<KeyValuePair<TKey, TValue>> comparer = null, string name = null) : 
-            this(new Dictionary<TKey, TValue>(), comparer, name)
+        public ProactiveDictionary(
+            IEqualityComparer<KeyValuePair<TKey, TValue>> keyPairComparer = null, string name = null) : 
+                this(new Dictionary<TKey, TValue>(), keyPairComparer, name)
         {
         }
         
-        public ProactiveDictionary(IDictionary<TKey, TValue> collectionToUse, IEqualityComparer<KeyValuePair<TKey, TValue>> comparer = null, 
-            string name = null) : 
-            this(new Dictionary<TKey, TValue>(collectionToUse), comparer, name)
+        public ProactiveDictionary(IDictionary<TKey, TValue>                     dictionaryToCopy, 
+                                   IEqualityComparer<KeyValuePair<TKey, TValue>> keyPairComparer = null, 
+                                   string                                        name            = null) : 
+            this(new Dictionary<TKey, TValue>(dictionaryToCopy), keyPairComparer, name)
         {
         }
 
         //- TODO : Should we be allowing the users to provide a collection that we use directly,
-        //         since that means they can change the collection without its dependents getting notified? What's the use case for it?
-        public ProactiveDictionary(Dictionary<TKey, TValue> dictionaryToUse, 
-                                   IEqualityComparer<KeyValuePair<TKey, TValue>> comparer = null, 
-                                   string name = null) : 
-            base(dictionaryToUse, comparer, name ?? NameOf<ProactiveDictionary<TKey, TValue>>())
+        //         since that means they can change the collection without its dependents getting notified?
+        //         What's the use case for it?
+        public ProactiveDictionary(Dictionary<TKey, TValue>                      dictionaryToUse, 
+                                   IEqualityComparer<KeyValuePair<TKey, TValue>> keyPairComparer = null, 
+                                   string                                        name            = null) : 
+            base(dictionaryToUse, 
+                keyPairComparer ?? EqualityComparer<KeyValuePair<TKey, TValue>>.Default, 
+                name            ?? NameOf<ProactiveDictionary<TKey, TValue>>())
         {
+            keyComparer   = dictionaryToUse.Comparer;
+            valueComparer = EqualityComparer<TValue>.Default;
+            
+            //- What if someone passes a different key comparer than the Dictionary is using?
         }
 
         #endregion
@@ -261,7 +186,7 @@ namespace Factors.Collections
                     else
                     {
                         throw new ArgumentException(
-                            $"A process attempted to set the value for key {key.ToString()}" +
+                            $"A process attempted to set the value for key {key}" +
                             $"in a {NameOf<ProactiveDictionary<TKey, TValue>>()}, " +
                             $"but the value provided was of type {value.GetType()}. ");  
                     }

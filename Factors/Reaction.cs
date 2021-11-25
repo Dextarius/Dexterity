@@ -4,44 +4,29 @@ using Causality.Processes;
 using Causality.States;
 using Core.Causality;
 using Core.Factors;
+using Core.States;
 using JetBrains.Annotations;
 using static Core.Tools.Delegates;
 
 namespace Factors
 {
+    //- TODO : Should we make Reactions that take an Action<T>, and can be triggered by new values of a Reactive<T>?
+    //         This could probably replace Subscriptions if it referenced the Reactives directly.
+    //          R: You don't even need that.  If a regular Reaction uses a value from an Reactive it will
+    //          re-run if that value changes. If you wanted something that used the old value as well though,
+    //          that would have to be a new type of Reactor. 
     public class Reaction : Reactor
     {
         #region Instance Fields
 
         [NotNull]
-        protected          IOutcome outcome = new InvalidOutcome();
-        protected readonly IProcess reactionProcess;
-
+        protected IResult result;
+        
         #endregion
         
         #region Properties
 
-        protected override IOutcome Outcome => outcome;
-
-        #endregion
-
-        
-        #region Instance Methods
-
-
-        protected override bool Act()
-        {
-            IOutcome newOutcome = new Outcome(this);
-            
-            Observer.ObserveInteractions(reactionProcess, newOutcome);
-
-            using (Observer.PauseObservation()) //- Prevents anything we do here from adding dependencies to any other observations this one may be nested in. 
-            {
-                outcome = newOutcome;            
-                return true;
-            }
-        }
-
+        protected override IResult Result => result;
         #endregion
 
 
@@ -49,7 +34,7 @@ namespace Factors
 
         public Reaction(IProcess processToExecute, string nameToGive = null) : base(nameToGive)
         {
-            reactionProcess = processToExecute;
+            result = new Response(this, processToExecute);
         }
         
         public Reaction(Action actionToExecute, string name = null) : 
@@ -61,6 +46,3 @@ namespace Factors
         #endregion
     }
 }
-
-//- TODO : Do we want to allow people to Subscribe to these?  They don't have a value but we should reason about it. 
-

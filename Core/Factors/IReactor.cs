@@ -1,7 +1,9 @@
-﻿namespace Core.Factors
+﻿using Core.States;
+
+namespace Core.Factors
 {
-    public interface IReactor
-    {
-        void React();
-    }
+    // public interface IReactor : IResult 
+    // {
+    //     void React(); 
+    // }
 }

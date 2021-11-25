@@ -12,6 +12,8 @@ namespace Tests.Causality
 {
     public class Observers
     {
+        private CausalObserver Observer => CausalObserver.ForThread;
+        
         [Test]
         public void WhenNotifiedThatANullObjectIsInvolved_ThrowsException()
         {
@@ -35,7 +37,7 @@ namespace Tests.Causality
         {
             bool          processWasExecuted = false;
             ActionProcess process            = new ActionProcess(AssertIsObserving);
-            Outcome       testOutcome        = new Outcome();
+            Response       testOutcome        = new Response(null, process);
 
             Observer.ObserveInteractions(process, testOutcome);
             Assert.That(processWasExecuted, $"The process that tests {nameof(Observer.IsCurrentlyObserving)} did not run. ");
@@ -57,7 +59,7 @@ namespace Tests.Causality
         {
             bool          processWasExecuted = false;
             ActionProcess process            = new ActionProcess(AssertIsNotObserving);
-            Outcome       testOutcome        = new Outcome();
+            Response       testOutcome        = new Response(null, process);
 
             Observer.ObserveInteractions(process, testOutcome);
             Assert.That(processWasExecuted, $"The process that tests {nameof(Observer.IsCurrentlyObserving)} did not run. ");
@@ -87,10 +89,10 @@ namespace Tests.Causality
             int           enteredInnerProcess    = 3;
             int           returnedToOuterProcess = 4;
             int           currentPhase           = 0;
-            ActionProcess innerProcess           = new ActionProcess(InnerProcess);
-            Outcome       innerOutcome           = new Outcome();
-            Outcome       outerOutcome           = new Outcome();
+            ActionProcess innerProcess           = new ActionProcess(InnerProcess); 
+            Response       innerOutcome           = new Response(null, innerProcess); //- Verify Correct 
             ActionProcess outerProcess           = new ActionProcess(OuterProcess);
+            Response       outerOutcome           = new Response(null, outerProcess); //- Verify Correct 
 
             currentPhase = testStarted;
             Observer.ObserveInteractions(outerProcess, outerOutcome);
@@ -117,81 +119,12 @@ namespace Tests.Causality
         }
 
         [Test]
-        public void WhenAStateNotifiesItsInvolvedDuringObservation_OutcomeIsDependentOnState()
-        {
-            State         involvedState = new State();
-            Outcome       outcomeToTest = new Outcome();
-            ActionProcess process       = new ActionProcess(InvolveState);
-
-            Assert.False(outcomeToTest.IsBeingAffected);
-            Assert.False(involvedState.IsConsequential);
-            
-            Observer.ObserveInteractions(process, outcomeToTest);
-            
-            Assert.That(outcomeToTest.IsBeingAffected);
-            Assert.That(involvedState.IsConsequential);
-            
-
-            void InvolveState()
-            {
-                Observer.NotifyInvolved(involvedState);
-            }
-        }
-
-        [Test]
-        public void IfStateIsInvalidWhenNotifyingItsInvolved_NoDependencyIsCreated()
-        {
-            State    stateToTest = new State();
-            Outcome  outcome     = new Outcome();
-            IProcess process     = GetProcessThatCreatesADependencyOn(stateToTest);
-
-            stateToTest.Invalidate();
-            Assert.False(outcome.IsBeingAffected);
-            Assert.False(stateToTest.IsConsequential);
-
-            Observer.ObserveInteractions(process, outcome);
-
-            Assert.False(outcome.IsBeingAffected);
-            Assert.False(stateToTest.IsConsequential);
-        }
-        
-        [Test]
-        public void IfOutcomeIsAlreadyInvalidWhenAStateNotifiesItsInvolved_NoDependencyIsCreated()
-        {
-            State    involvedState = new State();
-            Outcome  outcomeToTest = new Outcome();
-            IProcess process       = GetProcessThatCreatesADependencyOn(involvedState);
-
-            outcomeToTest.Invalidate();
-            Assert.False(outcomeToTest.IsBeingAffected);
-            Assert.False(involvedState.IsConsequential);
-            
-            Observer.ObserveInteractions(process, outcomeToTest);
-            
-            Assert.False(outcomeToTest.IsBeingAffected);
-            Assert.False(involvedState.IsConsequential);
-        }
-        
-        [Test]
-        public void IfInvolvedStateIsInvalid_ObservedOutcomeIsInvalidated()
-        {
-            State    involvedState = new State();
-            Outcome  outcomeToTest = new Outcome();
-            IProcess process       = GetProcessThatCreatesADependencyOn(involvedState);
-            
-            involvedState.Invalidate();
-            Assert.That(outcomeToTest.IsValid);
-            Observer.ObserveInteractions(process, outcomeToTest);
-            Assert.False(outcomeToTest.IsValid);
-        }
-
-        [Test]
         public void WhenPausedUsingPauseToken_ObservationsResumeAfterTokenIsDisposed()
         {
-            State       involvedState   = new State();
-            Outcome     outcome         = new Outcome();
-            IProcess    process         = new ActionProcess(PauseAndCheckIfObserving);
-            IDisposable pauseToken      = null;
+            CausalFactor       involvedCausalFactor      = new CausalFactor(null);
+            IProcess    process            = new ActionProcess(PauseAndCheckIfObserving);
+            Response     outcome            = new Response(null, process);
+            IDisposable pauseToken         = null;
             bool        processWasExecuted = false;
 
             Observer.ObserveInteractions(process, outcome);
@@ -213,21 +146,23 @@ namespace Tests.Causality
         [Test]
         public void IfObservationIsPausedWhileInProgress_NoDependenciesAreCreated()
         {
-            State    involvedState = new State();
-            Outcome  outcomeToTest = new Outcome();
+            CausalFactor    involvedCausalFactor = new CausalFactor(null);
             IProcess process       = new ActionProcess(PauseAndNotifyInvolved);
+            Response  outcomeToTest = new Response(null, process);
 
-            Assert.False(outcomeToTest.IsBeingAffected);
-            Assert.False(involvedState.IsConsequential);
+            Assert.False(outcomeToTest.IsBeingInfluenced);
+            Assert.False(involvedCausalFactor.HasDependents);
+            
             Observer.ObserveInteractions(process, outcomeToTest);
-            Assert.False(outcomeToTest.IsBeingAffected);
-            Assert.False(involvedState.IsConsequential);
+            
+            Assert.False(outcomeToTest.IsBeingInfluenced);
+            Assert.False(involvedCausalFactor.HasDependents);
 
             void PauseAndNotifyInvolved()
             {
                 using (Observer.PauseObservation())
                 {
-                    involvedState.NotifyInvolved();
+                    involvedCausalFactor.NotifyInvolved();
                 }
             }
         }
@@ -235,17 +170,17 @@ namespace Tests.Causality
         [Test]
         public void WhenObservationIsResumedAfterAPause_ConnectionsAreRegistered()
         {
-            State    involvedState = new State();
-            Outcome  outcomeToTest = new Outcome();
+            CausalFactor    involvedCausalFactor = new CausalFactor(null);
             IProcess process       = new ActionProcess(PauseAndAfterwardNotifyInvolved);
+            Response  outcomeToTest = new Response(null, process);
             bool     wasPaused     = false;
 
-            Assert.False(outcomeToTest.IsBeingAffected);
-            Assert.False(involvedState.IsConsequential);
-            Observer.ObserveInteractions(process, outcomeToTest);
+            Assert.False(outcomeToTest.IsBeingInfluenced);
+            Assert.False(involvedCausalFactor.HasDependents);
+            outcomeToTest.React();
             Assert.That(wasPaused);
-            Assert.That(outcomeToTest.IsBeingAffected);
-            Assert.That(involvedState.IsConsequential);
+            Assert.That(outcomeToTest.IsBeingInfluenced);
+            Assert.That(involvedCausalFactor.HasDependents);
             
 
             void PauseAndAfterwardNotifyInvolved()
@@ -255,7 +190,7 @@ namespace Tests.Causality
                     wasPaused = true;
                 }
                 
-                involvedState.NotifyInvolved();
+                involvedCausalFactor.NotifyInvolved();
             }
         }
 

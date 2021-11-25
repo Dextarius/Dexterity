@@ -1,78 +1,73 @@
 ﻿using System.Collections.Generic;
+using Causality;
 using Causality.States;
 using Core.Causality;
 using Core.Factors;
+using Core.States;
 using JetBrains.Annotations;
 using static Core.InterlockedUtils;
 using static Core.Tools.Types;
 
 namespace Factors
 {
-    public class Proactive<T> : ProactiveValue<T>, IProcess<T>
+    public class Proactive<T> : Proactor, IMutableState<T>, IProcess<T>
     {
         #region Instance Fields
 
-        [NotNull]
-        protected readonly IEqualityComparer<T> valueComparer;
+        protected IMutableState<T> state;
 
         #endregion
-        
-        #region Static Properties
 
-        public static IEqualityComparer<T> DefaultValueComparer { get; set; } = EqualityComparer<T>.Default;
-        
-        #endregion
-        
-        
-        #region Instance Properties
-        
+
+        #region Properties
+
+
         public T Value
         {
             get => state.Value;
             set
             {
-                IState<T> oldState = state;
-
-                if (TrySetValue(value, oldState))
-                {
-                    oldState.Invalidate();
-                }
+                state.Value = value;
             }
         }
+
+        public T Peek() => state.Peek();
 
         #endregion
 
 
         #region Instance Methods
         
-        private bool TrySetValue(T valueToSet, [NotNull] IState<T> oldState)
-        {
-            bool valuesAreDifferent = valueComparer.Equals(oldState.Value, valueToSet) == false;
-            bool valueWasSet        = false;
+        // private bool TrySetValue(T valueToSet, [NotNull] IMutableState<T> oldState)
+        // {
+        //     bool valuesAreDifferent = valueComparer.Equals(oldState.Value, valueToSet) == false;
+        //     bool valueWasSet        = false;
+        //
+        //     if (valuesAreDifferent)
+        //     {
+        //         IMutableState<T> newState = new MutableState<T>(this, valueToSet);
+        //             
+        //         while ((valueWasSet == false)  &&  valuesAreDifferent)
+        //         {
+        //             if (TryCompareExchangeOrSet(ref state, newState, ref oldState))
+        //             {
+        //                 valueWasSet = true;
+        //             }
+        //             else
+        //             {
+        //                 valuesAreDifferent = (valueComparer.Equals(oldState.Value, valueToSet) == false);
+        //             }
+        //         }
+        //     }
+        //
+        //     return valueWasSet;
+        // }
 
-            if (valuesAreDifferent)
-            {
-                State<T> newState = new State<T>(valueToSet);
-                    
-                while ((valueWasSet == false)  &&  valuesAreDifferent)
-                {
-                    if (TryCompareExchangeOrSet(ref state, newState, ref oldState))
-                    {
-                        valueWasSet = true;
-                    }
-                    else
-                    {
-                        valuesAreDifferent = (valueComparer.Equals(oldState.Value, valueToSet) == false);
-                    }
-                }
-            }
+        //protected override bool ValuesAreDifferent(T firstValue, T secondValue) => valueComparer.Equals(firstValue, secondValue) == false;
 
-            return valueWasSet;
-        }
+        protected override IFactor GetFactorImplementation() => state;
 
-        protected override bool ValuesAreDifferent(T firstValue, T secondValue) => valueComparer.Equals(firstValue, secondValue) == false;
-
-        public override string ToString() => $"Value => {Value}";
+        public override string ToString() => $"{Name} => {Value}";
 
         #endregion
 
@@ -85,15 +80,15 @@ namespace Factors
 
         #region Constructors
 
-        public Proactive(T initialValue, string name) : this(initialValue, DefaultValueComparer, name)
+        public Proactive(T initialValue, IEqualityComparer<T> comparer = null, string name = null) :
+            //base(initialValue, name?? NameOf<Proactive<T>>())
+            base(name?? NameOf<Proactive<T>>())
         {
-
+            state = new State<T>(this, initialValue, comparer);
         }
         
-        public Proactive(T initialValue, IEqualityComparer<T> comparer = null, string name = null) :
-            base(initialValue, name ?? NameOf<Proactive<T>>())
+        public Proactive(T initialValue, string name) : this(initialValue, null, name)
         {
-            valueComparer = comparer?? DefaultValueComparer;
         }
 
         #endregion
@@ -104,5 +99,7 @@ namespace Factors
         T IProcess<T>.Execute() => Value;
 
         #endregion
+
+
     }
 }

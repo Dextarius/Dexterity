@@ -1,8 +1,14 @@
-﻿namespace Core.Factors
+﻿using Core.States;
+
+namespace Core.Factors
 {
-    public interface IFactor
+    public interface IFactor : IInfluence  //- IDeterminant?
     {
-        string Name            { get; }
-        bool   IsConsequential { get; }
+        bool HasDependents      { get; }
+        int  NumberOfDependents { get; }
+        
+        void NotifyInvolved();
+        void OnChanged();
+        void InvalidateDependents();
     }
 }

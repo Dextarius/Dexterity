@@ -5,36 +5,38 @@ using Causality;
 using Causality.States;
 using Core.Causality;
 using Core.Factors;
+using Core.States;
 using JetBrains.Annotations;
 using static Core.Tools.Types;
 
 
 namespace Factors.Collections
 {
-    public  abstract partial class ProactiveCollection<TCollection, TValue> : ProactiveValue<TCollection>, ICollection<TValue>, ICollection
+    public  abstract partial class ProactiveCollection<TCollection, TValue> : Proactor, ICollection<TValue>, ICollection
         where TCollection : ICollection<TValue>
     {
         #region Instance Fields
 
         [NotNull]
-        protected readonly IEqualityComparer<TValue> itemComparer;
-        protected readonly object syncLock = new object();
+        protected readonly IEqualityComparer<TValue>  itemComparer;
+        protected          IMutableState<TCollection> state;
 
+        //- TODO : We may want to rethink our use of the itemComparer.  Quite a few of the collections that inherit
+        //         this have various behaviors determined by how their items are compared (HashSets are a good example).
+        
         #endregion
         
         #region Properties
 
-        public int  Count => Collection.Count;
-
-        //- TODO : SetValue uses the Interlocked methods, but most of the collection based methods use locks.
-        //         We should figure out which we want to use and stick to it.  
-        //-        Since the collection never changes (so far), we probably only need to make sure we use the lock
-        //         when accessing the collection.  Consider what we might screw up if it did change later.
+        public int Count => Collection.Count;
+        
         protected TCollection Collection
         {
             get => state.Value;
-            set => SetValue(value); 
+            set => state.Value = value; 
         }
+
+        
 
         #endregion
 
@@ -43,75 +45,54 @@ namespace Factors.Collections
         
         public void Add(TValue item)
         {
-            TCollection         collection    = Collection;
-            IState<TCollection> previousState = state;
-            IState<TCollection> newState      = new State<TCollection>(collection);
+            TCollection collection = state.Peek();  
+            //- We use Peek() because we don't want the state to mark itself as involved right before we change it,
+            // that would automatically invalidate anything that used this method.
+            
+            collection.Add(item);
+            state.OnChanged();
+            state.NotifyInvolved();
+        }
 
-            lock (syncLock)
+        public void AddRange(IEnumerable<TValue> itemsToAdd)
+        {
+            TCollection collection = state.Peek();  
+
+            foreach (var item in itemsToAdd)
             {
-                state = newState;
                 collection.Add(item);
             }
 
-            previousState.Invalidate();
-            Observer.NotifyChanged(previousState);
-        }
-        
-        public void AddRange(IEnumerable<TValue> itemsToAdd)
-        {
-            TCollection         collection    = Collection; //- So that we don't call NotifyInvolved() for every addition
-            IState<TCollection> previousState = state;
-            IState<TCollection> newState      = new State<TCollection>(collection);
-
-            lock (syncLock)
-            {
-                state = newState;
-                
-                foreach (var item in itemsToAdd)
-                {
-                    collection.Add(item);
-                }
-            }
-
-            previousState.Invalidate();
-            Observer.NotifyChanged(previousState);
+            state.OnChanged();
+            state.NotifyInvolved();
         }
 
         public void AddRange(params TValue[] itemsToAdd) => AddRange((IEnumerable<TValue>)itemsToAdd);
 
         public bool Remove(TValue item)
         {
-            TCollection         collection    = Collection;
-            IState<TCollection> previousState = state;
-            IState<TCollection> newState      = new State<TCollection>(collection);
-            bool wasSuccessful;
-
-            lock (syncLock)
+            TCollection collection    = state.Peek();
+            bool        wasSuccessful = collection.Remove(item);
+            
+            if (wasSuccessful)
             {
-                state = newState;
-                wasSuccessful = Collection.Remove(item);
+                state.OnChanged();
             }
-
-            previousState.Invalidate();
-            Observer.NotifyChanged(previousState);
+            
+            state.NotifyInvolved();
             
             return wasSuccessful;
         }
 
         public void Clear()
         {
-            TCollection         collection    = Collection;
-            IState<TCollection> previousState = state;
-            IState<TCollection> newState      = new State<TCollection>(collection);
+            TCollection collection = state.Peek();
 
-            lock (syncLock)
+            if (collection.Count > 0)
             {
-                state = newState;
                 collection.Clear();
+                state.OnChanged();
             }
-
-            previousState.Invalidate();
-            Observer.NotifyChanged(previousState);
         }
         
         public IEnumerator<TValue> GetEnumerator()
@@ -120,36 +101,120 @@ namespace Factors.Collections
             
             foreach (TValue element in involvedState.Value)
             {
-                Observer.NotifyInvolved(involvedState);
+                state.NotifyInvolved();
                 yield return element;
             }
+            
+            //- TODO : Do we really want to call NotifyInvolved() on every iteration?
         }
 
-        public bool Contains(TValue item)
-        {
-            lock (syncLock)
-            {
-                return Collection.Contains(item);
-            }
-        }
+        public bool Contains(TValue item) => Collection.Contains(item);
 
         public void CopyTo(TValue[] array, int arrayIndex) => Collection.CopyTo(array, arrayIndex);
+
+        protected override IFactor GetFactorImplementation() => state;
         
+        // public void SafeAdd(TValue item)
+        // {
+        //     TCollection         collection    = Collection;
+        //     IState<TCollection> previousState = state;
+        //     IState<TCollection> newState      = new State<TCollection>(collection);
+        //
+        //     lock (syncLock)
+        //     {
+        //         state = newState;
+        //         collection.Add(item);
+        //     }
+        //
+        //     previousState.Invalidate();
+        //     Observer.NotifyChanged(previousState);
+        // }
         
-        //- TODO : Implement Recycling. Perhaps write something more robust/reliable in the meantime.
-        protected override bool ValuesAreDifferent(TCollection firstValue, TCollection secondValue)
-        {
-            return firstValue.Equals(secondValue) == false;
-        }
+        // public void SafeAddRange(IEnumerable<TValue> itemsToAdd)
+        // {
+        //     TCollection         collection    = Collection; //- So that we don't call NotifyInvolved() for every addition
+        //     IState<TCollection> previousState = state;
+        //     IState<TCollection> newState      = new State<TCollection>(collection);
+        //
+        //     lock (syncLock)
+        //     {
+        //         state = newState;
+        //         
+        //         foreach (var item in itemsToAdd)
+        //         {
+        //             collection.Add(item);
+        //         }
+        //     }
+        //
+        //     previousState.Invalidate();
+        //     Observer.NotifyChanged(previousState);
+        // }
+        //
+        // public bool Remove(TValue item)
+        // {
+        //     TCollection         collection    = Collection;
+        //     IState<TCollection> previousState = state;
+        //     IState<TCollection> newState      = new State<TCollection>(collection);
+        //     bool                wasSuccessful;
+        //
+        //     lock (syncLock)
+        //     {
+        //         state = newState;
+        //         wasSuccessful = Collection.Remove(item);
+        //     }
+        //
+        //     previousState.Invalidate();
+        //     Observer.NotifyChanged(previousState);
+        //     
+        //     return wasSuccessful;
+        // }
+        //
+        // public void Clear()
+        // {
+        //     TCollection         collection    = Collection;
+        //     IState<TCollection> previousState = state;
+        //     IState<TCollection> newState      = new State<TCollection>(collection);
+        //
+        //     lock (syncLock)
+        //     {
+        //         state = newState;
+        //         collection.Clear();
+        //     }
+        //
+        //     previousState.Invalidate();
+        //     Observer.NotifyChanged(previousState);
+        // }
+        //
+        // public IEnumerator<TValue> GetEnumerator()
+        // {
+        //     IState<TCollection> involvedState = state; //- To make sure it's the same collection each we call NotifyInvolved()
+        //     
+        //     foreach (TValue element in involvedState.Value)
+        //     {
+        //         Observer.NotifyInvolved(involvedState);
+        //         yield return element;
+        //     }
+        // }
+        //
+        // public bool Contains(TValue item)
+        // {
+        //     lock (syncLock)
+        //     {
+        //         return Collection.Contains(item);
+        //     }
+        // }
+        
         
         #endregion
 
         
         #region Constructors
         
-        public ProactiveCollection(TCollection collection, IEqualityComparer<TValue> comparerForValues, string name = null) : base(collection, name)
+        public ProactiveCollection(TCollection collection, IEqualityComparer<TValue> comparerForValues, string name = null) : 
+            base(name)
         {
-            itemComparer = comparerForValues?? EqualityComparer<TValue>.Default;  
+            itemComparer = comparerForValues?? EqualityComparer<TValue>.Default;
+            state = new State<TCollection>(this, collection);
         }
 
         #endregion
@@ -179,5 +244,12 @@ namespace Factors.Collections
         //- TODO : Come back to this later and decide if it's worthwhile/possible to implement SyncRoot.
         
         #endregion
+        
+        
+        //- TODO : We should implement a mechanic where if a collection of factors updates,
+        //         the message it sends to invalidate its dependents should include what action
+        //         was taken on the collection (Add, Remove, etc) an we should make Reactive 
+        //         collections that depend on them handle those different cases.  This might
+        //         simplify the work we have to do for enabling Recycling considerably.
     }
 }

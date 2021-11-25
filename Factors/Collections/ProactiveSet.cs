@@ -10,27 +10,14 @@ namespace Factors.Collections
 {
     public class ProactiveSet<T> : ProactiveCollection<HashSet<T>, T>, ISet<T>
     {
-        //- TODO : Should we be grabbing the value of collection before we are inside the lock in these methods? 
-        //         It might lead to bugs if we ever start changing the value of Collection.
-        
         public new bool Add(T item)
         {
-            HashSet<T>         collection = Collection;
-            IState<HashSet<T>> newState   = new State<HashSet<T>>(collection);
-            IState<HashSet<T>> previousState;
-            bool               wasSuccessful;
-
-            lock (syncLock)
-            {
-                previousState = state;
-                state = newState;
-                wasSuccessful = collection.Add(item);
-            }
-
+            HashSet<T> collection    = state.Peek();
+            bool       wasSuccessful = collection.Add(item);
+            
             if (wasSuccessful)
             {
-                previousState.Invalidate();
-                Observer.NotifyChanged(previousState);
+                state.OnChanged();
             }
             
             return wasSuccessful;
@@ -38,22 +25,12 @@ namespace Factors.Collections
         
         public int RemoveWhere(Predicate<T> predicate)
         {
-            HashSet<T>         collection = Collection;
-            IState<HashSet<T>> newState   = new State<HashSet<T>>(collection);
-            IState<HashSet<T>> previousState;
-            int                elementsRemoved;
- 
-            lock (syncLock)
-            {
-                previousState = state;
-                state = newState;
-                elementsRemoved = collection.RemoveWhere(predicate);
-            }
+            HashSet<T> collection = state.Peek();
+            int        elementsRemoved = collection.RemoveWhere(predicate);
 
             if (elementsRemoved > 0)
             {
-                previousState.Invalidate();
-                Observer.NotifyChanged(previousState);
+                state.OnChanged();
             }
 
             return elementsRemoved;
@@ -61,83 +38,63 @@ namespace Factors.Collections
 
         public void ExceptWith(IEnumerable<T> other)
         {
-            HashSet<T>         collection = Collection;
-            IState<HashSet<T>> newState   = new State<HashSet<T>>(collection);
-            IState<HashSet<T>> previousState;
-            bool               elementsWereRemoved;
-
-            lock (syncLock)
-            {
-                int oldCount = collection.Count;
-
-                previousState = state;
-                state = newState;
-                collection.ExceptWith(other);
-                elementsWereRemoved = (collection.Count != oldCount);
-            }
+            HashSet<T> collection = state.Peek();
+            int        oldCount   = collection.Count;
+            bool       elementsWereRemoved;
+            
+            collection.ExceptWith(other);
+            elementsWereRemoved = collection.Count != oldCount;
 
             if (elementsWereRemoved)
             {
-                previousState.Invalidate();
-                Observer.NotifyChanged(previousState); 
+                state.OnChanged();
             }
         }
 
         public void IntersectWith(IEnumerable<T> other)
         {
-            HashSet<T>         collection = Collection;
-            IState<HashSet<T>> newState   = new State<HashSet<T>>(collection);
-            IState<HashSet<T>> previousState;
-            bool               elementsWereRemoved;
-
-            lock (syncLock)
-            {
-                int oldCount = collection.Count;
-
-                previousState = state;
-                state = newState;
-                collection.IntersectWith(other);
-                elementsWereRemoved = (collection.Count != oldCount);
-            }
+            HashSet<T> collection = state.Peek();
+            int        oldCount   = collection.Count;
+            bool       elementsWereRemoved;
+            
+            collection.IntersectWith(other);
+            elementsWereRemoved = collection.Count != oldCount;
 
             if (elementsWereRemoved)
             {
-                previousState.Invalidate();
-                Observer.NotifyChanged(previousState); 
+                state.OnChanged();
             }
         }
         
         public void  SymmetricExceptWith(IEnumerable<T> other)
         {
-            HashSet<T>         collection    = Collection;
-            IState<HashSet<T>> previousState = state;
-            IState<HashSet<T>> newState      = new State<HashSet<T>>(collection);
+            HashSet<T> collection = state.Peek();
+            int        oldCount   = collection.Count;
+            bool       elementsWereRemoved;
             
-            lock (syncLock)
+            collection.SymmetricExceptWith(other);
+            elementsWereRemoved = collection.Count != oldCount;
+
+            if (elementsWereRemoved)
             {
-                state = newState;
-                collection.SymmetricExceptWith(other);
+                state.OnChanged();
             }
 
-            previousState.Invalidate();
-            Observer.NotifyChanged(previousState); 
         }
         
         public void UnionWith(IEnumerable<T> other)
         {
-            HashSet<T>         collection = Collection;
-            IState<HashSet<T>> newState   = new State<HashSet<T>>(collection);
-            IState<HashSet<T>> previousState;
+            HashSet<T> collection = state.Peek();
+            int        oldCount   = collection.Count;
+            bool       elementsWereRemoved;
+            
+            collection.UnionWith(other);
+            elementsWereRemoved = collection.Count != oldCount;
 
-            lock (syncLock)
+            if (elementsWereRemoved)
             {
-                previousState = state;
-                state = newState;
-                collection.UnionWith(other);
+                state.OnChanged();
             }
-
-            previousState.Invalidate();
-            Observer.NotifyChanged(previousState); 
         }
         
         public bool IsProperSupersetOf(IEnumerable<T> other) => Collection.IsProperSupersetOf(other);
@@ -151,25 +108,32 @@ namespace Factors.Collections
 
         #region Constructors
 
-        
-        public ProactiveSet(IEqualityComparer<T> comparer = null, string name = null) : 
-            this(new HashSet<T>(), comparer, name)
+        public ProactiveSet(string name = null) : this(new HashSet<T>(), null, name)
         {
             
         }
         
-        public ProactiveSet(ICollection<T> collectionToUse, IEqualityComparer<T> comparer = null, string name = null) : 
-            this(new HashSet<T>(collectionToUse), comparer, name)
+        public ProactiveSet(IEqualityComparer<T> comparer, string name = null) : 
+            this(new HashSet<T>(comparer), comparer ?? EqualityComparer<T>.Default, name)
+        {
+        }
+        
+        public ProactiveSet(ICollection<T> collectionToCopy, IEqualityComparer<T> comparer = null, string name = null) : 
+            this(new HashSet<T>(collectionToCopy, comparer), comparer, name)
+        {
+        }
+
+        public ProactiveSet(HashSet<T> setToUse, string name = null) : 
+            this(setToUse, setToUse.Comparer, name ?? NameOf<ProactiveSet<T>>())
         {
             
         }
 
-        public ProactiveSet(HashSet<T> listToUse, IEqualityComparer<T> comparer = null, string name = null) : 
-            base(listToUse, comparer, name ?? NameOf<ProactiveSet<T>>())
+        protected ProactiveSet(HashSet<T> setToUse, IEqualityComparer<T> comparer = null, string name = null) :
+            base(setToUse, comparer, name ?? NameOf<ProactiveSet<T>>())
         {
             
         }
-
         #endregion
         
     }

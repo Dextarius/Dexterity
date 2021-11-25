@@ -37,7 +37,8 @@ namespace Causality.Processes
     {
         #region Static Methods
 
-        public static FunctionalProcess<TValue> CreateFrom<TValue>(Func<TValue> function) => new FunctionalProcess<TValue>(function);
+        public static FunctionalProcess<TValue> CreateFrom<TValue>(Func<TValue> function) => 
+            new FunctionalProcess<TValue>(function);
 
         #endregion
     }

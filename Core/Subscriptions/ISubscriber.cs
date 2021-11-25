@@ -1,4 +1,4 @@
-﻿namespace Subscriptions
+﻿namespace Core.Subscriptions
 {
     public interface ISubscriber
     {

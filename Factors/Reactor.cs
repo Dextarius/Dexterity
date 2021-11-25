@@ -3,6 +3,7 @@ using System.Diagnostics;
 using Causality;
 using Core.Causality;
 using Core.Factors;
+using Core.States;
 using JetBrains.Annotations;
 using static Core.InterlockedUtils;
 using static Core.Tools.Delegates;
@@ -12,14 +13,7 @@ using static Core.Tools.Types;
 
 namespace Factors
 {
-    /// <summary>
-    ///     * The Outcome maintains a strong reference to any Influences that it was affected by.
-    ///     * Eventually, once the parent object is no longer referenced, it will naturally be collected.
-    ///     * The Influence mentioned before will still have a direct reference to the Outcome, but the only thing keeping
-    ///       the Influence alive is the Outcome itself.  Influences are not directly referenced by anything.
-    ///     * This means they 
-    /// </summary>
-    public abstract class Reactor : Factor, IReactor, INotifiable
+    public abstract class Reactor : Factor, IResult
     {
         #region Static Fields
 
@@ -40,37 +34,27 @@ namespace Factors
 
         #region Instance Fields
 
-        protected readonly object syncLock = new object();
-        protected          int    settings = defaultSettings;
+        protected int settings = defaultSettings;
 
         #endregion
 
         #region Properties
 
-        public override bool IsConsequential => Outcome.IsConsequential;
-        public          bool IsValid         => Outcome.IsValid;
+        [NotNull] 
+        protected abstract IResult Result { get; }
 
-        public bool IsUpdating
-        {
-                      get => (settings & Updating) == Updating;
-            protected set
-            {
-                if (value) { CompareExchangeUntilMaskAdded(  ref settings, Updating); }
-                else       { CompareExchangeUntilMaskRemoved(ref settings, Updating); }
-            }
-        }
-        
+        public          bool IsStable           => Result.IsStable;
+        public          bool IsValid            => Result.IsValid;
+        public          bool IsBeingInfluenced  => Result.IsBeingInfluenced;
+        public          int  NumberOfInfluences => Result.NumberOfInfluences;
+        public          bool IsUpdating         => Result.IsUpdating;
+        public override bool HasDependents      => Result.HasDependents;
+
         public bool IsReflexive
         {
-            get => Outcome.HasCallback;
-            set
-            {
-                if (value) { Outcome.SetCallback(this); }
-                else       { Outcome.DisableCallback(); }
-            }
+            get => Result.IsReflexive;
+            set => Result.IsReflexive = value;
         }
-
-        [NotNull] protected abstract IOutcome Outcome { get; }
 
         #endregion
 
@@ -79,34 +63,27 @@ namespace Factors
         protected static string CreateDefaultName<TReactor>(Delegate functionToCreateValue) => 
             NameOf<TReactor>() + GetClassAndMethodName(functionToCreateValue);
 
+        protected static ArgumentNullException CannotConstructValueReactorWithNullProcess<T>()  where T : Reactor =>
+            new ArgumentNullException(
+                $"A {NameOf<T>()} cannot be constructed with a null process, as it would never have a value. ");
+
+        protected static ArgumentNullException CannotConstructReactorWithNullProcess<T>()  where T : Reactor =>
+            new ArgumentNullException(
+                $"A {NameOf<T>()} cannot be constructed with a null process, as it would never do anything. ");
+
         #endregion
+        
         
         #region Instance Methods
 
-        public void React()
-        {
-            if (Outcome.IsInvalid)
-            {
-                lock (syncLock)
-                {
-                    Debug.Assert(IsUpdating == false, "A reactor is in an update loop");
-
-                    if (Outcome.IsInvalid)
-                    {
-                        IUpdateQueue updateQueue = UpdateHandler.RequestQueuing();
-
-                        IsUpdating = true;
-                        Act();
-                        IsUpdating = false;
-                        updateQueue?.EndQueue()?.Invoke();
-                    }
-                }
-            }
-        }
+        public bool Invalidate(IInfluence influenceThatChanged) => Result.Invalidate(influenceThatChanged);
+        public void Invalidate()                                => Result.Invalidate(null);
+        public bool Destabilize()                               => Result.Destabilize();
+        public bool React()                                     => Result.React();
         
-        public void Invalidate() => Outcome.Invalidate();
+        protected override IFactor GetFactorImplementation() => Result;
+        //protected abstract IInteraction GetInteractionImplementation();
 
-        protected abstract bool Act();
 
         #endregion
 
@@ -115,11 +92,20 @@ namespace Factors
 
         protected Reactor(string nameToGive) : base(nameToGive)
         {
-            
         }
 
         #endregion
 
-        void INotifiable.Notify() => React();
+        
+        #region Explicit Implementations
+
+       //WeakReference<IInteraction> IInteraction.WeakReference => GetInteractionImplementation().WeakReference;
+
+       //void IInfluenceable.Notify_InfluencedBy(IInfluence influence) => 
+       //    GetInteractionImplementation().Notify_InfluencedBy(influence);
+       //
+       //bool IUpdateable.Update() => GetInteractionImplementation().Update();
+
+        #endregion
     }
 }

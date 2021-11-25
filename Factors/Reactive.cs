@@ -5,6 +5,7 @@ using Causality.States;
 using Causality.Processes;
 using Core.Causality;
 using Core.Factors;
+using Core.States;
 using JetBrains.Annotations;
 
 namespace Factors
@@ -24,80 +25,33 @@ namespace Factors
         private const int Executing   = 0b000_0000_0010;
         private const int Exclusive   = 0b000_0000_0010;
     }
+
+
     
-    public class Reactive<T> : SubscribableReactor<T,T>, IProcess<T>
+    public class Reactive<T> : Reactor, IProcess<T>, IReactive<T>
     {
+        #region Constants
+
+        private string CannotUseNullFunction =
+            "A Reactive value cannot be constructed with a null " + nameof(Func<T>) + ", as it would never have a value. ";
+
+        #endregion
+
         #region Instance Fields
 
-        [NotNull]  
-        protected          IOutcome<T>          outcome = new InvalidOutcome<T>();
-        protected readonly IProcess<T>          reactionProcess;
-        protected readonly IEqualityComparer<T> valueComparer;
-        
-        //- TODO : Consider just making outcome null by default, so we're not creating an object that's likely just going to be thrown away.
-        #endregion
-        
-        
-        #region Static Properties
+        private IResult<T> outcome;
 
-        public static IEqualityComparer<T> DefaultValueComparer { get; set; } = EqualityComparer<T>.Default;
-        
-        
         #endregion
 
-        
         #region Instance Properties
 
-        protected override IOutcome Outcome => outcome;
-
-        public T Value
-        {
-            get
-            {
-                React();
-                return outcome.Value;
-            }
-        }
+        protected override IResult Result => outcome;
+        public             T       Value   => outcome.Value;
 
         #endregion
 
 
         #region Instance Methods
-
-        protected override bool Act()
-        {
-            IOutcome<T> oldOutcome = outcome;
-            IOutcome<T> newOutcome = IsReflexive?  new Outcome<T>(this)  :  new Outcome<T>();
-            T           newValue   = Observer.ObserveInteractions(reactionProcess, newOutcome);
-
-            using (Observer.PauseObservation()) //- To prevent us from adding dependencies to any other observations this one might be nested inside of. 
-            {
-                newOutcome.Value = newValue;
-                outcome          = newOutcome;
-
-                if (valueComparer.Equals(oldOutcome.Value, newOutcome.Value))
-                {
-                    return false;
-                }
-                else
-                {
-                    if (Subscriptions.HasSubscribers)
-                    {
-                        UpdateHandler.RequestUpdate(PublishValues);  
-                        //- Check to see if it's possible for us to create an exception, if another thread somehow disposes of the
-                        //  SubscriptionManager in between us queuing this and it getting run.
-                    }
-
-                    return true;
-                }
-
-
-                void PublishValues() => SubscriptionManager.Publish(newValue, oldOutcome.Value);
-                
-                //- TODO : Consider if we want Outcomes to remain valid if the new value is equal to the old value?  We'd
-                //         have to rewrite them to keep their dependents until the value was recalculated.
-            }
-        }
 
         public T Peek() => outcome.Peek();
 
@@ -115,30 +69,28 @@ namespace Factors
 
         public Reactive(IProcess<T> processToDetermineValue, IEqualityComparer<T> comparer, string name = null) : base(name)
         {
-            reactionProcess  = processToDetermineValue?? throw new ArgumentNullException(nameof(processToDetermineValue));
-            valueComparer    = comparer?? DefaultValueComparer;
+            if (processToDetermineValue is null) { throw new ArgumentNullException(nameof(processToDetermineValue)); }
+            
+            outcome = new Result<T>(this, processToDetermineValue, comparer);
         }
 
         public Reactive(IProcess<T> processToDetermineValue, string name = null) : 
-            this(processToDetermineValue, DefaultValueComparer, name)
+            this(processToDetermineValue, null, name)
         {
-            
         }
         
         public Reactive(Func<T> functionToDetermineValue, IEqualityComparer<T> comparer, string name = null) : 
             this(FunctionalProcess.CreateFrom(functionToDetermineValue), comparer,
                  name?? CreateDefaultName<Reactive<T>>(functionToDetermineValue) )
         {
-            if (functionToDetermineValue == null) { throw new ArgumentNullException(
-                                                   $"A Reactive value cannot be constructed with a null " +
-                                                    $"{nameof(Func<T>)}, as it would never have a value. "); }
-
-            reactionProcess = new FunctionalProcess<T>(functionToDetermineValue);
-            valueComparer   = comparer?? DefaultValueComparer;
+            if (functionToDetermineValue == null)
+            {
+                throw new ArgumentNullException(nameof(functionToDetermineValue), CannotUseNullFunction);
+            }
         }
 
         public Reactive(Func<T> functionToDetermineValue, string name = null) : 
-            this(functionToDetermineValue, DefaultValueComparer, name)
+            this(functionToDetermineValue, null, name)
         {
         }
 
@@ -150,12 +102,6 @@ namespace Factors
         T IProcess<T>.Execute() => Value;
 
         #endregion
+
     }
-
-
-
-
-
-
-
 }

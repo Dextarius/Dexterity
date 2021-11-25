@@ -2,6 +2,7 @@
 using Core.Causality;
 using Core.Factors;
 using Core.Redirection;
+using Core.States;
 
 namespace Factors.Collections
 {
@@ -9,24 +10,24 @@ namespace Factors.Collections
     {
         #region Instance Fields
 
-        private readonly IState dictionaryState;
+        private readonly IFactor dictionaryFactor;
 
         #endregion
 
         
         #region Instance Methods
 
-        protected override void OnInteraction() => dictionaryState.NotifyInvolved() ;
+        protected override void OnInteraction() => dictionaryFactor.NotifyInvolved() ;
 
         #endregion
 
         
         #region Constructors
 
-        public FactorDictionaryEnumerator(IState stateBeingLinked, IDictionaryEnumerator enumeratorForDictionary) :
+        public FactorDictionaryEnumerator(IFactor factorBeingLinked, IDictionaryEnumerator enumeratorForDictionary) :
             base(enumeratorForDictionary)
         {
-            dictionaryState = stateBeingLinked;
+            dictionaryFactor = factorBeingLinked;
         }
 
         #endregion

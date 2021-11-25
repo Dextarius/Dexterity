@@ -1,52 +1,33 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Causality;
 using Causality.Processes;
+using Causality.States.CollectionStates;
 using Core.Causality;
 using Core.Factors;
+using Core.States;
 using Factors.Exceptions;
 using JetBrains.Annotations;
 
 namespace Factors.Collections
 {
-    public class ReactiveList<T> : ReactiveCollection<List<T>, T>, IList<T>, IList
+    public class ReactiveList<T> : ReactiveCollection<IListResult<T>, List<T>, T>, IList<T>, IList
     {
-
-        #region Static Properties
-
-        public static IEqualityComparer<T> DefaultValueComparer = EqualityComparer<T>.Default;
-
-        #endregion
-        
-
         #region Instance Properties
 
-        public T this[int index]
-        {
-            get
-            {
-                React();
-                return outcome.Value[index];
-            }
-        }
+        public T this[int index] => outcome[index];
 
         #endregion
         
         #region Instance Methods
 
-        public int IndexOf(T item)
-        {
-            React();
-            return outcome.Value.IndexOf(item);
-        }
+        public int IndexOf(T item) => outcome.IndexOf(item);
         
-        public List<T> AsNormalList => new List<T>(outcome.Value); 
-        //- We may want to pause the Observer if it seems like the user is calling this to make a collection that creates no dependencies
+        public List<T> AsNormalList => new List<T>(Collection); 
+        //- We may want to pause the Observer if it seems like the user is calling this to make a collection that
+        //  creates no dependencies
 
-        protected override List<T> CreateCollectionFromElements(IEnumerable<T> elements) => new List<T>(elements);
-
-
-        
         #endregion
         
         
@@ -59,7 +40,7 @@ namespace Factors.Collections
         void IList.Insert(int index, object value) => throw new CannotModifyReactiveValueException();
         void IList.Remove(object value)            => throw new CannotModifyReactiveValueException();
         void IList.RemoveAt(int index)             => throw new CannotModifyReactiveValueException();
-        int  IList.IndexOf(object value)           => (value is T valueOfCorrectType) ? IndexOf(valueOfCorrectType) : -1;
+        int  IList.IndexOf(object value)           => (value is T valueOfCorrectType)?  IndexOf(valueOfCorrectType)  :  -1;
 
         object IList.this[int index]
         {
@@ -82,6 +63,10 @@ namespace Factors.Collections
             {
                 return Contains(valueOfCorrectType); //- If value is of type 'T' then passing it to the regular Contains() 
             }                                        //  method will trigger a reaction.
+            else if (default(T) is null  &&  value is null)
+            {
+                return Collection.Contains(default(T));
+            }
             else
             {
                 return false;
@@ -97,23 +82,31 @@ namespace Factors.Collections
         #region Constructors
 
         public ReactiveList([NotNull] Func<IEnumerable<T>> functionToGenerateItems, string nameToGive = null) : 
-            this(FunctionalProcess.CreateFrom(functionToGenerateItems), DefaultValueComparer, nameToGive)
+            this(functionToGenerateItems, null, nameToGive)
         {
         }
         
-        public ReactiveList([NotNull] Func<IEnumerable<T>> functionToGenerateItems, IEqualityComparer<T> comparer, string name = null) : 
-            this(FunctionalProcess.CreateFrom(functionToGenerateItems), comparer, name)
+        public ReactiveList(
+            [NotNull] Func<IEnumerable<T>> functionToGenerateItems, 
+                      IEqualityComparer<T> comparerForItems, 
+                      string               name             = null) : 
+            this(FunctionalProcess.CreateFrom(functionToGenerateItems), comparerForItems, name)
         {
         }
         
         public ReactiveList([NotNull] IProcess<IEnumerable<T>> processToGenerateItems, string nameToGive = null) : 
-            this(processToGenerateItems, DefaultValueComparer, nameToGive)
+            this(processToGenerateItems, null, nameToGive)
         {
         }
         
-        public ReactiveList([NotNull] IProcess<IEnumerable<T>> processToGenerateItems, IEqualityComparer<T> comparer, string name = null) : 
-            base(processToGenerateItems, comparer, name)
+        public ReactiveList(
+            [NotNull] IProcess<IEnumerable<T>> processToGenerateItems, 
+                      IEqualityComparer<T>     comparerForItems, 
+                      string                   name = null) : 
+            base(name)
         {
+            
+            outcome = new ListResult<T>(this, processToGenerateItems, comparerForItems);
         }
         
 

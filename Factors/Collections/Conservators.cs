@@ -66,7 +66,7 @@ namespace Factors.Collections
             protected override void OnAccessed() {}
             protected override void OnModified() => 
                 throw new InvalidOperationException($"A {NameOf<ProactiveDictionary<TKey, TValue>>()}'s values" +
-                                                    $"collection cannot be modified directly. ");
+                                                     "collection cannot be modified directly. ");
 
             #endregion
             

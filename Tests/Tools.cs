@@ -5,9 +5,11 @@ using Causality;
 using Causality.Processes;
 using Core.Causality;
 using Core.Factors;
+using Core.States;
 using Factors;
 using JetBrains.Annotations;
 using NUnit.Framework;
+using Tests.Causality.Mocks;
 using static Core.Tools.Threading;
 
 namespace Tests
@@ -17,8 +19,11 @@ namespace Tests
         private static readonly Random numberGenerator = new Random();
         public static int Return42() => 42;
 
-        public static Reactive<T> CreateReactiveThatGetsValueOf<T>(Proactive<T> proactiveSourceValue) => new Reactive<T>(() => proactiveSourceValue.Value);
-        public static Reactive<T> CreateReactiveThatGetsValueOf<T>(Reactive<T>  reactiveSourceValue)  => new Reactive<T>(() => reactiveSourceValue.Value);
+        public static Reactive<T> CreateReactiveThatGetsValueOf<T>(Proactive<T> proactiveSourceValue) => 
+            new Reactive<T>(() => proactiveSourceValue.Value);
+        
+        public static Reactive<T> CreateReactiveThatGetsValueOf<T>(Reactive<T>  reactiveSourceValue)  => 
+            new Reactive<T>(() => reactiveSourceValue.Value);
         
         public static int[] CreateRandomArrayOfNumbers()
         {
@@ -71,7 +76,7 @@ namespace Tests
                 reactiveNotBeingCollected = CreateReactiveThatGetsValueOf(reactiveNotBeingCollected);
             }
 
-            Assert.True(proactiveValue.IsConsequential);
+            Assert.True(proactiveValue.HasDependents);
 
             return proactiveValue;
         }
@@ -118,13 +123,88 @@ namespace Tests
             }
         }
         
-        public static IProcess GetProcessThatCreatesADependencyOn(IState stateToBeDependentOn) => 
-            new ActionProcess(() => Observer.NotifyInvolved(stateToBeDependentOn));
+        // public static IProcess GetProcessThatCreatesADependencyOn(IState stateToBeDependentOn) => 
+        //     new ActionProcess(() => CausalObserver.ForThread.NotifyInvolved(stateToBeDependentOn));
         
         
         public static void DoNothing() { }
 
-        public static bool ConvertBinaryIntToBool(int value) =>  (value == 1)?  true : false;
+        public static bool ConvertBinaryIntToBool(int value) =>  (value == 1);
+        
+        // public static Action GetActionThatInvolves(IState stateToInvolve) 
+        // {
+        //     return InvolveState;
+        //     
+        //     
+        //     void InvolveState()
+        //     {
+        //         stateToInvolve.Involved();
+        //     }
+        // }
+        
+        public static void AssumeHasNoDependents<TFactor>(TFactor factor)  where TFactor : IFactor
+        {
+            int numberOfDependents = factor.NumberOfDependents;
+            
+            Assert.That(factor.HasDependents, Is.False, 
+                ErrorMessages.HasDependents<TFactor>("before being used. "));
+            
+            Assert.That(numberOfDependents,   Is.Zero,  
+                ErrorMessages.DependentsGreaterThanZero<TFactor>("before being used. ", numberOfDependents));
+        }
+        
+        public static void AssumeHasOneDependent(IFactor factor)
+        {
+            Assume.That(factor.HasDependents,      Is.True);
+            Assume.That(factor.NumberOfDependents, Is.EqualTo(1));
+        }
+        
+        public static void AssumeHasSpecificNumberOfDependents(IFactor factor,int numberOfDependents)
+        {
+            Assume.That(factor.HasDependents,      Is.True);
+            Assume.That(factor.NumberOfDependents, Is.EqualTo(numberOfDependents));
+        }
+
+        
+        public static void AssumeHasNoInfluences<TFactor>(TFactor factor)  where TFactor : IResult
+        {
+            int numberOfInfluences = factor.NumberOfInfluences;
+            
+            Assume.That(factor.IsBeingInfluenced, Is.False, 
+                ErrorMessages.HasInfluences<TFactor>("before being used. "));
+            
+            Assume.That(numberOfInfluences,        Is.Zero, 
+                ErrorMessages.InfluencesGreaterThanZero<TFactor>("before being used. ", numberOfInfluences));
+        }
+        
+        
+        public static IProcess CreateProcessThatCallsNotifyInvolvedOn(IFactor factorToInvolve) => 
+            new InvolveFactorProcess(factorToInvolve);
+
+        public static IProcess CreateProcessThatRetrievesValueOf<T>(IState<T> factorToInvolve) => 
+            new RetrieveValueProcess<T>(factorToInvolve);
+
+        public static IProcess CreateProcessThatPeeksAtTheValueOf<T>(IState<T> factorToInvolve) => 
+            new PeekValueProcess<T>(factorToInvolve);
+
+        public static void WriteExpectedAndActualValuesToTestContext<T>(T expected, T actual) =>
+            TestContext.WriteLine($"Expected Value {expected}, Actual Value {actual}");
+        
+        public static void WriteNameAndValueToTestContext<T>(string name, T value) =>
+            TestContext.WriteLine($"{name} => {value}");
+
+        public static void Assert_React_CreatesExclusiveDependencyBetween(IFactor parentFactor, IResult childResult)
+        {
+            Assert.That(childResult.IsValid,           Is.False);
+            Assert.That(childResult.IsBeingInfluenced, Is.False);
+            Assert.That(parentFactor.HasDependents,    Is.False);
+            
+            childResult.React();
+            
+            Assert.That(childResult.IsBeingInfluenced, Is.True);
+            Assert.That(parentFactor.HasDependents,    Is.True);
+        }
+        
     }
     
 

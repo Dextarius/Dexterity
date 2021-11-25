@@ -9,4 +9,9 @@
     {
          T Execute();
     }
+    
+    public interface IProcess<out TResult, TArg>
+    {
+        TResult Execute(TArg argument);
+    }
 }

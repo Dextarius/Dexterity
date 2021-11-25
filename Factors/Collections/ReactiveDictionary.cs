@@ -2,29 +2,26 @@
 using System.Collections;
 using System.Collections.Generic;
 using Causality.Processes;
+using Causality.States;
+using Causality.States.CollectionStates;
 using Core.Causality;
 using Core.Factors;
+using Core.States;
 using Core.Tools;
 using Factors.Exceptions;
 using JetBrains.Annotations;
+using static Core.Tools.Types;
 
 namespace Factors.Collections
 {
-    public partial class ReactiveDictionary<TKey, TValue> : ReactiveCollection<Dictionary<TKey,TValue>, KeyValuePair<TKey, TValue>>, 
+    public partial class ReactiveDictionary<TKey, TValue> : 
+        ReactiveCollection<IDictionaryResult<TKey, TValue>, Dictionary<TKey,TValue>, KeyValuePair<TKey, TValue>>, 
         IDictionary, IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>
     {
         #region Instance Fields
 
         private ReactiveKeyConservator   keys;
         private ReactiveValueConservator values;
-
-        #endregion
-
-
-        #region Static Properties
-
-        public static IEqualityComparer<KeyValuePair<TKey,TValue>> DefaultValueComparer = 
-            EqualityComparer<KeyValuePair<TKey,TValue>>.Default;
 
         #endregion
         
@@ -42,28 +39,13 @@ namespace Factors.Collections
 
         #region Instance Methods
 
-        public bool                     TryGetValue(TKey key, out TValue value) => Collection.TryGetValue(key, out value);
-        public bool                     ContainsKey(TKey key)                   => Collection.ContainsKey(key);
-        public bool                     ContainsValue(TValue key)               => Collection.ContainsValue(key);
-        public Dictionary<TKey, TValue> AsNormalDictionary()                    => new Dictionary<TKey, TValue>
-        (Collection); 
+        public  bool                     TryGetValue(TKey key, out TValue value) => outcome.TryGetValue(key, out value);
+        public  bool                     ContainsKey(TKey key)                   => outcome.ContainsKey(key);
+        public  bool                     ContainsValue(TValue key)               => outcome.ContainsValue(key);
+        private ReactiveValueConservator CreateValuesCollection()                => new ReactiveValueConservator(this);
+        private ReactiveKeyConservator   CreateKeysCollection()                  => new ReactiveKeyConservator(this);
+        public  Dictionary<TKey, TValue> AsNormalDictionary()                    => new Dictionary<TKey, TValue>(Collection);
 
-        private ReactiveValueConservator CreateValuesCollection() => new ReactiveValueConservator(this);
-        private ReactiveKeyConservator   CreateKeysCollection()   => new ReactiveKeyConservator(this);
-        
-        
-        
-        protected override Dictionary<TKey, TValue> CreateCollectionFromElements(IEnumerable<KeyValuePair<TKey, TValue>> elements)
-        {
-            return elements.ToDictionary();
-        }
-
-        
-        protected override bool AreCollectionsEqual(Dictionary<TKey, TValue> collection1, Dictionary<TKey, TValue> collection2)
-        {
-            return collection1.Equals(collection2) == false;
-        }
-        
         public new IDictionaryEnumerator GetEnumerator() => new FactorDictionaryEnumerator(outcome, Collection.GetEnumerator());
 
         #endregion
@@ -71,29 +53,59 @@ namespace Factors.Collections
 
         #region Constructors
 
-        public ReactiveDictionary([NotNull] Func< IEnumerable< KeyValuePair<TKey, TValue>>> functionToCreateKeyValuePairs, 
-                                   string name = null) :
-            this(FunctionalProcess.CreateFrom(functionToCreateKeyValuePairs), DefaultValueComparer,
-                 name ?? CreateDefaultName<ReactiveDictionary<TKey, TValue>>(functionToCreateKeyValuePairs))
+        public ReactiveDictionary(
+            [NotNull] Func< IEnumerable< KeyValuePair<TKey, TValue>>> functionToCreateKeyValuePairs, 
+                      string name = null) : 
+            this(functionToCreateKeyValuePairs, null, null, name)
         {
         }
         
-        public ReactiveDictionary([NotNull] Func< IEnumerable< KeyValuePair<TKey, TValue>>> functionToCreateKeyValuePairs,
-                                  IEqualityComparer< KeyValuePair<TKey, TValue>> comparer, string name = null) :
-            this(FunctionalProcess.CreateFrom(functionToCreateKeyValuePairs), comparer, 
-                name ?? CreateDefaultName<ReactiveDictionary<TKey, TValue>>(functionToCreateKeyValuePairs))
+        public ReactiveDictionary(
+            [NotNull] Func< IEnumerable< KeyValuePair<TKey, TValue>>> functionToCreateKeyValuePairs, 
+                      IEqualityComparer<TValue> comparerForValues = null,
+                      string name = null) : 
+                this(functionToCreateKeyValuePairs, null, comparerForValues, name)
+        {
+        }
+        
+        public ReactiveDictionary(
+            [NotNull] Func< IEnumerable< KeyValuePair<TKey, TValue>>> functionToCreateKeyValuePairs,
+                      IEqualityComparer<TKey>   comparerForKeys, 
+                      IEqualityComparer<TValue> comparerForValues = null,
+                      string name = null) :
+            this(FunctionalProcess.CreateFrom(functionToCreateKeyValuePairs), 
+                 comparerForKeys,
+                 comparerForValues,
+                 name ?? CreateDefaultName<ReactiveDictionary<TKey, TValue>>(functionToCreateKeyValuePairs))
         {
         }
 
-        public ReactiveDictionary(IProcess< IEnumerable< KeyValuePair<TKey, TValue>>> processToGenerateItems, string name = null) : 
-            this(processToGenerateItems, DefaultValueComparer, name)
+        public ReactiveDictionary(
+            [NotNull] IProcess< IEnumerable< KeyValuePair<TKey, TValue>>> processToGenerateItems, string name = null) : 
+                this(processToGenerateItems, null, name)
         {
         }
-
-        public ReactiveDictionary([NotNull] IProcess< IEnumerable< KeyValuePair<TKey, TValue>>> processToGenerateItems, 
-                                  IEqualityComparer< KeyValuePair<TKey, TValue>> comparer, string name = null) : 
-            base(processToGenerateItems, comparer, name)
+        public ReactiveDictionary(
+            [NotNull] IProcess< IEnumerable< KeyValuePair<TKey, TValue>>> processToGenerateItems, 
+            IEqualityComparer<TValue> comparerForValues, 
+            string name = null) : 
+            this(processToGenerateItems, null, comparerForValues, name)
         {
+        }
+        
+        public ReactiveDictionary(
+            [NotNull] IProcess< IEnumerable< KeyValuePair<TKey, TValue>>> processToGenerateItems, 
+                      IEqualityComparer<TKey>   comparerForKeys   = null, 
+                      IEqualityComparer<TValue> comparerForValues = null, 
+                      string name = null) : 
+            base(name ?? NameOf<ReactiveDictionary<TKey, TValue>>())
+        {
+            if (processToGenerateItems is null)
+            {
+                throw CannotConstructValueReactorWithNullProcess<ReactiveDictionary<TKey, TValue>>();
+            }
+            
+            outcome = new DictionaryResult<TKey, TValue>(this, processToGenerateItems, comparerForKeys, comparerForValues);
         }
 
         #endregion
