@@ -2,6 +2,7 @@
 {
     public interface IQueue
     {
+        void StartQueuing();
         void StopQueuing();
     }
 }

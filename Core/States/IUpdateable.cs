@@ -2,7 +2,7 @@
 {
     public interface IUpdateable
     {
-        bool Update();
+        void Update();
     }
     
     

@@ -20,6 +20,54 @@ namespace Core.Tools
             return $"{typeOfDeclarer.ReadableName}.{infoForDelegate.Name}";
         }
 
+        public static string CreateStringShowingArgumentBeingPassedToAction<TArg>(TArg argument, Action<TArg> function) => 
+            CreateStringShowingArgumentBeingPassedToDelegate(argument, function);
+        public static string CreateStringShowingArgumentBeingPassedToAction<TArg1, TArg2>(
+            TArg1 argument1, TArg2 argument2, Action<TArg1, TArg2> action) => 
+                CreateStringShowingArgumentBeingPassedToDelegate(argument1, argument2, action);
+        
+        public static string CreateStringShowingArgumentBeingPassedToAction<TArg1, TArg2, TArg3>(
+            TArg1 argument1, TArg2 argument2, TArg3 argument3, Action<TArg1, TArg2, TArg3> action) => 
+                CreateStringShowingArgumentBeingPassedToDelegate(argument1, argument2, argument3, action);
+        
+        public static string CreateStringShowingArgumentBeingPassedToAction<TArg1, TArg2, TArg3, TArg4>(
+            TArg1 argument1, TArg2 argument2, TArg3 argument3, TArg4 argument4, 
+            Action<TArg1, TArg2, TArg3, TArg4> action) => 
+                CreateStringShowingArgumentBeingPassedToDelegate(argument1, argument2, argument3, argument4, action);
+
+        public static string CreateStringShowingArgumentBeingPassedToFunction<TArg, TReturn>(
+            TArg argument, Func<TArg, TReturn> function) => 
+                CreateStringShowingArgumentBeingPassedToDelegate(argument, function);
+        
+        public static string CreateStringShowingArgumentBeingPassedToFunction<TArg1, TArg2, TReturn>(
+            TArg1 argument1, TArg2 argument2, Func<TArg1, TArg2, TReturn> function) => 
+                CreateStringShowingArgumentBeingPassedToDelegate(argument1, argument2, function);
+        
+        public static string CreateStringShowingArgumentBeingPassedToFunction<TArg1, TArg2, TArg3, TReturn>(
+            TArg1 argument1, TArg2 argument2, TArg3 argument3, Func<TArg1, TArg2, TArg3, TReturn> function) => 
+                CreateStringShowingArgumentBeingPassedToDelegate(argument1, argument2, argument3, function);
+        
+        public static string CreateStringShowingArgumentBeingPassedToFunction<TArg1, TArg2, TArg3, TArg4, TReturn>(
+            TArg1 argument1, TArg2 argument2, TArg3 argument3, TArg4 argument4, 
+            Func<TArg1, TArg2, TArg3, TArg4, TReturn> function) => 
+                CreateStringShowingArgumentBeingPassedToDelegate(argument1, argument2, argument3, argument4, function);
+        
+        public static string CreateStringShowingArgumentBeingPassedToDelegate<T>(T argument, Delegate delegateToUse) => 
+            $"{GetClassAndMethodName(delegateToUse)}({argument})";
+        
+        public static string CreateStringShowingArgumentBeingPassedToDelegate<T1, T2>(
+            T1 argument1, T2 argument2, Delegate delegateToUse) => 
+                $"{GetClassAndMethodName(delegateToUse)}({argument1}, {argument2})";
+        
+        public static string CreateStringShowingArgumentBeingPassedToDelegate<T1, T2, T3>(
+            T1 argument1, T2 argument2, T3 argument3, Delegate delegateToUse) =>
+                $"{GetClassAndMethodName(delegateToUse)}({argument1}, {argument2}, {argument3})";
+        
+        public static string CreateStringShowingArgumentBeingPassedToDelegate<T1, T2, T3, T4>(
+            T1 argument1, T2 argument2, T3 argument3, T4 argument4, Delegate delegateToUse) =>
+                $"{GetClassAndMethodName(delegateToUse)}({argument1}, {argument2}, {argument3}, {argument4})";
+        
+
         public static Func<TInstance, TField> MakeFieldGetter<TInstance, TField>(FieldInfo fieldToGetValueOf)
         {
             ParameterExpression instanceToAccessFieldOf_Parameter = Expression.Parameter(typeof(TInstance));

@@ -3,8 +3,8 @@ using JetBrains.Annotations;
 
 namespace Core.States
 {
-    // public interface IResponse : IResult
-    // {
-    //     bool Respond();
-    // }
+    public interface IResponse : IOutcome
+    {
+        bool Generate();
+    }
 }

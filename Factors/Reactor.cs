@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using Causality;
 using Core.Causality;
 using Core.Factors;
 using Core.States;
@@ -10,58 +9,39 @@ using static Core.Tools.Delegates;
 using static Core.Tools.Types;
 
 
-
 namespace Factors
 {
-    public abstract class Reactor : Factor, IResult
+    public abstract class Reactor : Factor, IReactor, IUpdateable
     {
-        #region Static Fields
+        #region Instance Properties
 
-        protected static int defaultSettings = 0;
-
-        protected const int Updating            = 0b0000_0010;
-        protected const int Reflexive           = 0b0000_0100;
-        protected const int PotentiallyInvalid  = 0b0000_0000;
-        protected const int Executing           = 0b0000_0000;
-        protected const int Exclusive           = 0b0000_0000;
-        protected const int Disposed            = 0b0000_0000;
-        protected const int Patient             = 0b0000_0000;
-        protected const int Recursive           = 0b0000_0000;
-        protected const int ThreadSafe          = 0b0000_0000;
-
-        #endregion
-
-
-        #region Instance Fields
-
-        protected int settings = defaultSettings;
-
-        #endregion
-
-        #region Properties
-
-        [NotNull] 
-        protected abstract IResult Result { get; }
-
-        public          bool IsStable           => Result.IsStable;
-        public          bool IsValid            => Result.IsValid;
-        public          bool IsBeingInfluenced  => Result.IsBeingInfluenced;
-        public          int  NumberOfInfluences => Result.NumberOfInfluences;
-        public          bool IsUpdating         => Result.IsUpdating;
-        public override bool HasDependents      => Result.HasDependents;
+        protected abstract IOutcome Outcome            { get; }
+        public override    int      Priority           => Outcome.Priority;
+        public             bool     IsUpdating         => Outcome.IsUpdating;
+        public             bool     IsStable           => Outcome.IsStable;
+        public             bool     IsStabilizing      => Outcome.IsStabilizing;
+        public             bool     IsValid            => Outcome.IsValid;
+        public             bool     IsUnstable         => Outcome.IsUnstable;
+        public             bool     IsInvalid          => Outcome.IsInvalid;
+        public override    bool     HasDependents      => Outcome.HasDependents;
+        public override    int      NumberOfDependents => Outcome.NumberOfDependents;
+        public override    bool     IsNecessary        => Outcome.IsNecessary;
+        public             bool     IsBeingInfluenced  => Outcome.IsBeingInfluenced;
+        public             int      NumberOfInfluences => Outcome.NumberOfInfluences;
 
         public bool IsReflexive
         {
-            get => Result.IsReflexive;
-            set => Result.IsReflexive = value;
+            get => Outcome.IsReflexive;
+            set => Outcome.IsReflexive = value;
         }
 
         #endregion
-
+        
+        
         #region Static Methods
 
         protected static string CreateDefaultName<TReactor>(Delegate functionToCreateValue) => 
-            NameOf<TReactor>() + GetClassAndMethodName(functionToCreateValue);
+            $"{NameOf<TReactor>()} {GetClassAndMethodName(functionToCreateValue)}";
 
         protected static ArgumentNullException CannotConstructValueReactorWithNullProcess<T>()  where T : Reactor =>
             new ArgumentNullException(
@@ -73,39 +53,42 @@ namespace Factors
 
         #endregion
         
-        
+
         #region Instance Methods
 
-        public bool Invalidate(IInfluence influenceThatChanged) => Result.Invalidate(influenceThatChanged);
-        public void Invalidate()                                => Result.Invalidate(null);
-        public bool Destabilize()                               => Result.Destabilize();
-        public bool React()                                     => Result.React();
         
-        protected override IFactor GetFactorImplementation() => Result;
-        //protected abstract IInteraction GetInteractionImplementation();
-
+        //- Does not imply the caller will queue this Outcome to be updated.
+        //  Only that the caller should be notified if this Outcome is Necessary
+        //  and if not that it should mark itself and its dependents as Unstable
+        public          bool Destabilize()                                 => Outcome.Destabilize();
+        public          bool React()                                       => Outcome.Generate();
+        public          bool Stabilize()                                   => Outcome.Stabilize();
+        public override bool AddDependent(IDependent dependentToAdd)       => Outcome.AddDependent(dependentToAdd);
+        public override void RemoveDependent(IDependent dependentToRemove) => Outcome.RemoveDependent(dependentToRemove);
+        public          bool Invalidate()                                  => Outcome.Invalidate();
+        public          bool Invalidate(IFactor changedFactor)             => Outcome.Invalidate(changedFactor);
+        public override void InvalidateDependents()                        => Outcome.InvalidateDependents();
+        public override void NotifyNecessary()                             => Outcome.NotifyNecessary();
+        public override void NotifyNotNecessary()                          => Outcome.NotifyNotNecessary();
+        public override bool Reconcile()                                   => Outcome.Reconcile();
 
         #endregion
 
-
+        
         #region Constructors
 
         protected Reactor(string nameToGive) : base(nameToGive)
         {
+            
         }
 
         #endregion
-
+        
         
         #region Explicit Implementations
-
-       //WeakReference<IInteraction> IInteraction.WeakReference => GetInteractionImplementation().WeakReference;
-
-       //void IInfluenceable.Notify_InfluencedBy(IInfluence influence) => 
-       //    GetInteractionImplementation().Notify_InfluencedBy(influence);
-       //
-       //bool IUpdateable.Update() => GetInteractionImplementation().Update();
-
+    
+        void IUpdateable.Update() => Stabilize();
+    
         #endregion
     }
 }

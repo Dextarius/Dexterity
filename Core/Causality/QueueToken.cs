@@ -22,7 +22,7 @@ namespace Core.Causality
             }
         }
             
-        internal UpdateQueueToken(bool callerHasOwnership, IUpdateQueue queue)
+        public UpdateQueueToken(bool callerHasOwnership, IUpdateQueue queue)
         {
             callerHasOwnershipOfQueue = callerHasOwnership;
             updateQueue = queue;

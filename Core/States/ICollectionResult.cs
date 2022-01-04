@@ -1,15 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using Core.Factors;
 
 namespace Core.States
 {
-    public interface ICollectionResult<TCollection, TValue> : IResult
-        where TCollection : ICollection<TValue>
+    public interface ICollectionResult<TValue> : IOutcome
     {
-        TCollection Collection { get; }
+        int Count { get; }
 
-        IEnumerator<TValue> GetEnumerator();
-        TCollection         Peek();
-        void                CopyTo(TValue[] array, int arrayIndex);
+        void                CopyTo(TValue[] array, int index);
+        void                CopyTo(Array    array, int index);
         bool                Contains(TValue item);
+        IEnumerator<TValue> GetEnumerator();
     }
 }

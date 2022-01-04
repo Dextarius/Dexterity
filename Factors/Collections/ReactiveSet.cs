@@ -1,54 +1,42 @@
 ﻿using System;
 using System.Collections.Generic;
-using Causality.Processes;
-using Causality.States.CollectionStates;
-using Core.Causality;
 using Core.Factors;
 using Core.States;
 using Factors.Exceptions;
 using JetBrains.Annotations;
+using static Core.Tools.Types;
 
 namespace Factors.Collections
 {
-    public class ReactiveSet<T> : ReactiveCollection<IHashsetResult<T>, HashSet<T>, T>, ISet<T>
+    public class ReactiveSet<T> : ReactiveCollection<ISetResult<T>, T>, ISet<T>, IReadOnlySetMembers<T>
     {
+        #region Static Fields
+
+        private static readonly string DefaultName = NameOf<ReactiveSet<T>>();
+
+        #endregion
+        
+        
         #region Instance Methods
         
-        //- TODO : We should probably move these into the HashsetOutcome class. 
+        public HashSet<T> AsNormalSet() => result.AsNormalSet();
 
-        public bool IsProperSupersetOf(IEnumerable<T> other) => Collection.IsProperSupersetOf(other);
-        public bool   IsProperSubsetOf(IEnumerable<T> other) => Collection.IsProperSubsetOf(other);
-        public bool       IsSupersetOf(IEnumerable<T> other) => Collection.IsSupersetOf(other);
-        public bool         IsSubsetOf(IEnumerable<T> other) => Collection.IsSubsetOf(other);
-        public bool          SetEquals(IEnumerable<T> other) => Collection.SetEquals(other);
-        public bool           Overlaps(IEnumerable<T> other) => Collection.Overlaps(other);
-
+        public bool IsProperSupersetOf(IEnumerable<T> other) => result.IsProperSupersetOf(other);
+        public bool   IsProperSubsetOf(IEnumerable<T> other) => result.IsProperSubsetOf(other);
+        public bool       IsSupersetOf(IEnumerable<T> other) => result.IsSupersetOf(other);
+        public bool         IsSubsetOf(IEnumerable<T> other) => result.IsSubsetOf(other);
+        public bool          SetEquals(IEnumerable<T> other) => result.SetEquals(other);
+        public bool           Overlaps(IEnumerable<T> other) => result.Overlaps(other);
+        
         #endregion
 
 
         #region Constructors
 
-        public ReactiveSet([NotNull] Func<IEnumerable<T>> functionToGenerateItems, string nameToGive = null) : 
-            this(functionToGenerateItems, null, nameToGive)
+        public ReactiveSet([NotNull] ISetResult<T> collectionSource, string name = null) : 
+            base(collectionSource, name ?? DefaultName)
         {
-        }
-        
-        public ReactiveSet([NotNull] Func<IEnumerable<T>> functionToGenerateItems, 
-                           IEqualityComparer<T> comparerForItems, string nameToGive = null) : 
-            this(FunctionalProcess.CreateFrom(functionToGenerateItems), comparerForItems, nameToGive)
-        {
-        }
-
-        public ReactiveSet([NotNull] IProcess<IEnumerable<T>> processToGenerateItems, string nameToGive = null) :
-            this(processToGenerateItems, null, nameToGive)
-        {
-        }
-
-        public ReactiveSet([NotNull] IProcess<IEnumerable<T>> processToGenerateItems, 
-                           IEqualityComparer<T> comparerForItems, string name = null) : 
-            base(name)
-        {
-            outcome = new HashSetResult<T>(this, processToGenerateItems, comparerForItems);
+            
         }
 
         #endregion

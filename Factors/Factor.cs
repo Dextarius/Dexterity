@@ -1,4 +1,8 @@
-﻿using Core.Causality;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using Core;
+using Core.Causality;
 using Core.Factors;
 using Core.States;
 using JetBrains.Annotations;
@@ -13,34 +17,30 @@ namespace Factors
 
         #endregion
         
-        
-        #region Properties
 
-        public         string Name               { get; }
-        public virtual bool   HasDependents      => GetFactorImplementation().HasDependents;
-        public virtual int    NumberOfDependents => GetFactorImplementation().NumberOfDependents;
-        public virtual int    Priority           => GetFactorImplementation().Priority;
-        public virtual bool   IsNecessary        => GetFactorImplementation().IsNecessary;
+        #region Instance Properties
+
+        public          string Name               { get; }
+        public abstract bool   IsNecessary        { get; }
+        public abstract bool   HasDependents      { get; }
+        public abstract int    NumberOfDependents { get; }
+        public abstract int    Priority           { get; }
 
         #endregion
 
-        
+
         #region Instance Methods
-
-        public virtual bool AddDependent(IDependency dependent)     => GetFactorImplementation().AddDependent(dependent);
-        public virtual void ReleaseDependent(IDependency dependent) => GetFactorImplementation().ReleaseDependent(dependent);
-        public virtual void InvalidateDependents()                  => GetFactorImplementation().InvalidateDependents();
-        public virtual void NotifyNecessary()                       => GetFactorImplementation().NotifyNecessary();
-        public virtual void NotifyNotNecessary()                    => GetFactorImplementation().NotifyNotNecessary();
-        public virtual bool Reconcile()                             => GetFactorImplementation().Reconcile();
-        public virtual void NotifyInvolved()                        => GetFactorImplementation().NotifyInvolved();
-        public virtual void OnChanged()                             => GetFactorImplementation().OnChanged();
-
         
-        protected abstract IFactor GetFactorImplementation();
+        public abstract bool AddDependent(IDependent dependentToAdd);
+        public abstract void RemoveDependent(IDependent dependentToRemove);
+        public abstract void InvalidateDependents();
+        public abstract void NotifyNecessary();
+        public abstract void NotifyNotNecessary();
 
+        public abstract bool Reconcile();
+        
         #endregion
-
+        
 
         #region Constructors
 
@@ -50,6 +50,5 @@ namespace Factors
         }
         
         #endregion
-        
     }
 }

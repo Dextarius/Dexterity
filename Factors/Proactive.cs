@@ -1,75 +1,45 @@
 ﻿using System.Collections.Generic;
-using Causality;
-using Causality.States;
 using Core.Causality;
 using Core.Factors;
 using Core.States;
+using Factors.Outcomes.Influences;
 using JetBrains.Annotations;
 using static Core.InterlockedUtils;
 using static Core.Tools.Types;
 
 namespace Factors
 {
-    public class Proactive<T> : Proactor, IMutableState<T>, IProcess<T>
+    public class Proactive<T> : Proactor, IState<T>
     {
         #region Instance Fields
 
-        protected IMutableState<T> state;
+        protected readonly IState<T> state;
 
         #endregion
 
 
         #region Properties
-
-
+        
         public T Value
         {
             get => state.Value;
-            set
-            {
-                state.Value = value;
-            }
+            set => state.Value = value;
         }
-
+        
         public T Peek() => state.Peek();
+
+        protected override IFactor Influence => state;
 
         #endregion
 
 
         #region Instance Methods
-        
-        // private bool TrySetValue(T valueToSet, [NotNull] IMutableState<T> oldState)
-        // {
-        //     bool valuesAreDifferent = valueComparer.Equals(oldState.Value, valueToSet) == false;
-        //     bool valueWasSet        = false;
-        //
-        //     if (valuesAreDifferent)
-        //     {
-        //         IMutableState<T> newState = new MutableState<T>(this, valueToSet);
-        //             
-        //         while ((valueWasSet == false)  &&  valuesAreDifferent)
-        //         {
-        //             if (TryCompareExchangeOrSet(ref state, newState, ref oldState))
-        //             {
-        //                 valueWasSet = true;
-        //             }
-        //             else
-        //             {
-        //                 valuesAreDifferent = (valueComparer.Equals(oldState.Value, valueToSet) == false);
-        //             }
-        //         }
-        //     }
-        //
-        //     return valueWasSet;
-        // }
-
-        //protected override bool ValuesAreDifferent(T firstValue, T secondValue) => valueComparer.Equals(firstValue, secondValue) == false;
-
-        protected override IFactor GetFactorImplementation() => state;
 
         public override string ToString() => $"{Name} => {Value}";
+        
 
         #endregion
+        
 
         #region Operators
 
@@ -80,11 +50,20 @@ namespace Factors
 
         #region Constructors
 
-        public Proactive(T initialValue, IEqualityComparer<T> comparer = null, string name = null) :
-            //base(initialValue, name?? NameOf<Proactive<T>>())
+        public Proactive(IState<T> valueState, string name) : 
             base(name?? NameOf<Proactive<T>>())
         {
-            state = new State<T>(this, initialValue, comparer);
+            state = valueState;
+        }
+
+        public Proactive(IState<T> valueState) : this(valueState, null)
+        {
+            
+        }
+        
+        public Proactive(T initialValue, IEqualityComparer<T> comparer = null, string name = null) : 
+            this(new ObservedState<T>(initialValue, comparer), name?? NameOf<Proactive<T>>())
+        {
         }
         
         public Proactive(T initialValue, string name) : this(initialValue, null, name)
@@ -92,14 +71,5 @@ namespace Factors
         }
 
         #endregion
-
-
-        #region Explicit Implementations
-
-        T IProcess<T>.Execute() => Value;
-
-        #endregion
-
-
     }
 }

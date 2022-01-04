@@ -1,8 +1,9 @@
-﻿namespace Core.States
+﻿using System;
+
+namespace Core.States
 {
-    public interface IDependent
+    public interface IDependent : INecessary, IInvalidatable, IDestabilizable
     {
-        bool Invalidate(IInfluence influenceThatChanged);
-        bool Destabilize();
+        WeakReference<IDependent> WeakReference { get; }
     }
 }

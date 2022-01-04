@@ -6,9 +6,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Causality\Causality.csproj" />
       <ProjectReference Include="..\Core\Core.csproj" />
-      <ProjectReference Include="..\Subscriptions\Subscriptions.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="JetBrains.Annotations" Version="2020.3.0" />
     </ItemGroup>
 
 </Project>

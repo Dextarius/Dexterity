@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
+using Core.Factors;
 
 namespace Core.States
 {
-    public interface IListResult<T> : ICollectionResult<List<T>, T>
+    public interface IListResult<T> : ICollectionResult<T>, IReadOnlyListMembers<T>
     {
         T this[int index] { get; }
 
-        int IndexOf(T item);
+        List<T>       AsNormalList();
     }
 }

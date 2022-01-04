@@ -10,24 +10,28 @@ namespace Factors.Collections
     {
         #region Instance Fields
 
-        private readonly IFactor dictionaryFactor;
+        private readonly IInvolved involvedDictionary;
 
         #endregion
 
         
         #region Instance Methods
 
-        protected override void OnInteraction() => dictionaryFactor.NotifyInvolved() ;
+        //- TODO : Calling NotifyInvolved() every time someone accesses a key and entry in the enumeration
+        //         seems like it could be obnoxious.  When we've had a chance to use the library more come
+        //         back here and decide if it's likely that people are going to use the enumerators in a 
+        //         way where they are using the same enumerator during multiple reaction processes.
+        protected override void OnInteraction() => involvedDictionary.NotifyInvolved() ;
 
         #endregion
 
         
         #region Constructors
 
-        public FactorDictionaryEnumerator(IFactor factorBeingLinked, IDictionaryEnumerator enumeratorForDictionary) :
+        public FactorDictionaryEnumerator(IInvolved collectionOwner, IDictionaryEnumerator enumeratorForDictionary) :
             base(enumeratorForDictionary)
         {
-            dictionaryFactor = factorBeingLinked;
+            involvedDictionary = collectionOwner;
         }
 
         #endregion

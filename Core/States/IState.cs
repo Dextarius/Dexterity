@@ -2,15 +2,8 @@
 
 namespace Core.States
 {
-    // public interface IState : IFactor
-    // {
-    //     
-    // }
-    
-    public interface IState<out T> : IFactor
+    public interface IState<T> : IFactor<T>
     {
-        T Value { get; }
-
-        T Peek();
+        new T Value { get; set; }
     }
 }

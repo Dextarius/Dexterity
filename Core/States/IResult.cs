@@ -2,23 +2,9 @@
 
 namespace Core.States
 {
-    public interface IResult : IDependent, IFactor
+    public interface IResult<out T> : IOutcome
     {
-        bool IsStable           { get;      }
-        bool IsValid            { get;      }
-        bool IsBeingInfluenced  { get;      }
-        int  NumberOfInfluences { get;      }
-        bool IsUpdating         { get;      }
-        bool IsReflexive        { get; set; }
-        //  bool AllowRecursion     { get; set; }
-        
-        
-        bool React();
-    }
-    
-    
-    public interface IResult<out T> : IResult, IState<T>
-    {
-        
+        T    Value { get; }
+        T    Peek();
     }
 }
