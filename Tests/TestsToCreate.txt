@@ -1,0 +1,26 @@
+﻿
+
+    Processes
+    
+        ActionProcess
+        
+            CreateFrom()
+            Execute()
+            Constructor
+        
+        FunctionalProcess
+        
+            CreateFrom()
+            Execute() + return value
+            Constructor + throws if delegate is null
+            
+    
+    States
+    
+        CausalFactor 
+        
+            Observer
+            UpdateList
+            
+            N
+           
