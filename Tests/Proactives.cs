@@ -43,8 +43,8 @@ namespace Tests
         {
             Proactive<int> proactiveToTest = new Proactive<int>(value);
             
-            Assert.That(proactiveToTest.HasDependents, Is.False, 
-                $"The property {nameof(proactiveToTest.HasDependents)} was marked as true during construction.");
+            Assert.That(proactiveToTest.HasSubscribers, Is.False, 
+                $"The property {nameof(proactiveToTest.HasSubscribers)} was marked as true during construction.");
         }
 
         [Test]
@@ -54,21 +54,21 @@ namespace Tests
             int            initialValue       = GenerateRandomInt();
             int            updatedValue       = GenerateRandomIntNotEqualTo(initialValue);
             Proactive<int> stateBeingTested   = new Proactive<int>(initialValue);
-            var            interactions       = new MockDependent[numberOfDependents];
+            var            interactions       = new MockFactorSubscriber[numberOfDependents];
 
             for (int i = 0; i < numberOfDependents; i++)
             {
-                var createdInteraction = new MockDependent();
+                var createdInteraction = new MockFactorSubscriber();
                 
                 interactions[i] = createdInteraction;
-                stateBeingTested.AddDependent(createdInteraction);
+                stateBeingTested.Subscribe(createdInteraction);
             }
 
-            Assert.That(stateBeingTested.NumberOfDependents, Is.EqualTo(numberOfDependents));
+            Assert.That(stateBeingTested.NumberOfSubscribers, Is.EqualTo(numberOfDependents));
             stateBeingTested.Value = updatedValue;
 
-            Assert.That(stateBeingTested.NumberOfDependents, Is.Zero);
-            Assert.That(stateBeingTested.HasDependents,      Is.False, 
+            Assert.That(stateBeingTested.NumberOfSubscribers, Is.Zero);
+            Assert.That(stateBeingTested.HasSubscribers,      Is.False, 
                 ErrorMessages.HasDependents<Proactive<int>>("despite its value changing. "));
         }
         
@@ -97,19 +97,19 @@ namespace Tests
             int            initialValue       = GenerateRandomInt();
             int            updatedValue       = GenerateRandomIntNotEqualTo(initialValue);
             Proactive<int> stateBeingTested   = new Proactive<int>(initialValue);
-            var            dependents         = new MockDependent[numberOfDependents];
+            var            dependents         = new MockFactorSubscriber[numberOfDependents];
 
             for (int i = 0; i < numberOfDependents; i++)
             {
-                var dependent = new MockDependent();
+                var dependent = new MockFactorSubscriber();
                 
                 dependents[i] = dependent;
-                stateBeingTested.AddDependent(dependent);
+                stateBeingTested.Subscribe(dependent);
                 Assert.That(dependent.IsValid, Is.True);
             }
 
-            Assert.That(stateBeingTested.NumberOfDependents, Is.EqualTo(numberOfDependents));
-            Assert.That(stateBeingTested.HasDependents, Is.True, 
+            Assert.That(stateBeingTested.NumberOfSubscribers, Is.EqualTo(numberOfDependents));
+            Assert.That(stateBeingTested.HasSubscribers, Is.True, 
                 ErrorMessages.FactorDidNotHaveDependents<Proactive<int>>("despite being used to calculate a value. "));
             
             stateBeingTested.Value = updatedValue;
@@ -133,11 +133,11 @@ namespace Tests
                 Reactive<int> dependentReactive = CreateReactiveThatGetsValueOf(proactiveBeingTested);
                 int           triggerAReaction  = dependentReactive.Value;
                 
-                Assert.That(dependentReactive.IsValid, Is.True, ErrorMessages.ReactorWasNotValid<Reactive<int>>());
+                Assert.That(dependentReactive.CanReact, Is.True, ErrorMessages.ReactorWasNotValid<Reactive<int>>());
                 dependents[i] = dependentReactive;
             }
             
-            Assert.That(proactiveBeingTested.NumberOfDependents, Is.EqualTo(numberOfDependents),
+            Assert.That(proactiveBeingTested.NumberOfSubscribers, Is.EqualTo(numberOfDependents),
                 ErrorMessages.FactorDidNotHaveDependents<Proactive<int>>("despite being used to calculate a value. "));
 
             proactiveBeingTested.Value = initialValue;
@@ -145,13 +145,13 @@ namespace Tests
             for (int i = 0; i < numberOfDependents; i++)
             {
 
-                Assert.That(dependents[i].IsValid,
+                Assert.That(dependents[i].CanReact,
                     $"Setting the value of a {NameOf<Proactive<int>>()} invalidated its dependents even though " +
                     "the value set was equal to the old value. ");
             }
             
 
-            Assert.That(proactiveBeingTested.HasDependents,
+            Assert.That(proactiveBeingTested.HasSubscribers,
                 ErrorMessages.FactorDidNotHaveDependents<Proactive<int>>("despite being used to calculate a value. "));
         }
         
@@ -161,28 +161,28 @@ namespace Tests
             int    numberOfDependents = 10;
             int initialValue       = GenerateRandomInt();
             Proactive<int> stateBeingTested   = new Proactive<int>(initialValue);
-            var    interactions       = new MockDependent[numberOfDependents];
+            var    interactions       = new MockFactorSubscriber[numberOfDependents];
 
             for (int i = 0; i < numberOfDependents; i++)
             {
-                var createdInteraction = new MockDependent();
+                var createdInteraction = new MockFactorSubscriber();
                 
                 interactions[i] = createdInteraction;
-                stateBeingTested.AddDependent(createdInteraction);
+                stateBeingTested.Subscribe(createdInteraction);
             }
 
-            Assert.That(stateBeingTested.NumberOfDependents, Is.EqualTo(numberOfDependents));
-            Assert.That(stateBeingTested.HasDependents, Is.True, 
+            Assert.That(stateBeingTested.NumberOfSubscribers, Is.EqualTo(numberOfDependents));
+            Assert.That(stateBeingTested.HasSubscribers, Is.True, 
                 ErrorMessages.FactorDidNotHaveDependents<Proactive<int>>("despite being used to calculate a value. "));
             
             stateBeingTested.Value = initialValue;
             
-            Assert.That(stateBeingTested.HasDependents, Is.True, 
+            Assert.That(stateBeingTested.HasSubscribers, Is.True, 
                 ErrorMessages.FactorDidNotHaveDependents<Proactive<int>>("despite its value not changing. "));
             
-            Assert.That(stateBeingTested.NumberOfDependents, Is.EqualTo(numberOfDependents),
+            Assert.That(stateBeingTested.NumberOfSubscribers, Is.EqualTo(numberOfDependents),
                 $"Setting the value of a {NameOf<Proactive<int>>()} removed one or more of its dependents even though " +
-                $"the value set was equal to the old value. # Remaining Dependents => {stateBeingTested.NumberOfDependents} ");
+                $"the value set was equal to the old value. # Remaining Dependents => {stateBeingTested.NumberOfSubscribers} ");
         }
     }
 }

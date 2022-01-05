@@ -4,7 +4,7 @@ using Core.Factors;
 
 namespace Core.States
 {
-    public interface ICollectionResult<TValue> : IOutcome
+    public interface ICollectionResult<TValue> : IReactor
     {
         int Count { get; }
 

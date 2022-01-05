@@ -37,13 +37,13 @@ namespace Tests.Integration
             var involvedFactor = parentFactory.CreateInstance();
             var resultToTest   = resultFactory.CreateInstance_WhoseUpdateInvolves(involvedFactor);
 
-            Assert.False(resultToTest.IsBeingInfluenced);
-            Assert.False(involvedFactor.HasDependents);
+            Assert.False(resultToTest.HasTriggers);
+            Assert.False(involvedFactor.HasSubscribers);
 
-            resultToTest.React();
+            resultToTest.ForceReaction();
             
-            Assert.True(resultToTest.IsBeingInfluenced);
-            Assert.True(involvedFactor.HasDependents);
+            Assert.True(resultToTest.HasTriggers);
+            Assert.True(involvedFactor.HasSubscribers);
         }
         
         [Test]
@@ -52,10 +52,10 @@ namespace Tests.Integration
             IFactor involvedFactor = parentFactory.CreateInstance();
             IResult resultToTest   = resultFactory.CreateInstance_WhoseUpdateInvolves(involvedFactor);
 
-            resultToTest.React();
+            resultToTest.ForceReaction();
             Assert.That(resultToTest.IsValid, Is.True);
             
-            involvedFactor.InvalidateDependents();
+            involvedFactor.TriggerSubscribers();
             Assert.That(resultToTest.IsValid, Is.False);
         }
         
@@ -107,13 +107,13 @@ namespace Tests.Integration
             IncrementingProcess reflexiveProcess = new IncrementingProcess(necessaryResult);
             IResult             reflexiveResult  = resultFactory.CreateInstance_WhoseUpdateCalls(reflexiveProcess);
 
-            necessaryResult.React();
-            reflexiveResult.React();
+            necessaryResult.ForceReaction();
+            reflexiveResult.ForceReaction();
             
             Assert.That(necessaryResult.IsValid,       Is.True);
             Assert.That(reflexiveResult.IsValid,       Is.True);
-            Assert.That(parentFactor.HasDependents,    Is.True);
-            Assert.That(necessaryResult.HasDependents, Is.True);
+            Assert.That(parentFactor.HasSubscribers,    Is.True);
+            Assert.That(necessaryResult.HasSubscribers, Is.True);
             Assert.That(necessaryProcess.NumberOfTimesExecuted, Is.EqualTo(1));
             Assert.That(reflexiveProcess.NumberOfTimesExecuted, Is.EqualTo(1));
             
@@ -121,7 +121,7 @@ namespace Tests.Integration
             
             Assert.That(necessaryResult.IsNecessary, Is.True);
             
-            parentFactor.InvalidateDependents();
+            parentFactor.TriggerSubscribers();
             
             Assert.That(necessaryResult.IsValid,                Is.True);
             Assert.That(reflexiveResult.IsValid,                Is.True);
@@ -157,14 +157,14 @@ namespace Tests.Integration
             
             dependentResult = resultFactory.CreateInstance_WhoseUpdateInvolves(parentFactor);
 
-            Assert.That(dependentResult.IsBeingInfluenced, Is.False);
+            Assert.That(dependentResult.HasTriggers, Is.False);
             Assert.That(dependentResult.IsValid,           Is.False);
-            Assert.That(parentFactor.HasDependents,        Is.False);
+            Assert.That(parentFactor.HasSubscribers,        Is.False);
             
-            dependentResult.React();
+            dependentResult.ForceReaction();
             
-            Assert.That(dependentResult.NumberOfInfluences, Is.True);
-            Assert.That(parentFactor.HasDependents,         Is.True);
+            Assert.That(dependentResult.NumberOfTriggers, Is.True);
+            Assert.That(parentFactor.HasSubscribers,         Is.True);
             Assert.That(dependentResult.IsValid,            Is.True);
 
         }

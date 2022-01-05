@@ -4,12 +4,12 @@ namespace Core.Factors
 {
     public interface IFactor : IPrioritizable, INameable, INecessary 
     {
-        bool HasDependents      { get; }
-        int  NumberOfDependents { get; }
+        bool HasSubscribers      { get; }
+        int  NumberOfSubscribers { get; }
         
-        void InvalidateDependents();
-        bool AddDependent(IDependent dependent);
-        void RemoveDependent(IDependent dependentToRemove);
+        void TriggerSubscribers();
+        bool Subscribe(IFactorSubscriber subscriberToAdd);
+        void Unsubscribe(IFactorSubscriber subscriberToRemove);
         bool Reconcile();
     }
 

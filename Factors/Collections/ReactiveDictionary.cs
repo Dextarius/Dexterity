@@ -25,9 +25,9 @@ namespace Factors.Collections
 
         #region Instance Properties
 
-        public TValue              this[TKey key] => result[key];
-        public ICollection<TKey>   Keys           => result.Keys;
-        public ICollection<TValue> Values         => result.Values;
+        public TValue              this[TKey key] => core[key];
+        public ICollection<TKey>   Keys           => core.Keys;
+        public ICollection<TValue> Values         => core.Values;
         //^ The keys/value collections always represents the CURRENT dictionary keys/values (that's important to remember).
         //  This is not a static copy of what keys were present when it was called!
 
@@ -36,19 +36,19 @@ namespace Factors.Collections
 
         #region Instance Methods
 
-        public     Dictionary<TKey, TValue> AsNormalDictionary()                    => result.AsNormalDictionary();
-        public     bool                     TryGetValue(TKey key, out TValue value) => result.TryGetValue(key, out value);
-        public     bool                     ContainsKey(TKey key)                   => result.ContainsKey(key);
-        public     bool                     ContainsValue(TValue key)               => result.ContainsValue(key);
-        public new IDictionaryEnumerator    GetEnumerator()                         => result.GetEnumerator();
+        public     Dictionary<TKey, TValue> AsNormalDictionary()                    => core.AsNormalDictionary();
+        public     bool                     TryGetValue(TKey key, out TValue value) => core.TryGetValue(key, out value);
+        public     bool                     ContainsKey(TKey key)                   => core.ContainsKey(key);
+        public     bool                     ContainsValue(TValue key)               => core.ContainsValue(key);
+        public new IDictionaryEnumerator    GetEnumerator()                         => core.GetEnumerator();
 
         #endregion
         
 
         #region Constructors
 
-        public ReactiveDictionary(IDictionaryResult<TKey, TValue> dictionaryResult, string name = null) : 
-            base(dictionaryResult, name ?? NameOf<ReactiveDictionary<TKey, TValue>>())
+        public ReactiveDictionary(IDictionaryResult<TKey, TValue> dictionaryCore, string name = null) : 
+            base(dictionaryCore, name ?? NameOf<ReactiveDictionary<TKey, TValue>>())
         {
         }
         
@@ -59,8 +59,8 @@ namespace Factors.Collections
 
         IEnumerable<TKey>   IReadOnlyDictionary<TKey, TValue>.Keys   => Keys;
         IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values => Values;
-        ICollection         IDictionary.Keys                         => result.GetKeysAsICollection();
-        ICollection         IDictionary.Values                       => result.GetValuesAsICollection();
+        ICollection         IDictionary.Keys                         => core.GetKeysAsICollection();
+        ICollection         IDictionary.Values                       => core.GetValuesAsICollection();
         bool                IDictionary.IsReadOnly                   => true;
         bool                IDictionary.IsFixedSize                  => true;
         
@@ -76,7 +76,7 @@ namespace Factors.Collections
             {
                 if (key is TKey keyOfCorrectType)
                 {
-                    return result[keyOfCorrectType];
+                    return core[keyOfCorrectType];
                 }
                 else return null;
             }

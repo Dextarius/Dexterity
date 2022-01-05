@@ -2,7 +2,7 @@
 
 namespace Tests.Tools.Mocks
 {
-    public class MockDependentFactor : MockDependent, IDependentFactor
+    public class MockDependentFactor : MockFactorSubscriber, IDependentFactor
     {
         
     }

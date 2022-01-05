@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 
 namespace Factors
 {
-    public class Reactive<T> : Reactor, IReactive<T>
+    public class Reactive<T> : Reactor<IResult<T>>, IReactive<T>
     {
         #region Constants
 
@@ -16,27 +16,18 @@ namespace Factors
             "A Reactive value cannot be constructed with a null " + nameof(Func<T>) + ", as it would never have a value. ";
 
         #endregion
-
         
-        #region Instance Fields
-
-        [NotNull]
-        private readonly IResult<T> result;
-
-        #endregion
-
         
         #region Instance Properties
 
-        protected override IOutcome Outcome => result;
-        public             T        Value   => result.Value;
+        public T Value => core.Value;
 
         #endregion
 
 
         #region Instance Methods
 
-        public T Peek() => result.Peek();
+        public T Peek() => core.Peek();
 
         #endregion
 
@@ -50,24 +41,22 @@ namespace Factors
         
         #region Constructors
 
-        public Reactive([NotNull] IResult<T> valueSource, string name = null) : base(name)
+        public Reactive([NotNull] IResult<T> valueSource, string name = null) : base(valueSource, name)
         {
-            result = valueSource ?? throw new ArgumentNullException(nameof(valueSource));
         }
 
         public Reactive(Func<T> functionToDetermineValue, IEqualityComparer<T> comparer, string name = null) : 
-            base(name?? CreateDefaultName<Reactive<T>>(functionToDetermineValue) )
+            this(FunctionResult.CreateFrom(functionToDetermineValue, comparer), 
+                 name?? CreateDefaultName<Reactive<T>>(functionToDetermineValue) )
         {
             if (functionToDetermineValue == null)
             {
                 throw new ArgumentNullException(nameof(functionToDetermineValue), CannotUseNullFunction);
             }
-
-            result = FunctionResult.CreateFrom(functionToDetermineValue, comparer ?? EqualityComparer<T>.Default);
         }
 
         public Reactive(Func<T> functionToDetermineValue, string name = null) : 
-            this(functionToDetermineValue, EqualityComparer<T>.Default, name)
+            this(functionToDetermineValue, null, name)
         {
         }
 

@@ -12,7 +12,7 @@ namespace Tests.Tools.Mocks
         #region Instance Fields
 
         [NotNull, ItemNotNull]
-        protected HashSet<WeakReference<IDependent>> affectedResults = new();
+        protected HashSet<WeakReference<IFactorSubscriber>> affectedResults = new();
         protected int numberOfNecessaryDependents;
 
         #endregion
@@ -20,8 +20,8 @@ namespace Tests.Tools.Mocks
         public int    Priority           => 0;
         public string Name               => nameof(MockFactor);
         public bool   IsNecessary        => numberOfNecessaryDependents > 0;
-        public bool   HasDependents      => affectedResults.Count > 0;
-        public int    NumberOfDependents => affectedResults.Count;
+        public bool   HasSubscribers      => affectedResults.Count > 0;
+        public int    NumberOfSubscribers => affectedResults.Count;
         
         
         public virtual void NotifyNecessary()
@@ -44,13 +44,13 @@ namespace Tests.Tools.Mocks
             numberOfNecessaryDependents--;
         }
         
-        public virtual bool AddDependent(IDependent dependentToAdd)
+        public virtual bool Subscribe(IFactorSubscriber subscriberToAdd)
         {
-            if (dependentToAdd == null) { throw new ArgumentNullException(nameof(dependentToAdd)); }
+            if (subscriberToAdd == null) { throw new ArgumentNullException(nameof(subscriberToAdd)); }
 
-            if (affectedResults.Add(dependentToAdd.WeakReference))
+            if (affectedResults.Add(subscriberToAdd.WeakReference))
             {
-                if (dependentToAdd.IsNecessary)
+                if (subscriberToAdd.IsNecessary)
                 {
                     numberOfNecessaryDependents++;
                 }
@@ -61,19 +61,19 @@ namespace Tests.Tools.Mocks
             return false;
         }
 
-        public virtual void RemoveDependent(IDependent dependentToRemove)
+        public virtual void Unsubscribe(IFactorSubscriber subscriberToRemove)
         {
-            if (dependentToRemove != null)
+            if (subscriberToRemove != null)
             {
-                if (affectedResults.Remove(dependentToRemove.WeakReference)  &&  
-                    dependentToRemove.IsNecessary)
+                if (affectedResults.Remove(subscriberToRemove.WeakReference)  &&  
+                    subscriberToRemove.IsNecessary)
                 {
                     numberOfNecessaryDependents--;
                 }
             }
         }
 
-        public void InvalidateDependents()
+        public void TriggerSubscribers()
         {
             var formerDependents = affectedResults;
 
@@ -83,7 +83,7 @@ namespace Tests.Tools.Mocks
                 {
                     if (outcomeReference.TryGetTarget(out var outcome))
                     {
-                        outcome.Invalidate(this);
+                        outcome.Trigger(this);
                     }
                 }
 

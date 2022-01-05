@@ -26,16 +26,16 @@ namespace Tests.InterfaceTests
             IFactor factorBeingTested = factory.CreateInstance();
 
             //- If for whatever reason the factor already has dependents when it's created, we don't need this test.
-            if (factorBeingTested.HasDependents is false)
+            if (factorBeingTested.HasSubscribers is false)
             {
-                var dependent = new MockDependent();
+                var dependent = new MockFactorSubscriber();
                 
-                Assert.That(factorBeingTested.NumberOfDependents, Is.Zero,  
+                Assert.That(factorBeingTested.NumberOfSubscribers, Is.Zero,  
                     ErrorMessages.DependentsGreaterThanZero<TFactor>(
-                        $"when {nameof(factorBeingTested.HasDependents)} is false. ", factorBeingTested.NumberOfDependents));
+                        $"when {nameof(factorBeingTested.HasSubscribers)} is false. ", factorBeingTested.NumberOfSubscribers));
             
-                factorBeingTested.AddDependent(dependent);
-                Assert.That(factorBeingTested.HasDependents, Is.True);
+                factorBeingTested.Subscribe(dependent);
+                Assert.That(factorBeingTested.HasSubscribers, Is.True);
             }
         }
         
@@ -43,16 +43,16 @@ namespace Tests.InterfaceTests
         public void WhenDependentAddsItself_NumberOfDependentsGoesUpByOne()
         {
             IFactor factorBeingTested          = factory.CreateInstance();
-            int     previousNumberOfDependents = factorBeingTested.NumberOfDependents;
+            int     previousNumberOfDependents = factorBeingTested.NumberOfSubscribers;
 
             for (int i = 0; i < 100000; i++)
             {
-                var dependent = new MockDependent();
+                var dependent = new MockFactorSubscriber();
 
-                factorBeingTested.AddDependent(dependent);
+                factorBeingTested.Subscribe(dependent);
                 
-                Assert.That(factorBeingTested.HasDependents,      Is.True);
-                Assert.That(factorBeingTested.NumberOfDependents, Is.EqualTo(previousNumberOfDependents + 1));
+                Assert.That(factorBeingTested.HasSubscribers,      Is.True);
+                Assert.That(factorBeingTested.NumberOfSubscribers, Is.EqualTo(previousNumberOfDependents + 1));
 
                 previousNumberOfDependents++;
             }
@@ -62,16 +62,16 @@ namespace Tests.InterfaceTests
         public void WhenDependentTriesToAddItselfMultipleTimes_OnlyAddsDependentOnce()
         {
             IFactor factorBeingTested          = factory.CreateInstance();
-            var     dependent                  = new MockDependent();
-            int     originalNumberOfDependents = factorBeingTested.NumberOfDependents;
+            var     dependent                  = new MockFactorSubscriber();
+            int     originalNumberOfDependents = factorBeingTested.NumberOfSubscribers;
             int     expectedNumberOfDependents = originalNumberOfDependents + 1;
 
             for (int i = 0; i < 100000; i++)
             {
-                factorBeingTested.AddDependent(dependent);
+                factorBeingTested.Subscribe(dependent);
             
-                Assert.That(factorBeingTested.HasDependents,      Is.True);
-                Assert.That(factorBeingTested.NumberOfDependents, Is.EqualTo(expectedNumberOfDependents));
+                Assert.That(factorBeingTested.HasSubscribers,      Is.True);
+                Assert.That(factorBeingTested.NumberOfSubscribers, Is.EqualTo(expectedNumberOfDependents));
             }
         }
         
@@ -79,12 +79,12 @@ namespace Tests.InterfaceTests
         public void WhenInvalidateDependentsIsCalled_DependentsAreInvalidated()
         {
             IFactor factorBeingTested = factory.CreateInstance();
-            var     dependent         = new MockDependent();
+            var     dependent         = new MockFactorSubscriber();
 
-            factorBeingTested.AddDependent(dependent);
+            factorBeingTested.Subscribe(dependent);
             Assert.That(dependent.IsValid, Is.True);
             
-            factorBeingTested.InvalidateDependents();
+            factorBeingTested.TriggerSubscribers();
             Assert.That(dependent.IsValid, Is.False);
         }
         

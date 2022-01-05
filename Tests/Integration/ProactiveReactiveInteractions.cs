@@ -17,7 +17,7 @@ namespace Tests.Integration
             Reactive<int>  dependentReactive    = new Reactive<int>(() => proactiveBeingTested);
             int            triggerValueUpdate   = dependentReactive.Value;
 
-            Assert.That(proactiveBeingTested.HasDependents);
+            Assert.That(proactiveBeingTested.HasSubscribers);
         }
         
         [Test]
@@ -26,17 +26,17 @@ namespace Tests.Integration
             Proactive<int> proactiveBeingTested       = new Proactive<int>(5);
             Reactive<int>  reactiveThatRetrievesValue = CreateReactiveThatGetsValueOf(proactiveBeingTested);
 
-            Assert.That(proactiveBeingTested.HasDependents, Is.False, 
+            Assert.That(proactiveBeingTested.HasSubscribers, Is.False, 
                 ErrorMessages.HasDependents<Proactive<int>>("before being used. "));
             
             int triggerAReaction = reactiveThatRetrievesValue.Value;
 
-            Assert.That(proactiveBeingTested.HasDependents, Is.True, 
+            Assert.That(proactiveBeingTested.HasSubscribers, Is.True, 
                 ErrorMessages.FactorDidNotHaveDependents<Proactive<int>>("despite being used to calculate a value. "));
             
             proactiveBeingTested.Value = 10;
 
-            Assert.That(proactiveBeingTested.HasDependents, Is.False, 
+            Assert.That(proactiveBeingTested.HasSubscribers, Is.False, 
                 ErrorMessages.HasDependents<Proactive<int>>("despite its value changing. "));
         }
         
@@ -45,25 +45,25 @@ namespace Tests.Integration
         {
             int     numberOfDependents = 10;
             IFactor factorBeingTested  = factory.CreateInstance();
-            var     interactions       = new MockDependent[numberOfDependents];
+            var     interactions       = new MockFactorSubscriber[numberOfDependents];
 
             for (int i = 0; i < numberOfDependents; i++)
             {
                 int    copyOfIndex        = i;
                 Action updateProcess      = () => EnsureUpdatedInOrder(copyOfIndex);
-                var    createdInteraction = new MockDependent(updateProcess);
+                var    createdInteraction = new MockFactorSubscriber(updateProcess);
                 
                 interactions[i] = createdInteraction;
                 createdInteraction.SetPriority(i);
                 createdInteraction.MakeNecessary();
                 createdInteraction.MakeValid();
-                factorBeingTested.AddDependent(createdInteraction);
+                factorBeingTested.Subscribe(createdInteraction);
                 Assert.That(createdInteraction.IsValid, Is.True);
             }
 
-            Assert.That(factorBeingTested.NumberOfDependents, Is.EqualTo(numberOfDependents));
+            Assert.That(factorBeingTested.NumberOfSubscribers, Is.EqualTo(numberOfDependents));
 
-            factorBeingTested.InvalidateDependents();
+            factorBeingTested.TriggerSubscribers();
 
             for (int i = 0; i < numberOfDependents; i++)
             {

@@ -18,7 +18,7 @@ namespace Tests
         {
             IOutcome resultBeingTested = resultFactory.CreateInstance();
 
-            Assert.That(resultBeingTested.IsBeingInfluenced, Is.False);
+            Assert.That(resultBeingTested.HasTriggers, Is.False);
         }
         
         [Test]
@@ -26,7 +26,7 @@ namespace Tests
         {
             IOutcome resultBeingTested = resultFactory.CreateInstance();
 
-            Assert.That(resultBeingTested.NumberOfInfluences, Is.Zero);
+            Assert.That(resultBeingTested.NumberOfTriggers, Is.Zero);
         }
         
         [Test]
@@ -46,15 +46,15 @@ namespace Tests
         public void WhenFactorInvalidatesDependents_DoesNotPreventUpdatesFromExecuting()
         {
             IFactor factorBeingTested = factory.CreateInstance();
-            var     dependent         = new MockDependent();
+            var     dependent         = new MockFactorSubscriber();
 
             dependent.MakeValid();
             dependent.MakeNecessary();
-            factorBeingTested.AddDependent(dependent);
+            factorBeingTested.Subscribe(dependent);
             
             Assert.That(dependent.IsValid, Is.True);
 
-            factorBeingTested.InvalidateDependents();
+            factorBeingTested.TriggerSubscribers();
 
             Assert.That(dependent.IsValid,    Is.True);
             Assert.That(dependent.WasUpdated, Is.True);

@@ -51,7 +51,7 @@ namespace Tests.InterfaceTests
             TState stateBeingTested   = factory.CreateInstance_WithValue(initialValue);
             var    dependents         = AddDependentsTo(stateBeingTested, numberOfDependents);
 
-            Assert.That(stateBeingTested.NumberOfDependents, Is.EqualTo(numberOfDependents));
+            Assert.That(stateBeingTested.NumberOfSubscribers, Is.EqualTo(numberOfDependents));
 
             stateBeingTested.Value = initialValue;
             
@@ -72,8 +72,8 @@ namespace Tests.InterfaceTests
             Proactive<int> stateBeingTested   = new Proactive<int>(initialValue);
             var            dependents         = AddDependentsTo(stateBeingTested, numberOfDependents);
 
-            Assert.That(stateBeingTested.NumberOfDependents, Is.EqualTo(numberOfDependents));
-            Assert.That(stateBeingTested.HasDependents, Is.True, 
+            Assert.That(stateBeingTested.NumberOfSubscribers, Is.EqualTo(numberOfDependents));
+            Assert.That(stateBeingTested.HasSubscribers, Is.True, 
                 ErrorMessages.FactorDidNotHaveDependents<Proactive<int>>("despite being used to calculate a value. "));
             
             stateBeingTested.Value = updatedValue;

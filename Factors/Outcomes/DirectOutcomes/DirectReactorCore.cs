@@ -5,7 +5,7 @@ using Factors.Observer;
 
 namespace Factors.Outcomes.DirectOutcomes
 {
-    public abstract class DirectOutcome : OutcomeBase
+    public abstract class DirectReactorCore : ReactorCore
     {
         #region Static Properties
 
@@ -16,7 +16,7 @@ namespace Factors.Outcomes.DirectOutcomes
         
         #region Instance Properties
 
-        public override bool                 IsBeingInfluenced  => true;
+        public override bool                 HasTriggers  => true;
         public abstract IEnumerable<IFactor> Inputs             { get; }
 
         #endregion
@@ -53,11 +53,11 @@ namespace Factors.Outcomes.DirectOutcomes
             return true;
         }
 
-        protected void AddSelfAsDependentToInputs()
+        protected void SubscribeToInputs()
         {
             foreach (var input in Inputs)
             {
-                input.AddDependent(this);
+                input.Subscribe(this);
             }
         }
         
@@ -71,7 +71,7 @@ namespace Factors.Outcomes.DirectOutcomes
 
         #region Constructors
 
-        public DirectOutcome(string name) : base(name)
+        public DirectReactorCore(string name) : base(name)
         {
         }
 

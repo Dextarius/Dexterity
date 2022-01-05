@@ -1,10 +1,8 @@
 ﻿using System;
+using Core.Factors;
 using JetBrains.Annotations;
 
 namespace Core.States
 {
-    public interface IResponse : IOutcome
-    {
-        bool Generate();
-    }
+
 }

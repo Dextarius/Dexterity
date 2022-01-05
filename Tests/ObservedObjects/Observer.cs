@@ -157,12 +157,12 @@ namespace Tests.ObservedObjects
             MockObserved       observedObject = new MockObserved();
 
             Assert.That(observedObject.WasInfluenced, Is.False);
-            Assert.That(involvedFactor.HasDependents, Is.False);
+            Assert.That(involvedFactor.HasSubscribers, Is.False);
             
             Observer.ObserveInteractions(process, observedObject);
             
             Assert.That(observedObject.WasInfluenced, Is.False);
-            Assert.That(involvedFactor.HasDependents, Is.False);
+            Assert.That(involvedFactor.HasSubscribers, Is.False);
 
             
             void PauseAndNotifyInvolved()
@@ -183,13 +183,13 @@ namespace Tests.ObservedObjects
             bool               wasPaused      = false;
 
             Assert.That(observedObject.WasInfluenced, Is.False);
-            Assert.That(involvedFactor.HasDependents, Is.False);
+            Assert.That(involvedFactor.HasSubscribers, Is.False);
 
             Observer.ObserveInteractions(process, observedObject);
             
             Assert.That(wasPaused);
             Assert.That(observedObject.WasInfluenced, Is.True);
-            Assert.That(involvedFactor.HasDependents, Is.True);
+            Assert.That(involvedFactor.HasSubscribers, Is.True);
             
             
             void PauseAndUnpauseThenNotifyInvolved()

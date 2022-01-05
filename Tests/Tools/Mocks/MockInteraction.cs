@@ -6,11 +6,11 @@ using Factors.Outcomes.ObservedOutcomes;
 
 namespace Tests.Tools.Mocks
 {
-    public class MockXXXX : IDependent
+    public class MockXXXX : IFactorSubscriber
     {
         #region Properties
     
-        public WeakReference<IDependent> WeakReference { get; } 
+        public WeakReference<IFactorSubscriber> WeakReference { get; } 
     
         public bool     WasInfluenced         { get; private set; }
         public bool     IsStable              { get; private set; }
@@ -29,10 +29,10 @@ namespace Tests.Tools.Mocks
         //     CausalObserver.ForThread
         // }
 
-        public bool Invalidate() => Invalidate(null);
+        public bool Trigger() => Trigger(null);
 
     
-        public bool Invalidate(IFactor factorThatChanged)
+        public bool Trigger(IFactor triggeringFactor)
         {
             if (IsValid)
             {
@@ -71,7 +71,7 @@ namespace Tests.Tools.Mocks
             WasInfluenced = true;
             MostRecentDeterminant = determinant;
     
-            determinant.AddDependent(this);
+            determinant.Subscribe(this);
         }
     
         public void SetPriority(int newPriority)
@@ -82,21 +82,21 @@ namespace Tests.Tools.Mocks
         public MockDependent(IProcess updateProcess)
         {
             UpdateProcess = updateProcess;
-            WeakReference = new WeakReference<IDependent>(this);
+            WeakReference = new WeakReference<IFactorSubscriber>(this);
             IsValid = true;
         }
         
         public MockDependent(Action updateProcess) : this(ObservedActionResponse.CreateFrom(updateProcess, this))
         {
             UpdateProcess = updateProcess;
-            WeakReference = new WeakReference<IDependent>(this);
+            WeakReference = new WeakReference<IFactorSubscriber>(this);
             IsValid = true;
         }
     
         public MockDependent() : this(ActionProcess.CreateFrom(Tests.Tools.Tools.DoNothing))
         {
             UpdateProcess = updateProcess;
-            WeakReference = new WeakReference<IDependent>(this);
+            WeakReference = new WeakReference<IFactorSubscriber>(this);
             IsValid = true;
         }
     }

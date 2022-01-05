@@ -48,8 +48,8 @@ namespace Tests
         {
             Reactive<int> reactiveToTest = new Reactive<int>(Return42);
             
-            Assert.That(reactiveToTest.IsValid, Is.False, 
-                $"The property {nameof(reactiveToTest.IsValid)} was marked as true during construction.");
+            Assert.That(reactiveToTest.CanReact, Is.False, 
+                $"The property {nameof(reactiveToTest.CanReact)} was marked as true during construction.");
         }
 
         [Test]
@@ -66,8 +66,8 @@ namespace Tests
         {
             Reactive<int> reactiveToTest = new Reactive<int>(Return42);
             
-            Assert.That(reactiveToTest.HasDependents, Is.False, 
-                $"The property {nameof(reactiveToTest.HasDependents)} was marked as true during construction.");
+            Assert.That(reactiveToTest.HasSubscribers, Is.False, 
+                $"The property {nameof(reactiveToTest.HasSubscribers)} was marked as true during construction.");
         }
 
         [Test]
@@ -75,7 +75,7 @@ namespace Tests
         {
             Reactive<int> reactiveToTest = new Reactive<int>(Return42);
             
-            Assert.That(reactiveToTest.IsUpdating, Is.False, $"The property {nameof(reactiveToTest.IsUpdating)} was marked as true during construction.");
+            Assert.That(reactiveToTest.IsReacting, Is.False, $"The property {nameof(reactiveToTest.IsReacting)} was marked as true during construction.");
         }
 
         [Test]
@@ -142,12 +142,12 @@ namespace Tests
             Reactive<int>  reactiveBeingTested = new Reactive<int>(() => proactive);
             int            triggerValueUpdate  = reactiveBeingTested.Value;
                 
-            Assert.That(reactiveBeingTested.IsValid, "The reactive was not valid after initial construction. ");
+            Assert.That(reactiveBeingTested.CanReact, "The reactive was not valid after initial construction. ");
 
             proactive.Value = updatedValue;
             
-            Assert.That(reactiveBeingTested.IsValid == false, "The reactive was not marked as invalid after being invalidated.");
-            TestContext.WriteLine($"The {nameof(Reactive)} was valid => {reactiveBeingTested.IsValid}");
+            Assert.That(reactiveBeingTested.CanReact == false, "The reactive was not marked as invalid after being invalidated.");
+            TestContext.WriteLine($"The {nameof(Reactive)} was valid => {reactiveBeingTested.CanReact}");
         }
 
         [Test]
@@ -206,10 +206,10 @@ namespace Tests
             Reactive<int>  reactiveBeingTested = new Reactive<int>(() => proactive);
             int            triggerValueUpdate  = reactiveBeingTested.Value;
                 
-            Assert.That(reactiveBeingTested.IsValid, "The reactive was not valid after initial construction. ");
-            reactiveBeingTested.Invalidate();
-            Assert.That(reactiveBeingTested.IsValid == false, "The reactive was not marked as invalid after being invalidated.");
-            TestContext.WriteLine($"The {nameof(Reactive)} was valid => {reactiveBeingTested.IsValid}");
+            Assert.That(reactiveBeingTested.CanReact, "The reactive was not valid after initial construction. ");
+            reactiveBeingTested.Trigger();
+            Assert.That(reactiveBeingTested.CanReact == false, "The reactive was not marked as invalid after being invalidated.");
+            TestContext.WriteLine($"The {nameof(Reactive)} was valid => {reactiveBeingTested.CanReact}");
         }
 
         [Test]
@@ -219,8 +219,8 @@ namespace Tests
 
             using (manipulator.PutReactiveIntoUpdatingState())
             {
-                Assert.That(manipulator.Reactive.IsUpdating, $"{NameOf<Reactive<int>>()}.{nameof(Reactive<int>.IsUpdating)} was false during its update. ");
-                TestContext.WriteLine($"{nameof(Reactive<int>.IsUpdating)} was {manipulator.Reactive.IsUpdating}. ");
+                Assert.That(manipulator.Reactive.IsReacting, $"{NameOf<Reactive<int>>()}.{nameof(Reactive<int>.IsReacting)} was false during its update. ");
+                TestContext.WriteLine($"{nameof(Reactive<int>.IsReacting)} was {manipulator.Reactive.IsReacting}. ");
             }
         }
 
@@ -231,16 +231,16 @@ namespace Tests
             Reactive<int>  reactiveBeingTested = new Reactive<int>(() => proactive);
             int            triggerValueUpdate  = reactiveBeingTested.Value;
                 
-            Assert.That(reactiveBeingTested.IsValid, "The reactive was not valid after initial construction. ");
+            Assert.That(reactiveBeingTested.CanReact, "The reactive was not valid after initial construction. ");
 
             proactive.Value += increment;
             
-            Assert.That(reactiveBeingTested.IsValid == false, "The reactive was not marked as invalid after being invalidated.");
-            TestContext.WriteLine($"The {nameof(Reactive)} was valid => {reactiveBeingTested.IsValid}");
+            Assert.That(reactiveBeingTested.CanReact == false, "The reactive was not marked as invalid after being invalidated.");
+            TestContext.WriteLine($"The {nameof(Reactive)} was valid => {reactiveBeingTested.CanReact}");
             
             triggerValueUpdate = reactiveBeingTested.Value;
-            Assert.That(reactiveBeingTested.IsValid, "The reactive was not marked as valid after reacting.");
-            TestContext.WriteLine($"The {nameof(Reactive)} was valid => {reactiveBeingTested.IsValid}");
+            Assert.That(reactiveBeingTested.CanReact, "The reactive was not marked as valid after reacting.");
+            TestContext.WriteLine($"The {nameof(Reactive)} was valid => {reactiveBeingTested.CanReact}");
         }
 
         [Test]
@@ -339,7 +339,7 @@ namespace Tests
             reactiveToTest.IsReflexive = true;
             TestContext.WriteLine($"IsReflexive => {reactiveToTest.IsReflexive}.");
             proactive.Value = updatedValue;
-            TestContext.WriteLine($"IsValid => {reactiveToTest.IsValid}.");
+            TestContext.WriteLine($"IsValid => {reactiveToTest.CanReact}.");
 
 
             Assert.That(numberOfExecutions, Is.EqualTo(2));
@@ -362,10 +362,10 @@ namespace Tests
             Reactive<int> reactiveBeingTested = new Reactive<int>(ReturnTheNumber42);
             Reactive<int> dependentReactor    = CreateReactiveThatGetsValueOf(reactiveBeingTested);
 
-            Assert.That(reactiveBeingTested.HasDependents, Is.False, $"{HasDependents<Reactive<int>>("before being used")}");
+            Assert.That(reactiveBeingTested.HasSubscribers, Is.False, $"{HasDependents<Reactive<int>>("before being used")}");
             int triggerAReaction = dependentReactor.Value;
             
-            Assert.That(reactiveBeingTested.HasDependents, 
+            Assert.That(reactiveBeingTested.HasSubscribers, 
                 $"{FactorDidNotHaveDependents<Proactive<int>>("despite being used to calculate a value")}");
         }
 

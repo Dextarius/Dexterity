@@ -3,7 +3,7 @@ using Factors.Observer;
 
 namespace Factors.Outcomes.Influences
 {
-    public class ObservedInfluence : Influence, IInvolved
+    public class ObservedFactorCore : FactorCore, IInvolved
     {
         #region Static Properties
 
@@ -29,7 +29,7 @@ namespace Factors.Outcomes.Influences
         #endregion
         
         
-        public ObservedInfluence(string name) : base(name)
+        public ObservedFactorCore(string name) : base(name)
         {
             
         }

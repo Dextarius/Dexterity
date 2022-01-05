@@ -3,31 +3,27 @@ using Core.Factors;
 
 namespace Core.States
 { 
-    public interface IOutcome : IFactor, IDependent, IStabilizable
-    {
-        #region Properties
-
-        bool IsReflexive        { get; set; }
-        bool IsUpdating         { get; }
-        bool IsValid            { get; }
-        bool IsInvalid          { get; }
-        bool IsStable           { get; }
-        bool IsUnstable         { get; }
-        bool IsStabilizing      { get; }
-        bool IsBeingInfluenced  { get; }
-        int  NumberOfInfluences { get; }
-
-        #endregion
-
-        
-        #region Instance Methods
-
-        bool Generate();
-
-        #endregion
-    }
-    
-    
-    
-    
+    // public interface IOutcome : IFactor, IFactorSubscriber, IStabilizable
+    // {
+    //     #region Properties
+    //
+    //     bool IsReflexive      { get; set; }
+    //     bool HasTriggers      { get; }
+    //     int  NumberOfTriggers { get; }
+    //     bool HasBeenTriggered { get; }
+    //     bool IsReacting       { get; }
+    //     bool IsUnstable       { get; }
+    //     bool IsStabilizing    { get; }
+    //  // bool IsStable         { get; }
+    //  // bool IsValid          { get; }
+    //
+    //     #endregion
+    //
+    //     
+    //     #region Instance Methods
+    //
+    //     bool React();
+    //
+    //     #endregion
+    // }
 }

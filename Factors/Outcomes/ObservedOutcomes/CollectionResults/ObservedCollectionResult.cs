@@ -10,7 +10,7 @@ namespace Factors.Outcomes.ObservedOutcomes.CollectionResults
 
 
     public abstract class ObservedCollectionResult<TCollection, TValue> : 
-        ObservedOutcome, ICollectionResult<TValue>, IProcess<IEnumerable<TValue>>
+        ObservedReactorCore, ICollectionResult<TValue>, IProcess<IEnumerable<TValue>>
             where TCollection : ICollection<TValue>
     {
         #region Instance Fields

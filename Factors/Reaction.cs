@@ -8,37 +8,21 @@ using static Core.Tools.Delegates;
 
 namespace Factors
 {
-    public class Reaction : Reactor
+    public class Reaction : Reactor<IReactor>
     {
-        #region Instance Fields
-
-        [NotNull]
-        protected readonly IResponse response;
-        
-        #endregion
-        
-        
-        #region Properties
-
-        protected override IOutcome Outcome => response;
-
-        #endregion
-
-
         #region Constructors
         
-        public Reaction(IResponse reactionResponse, string name = null) : 
-            base(name?? nameof(Reactor))
+        public Reaction(IReactor reactionCore, string name = null) : 
+            base(reactionCore, name?? nameof(Reaction))
         {
-            response = reactionResponse;
+
         }
         
         public Reaction(Action actionToExecute, string name = null) : 
-            base(name?? CreateDefaultName<Reaction>(actionToExecute))
+            base(new ObservedActionResponse(actionToExecute), 
+                name?? CreateDefaultName<Reaction>(actionToExecute))
         {
             if(actionToExecute == null) { throw new ArgumentNullException(nameof(actionToExecute)); }
-            
-            response = new ObservedActionResponse(actionToExecute);
         }
 
         #endregion

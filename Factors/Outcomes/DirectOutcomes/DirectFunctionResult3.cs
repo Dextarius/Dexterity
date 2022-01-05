@@ -23,7 +23,7 @@ namespace Factors.Outcomes.DirectOutcomes
 
         #region Properties
 
-        public override int NumberOfInfluences => 3;
+        public override int NumberOfTriggers => 3;
         public override int Priority           => priority;
 
         public override IEnumerable<IFactor> Inputs

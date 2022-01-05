@@ -75,7 +75,7 @@ namespace Tests.Tools
                 reactiveNotBeingCollected = CreateReactiveThatGetsValueOf(reactiveNotBeingCollected);
             }
 
-            Assert.True(proactiveValue.HasDependents);
+            Assert.True(proactiveValue.HasSubscribers);
 
             return proactiveValue;
         }
@@ -143,9 +143,9 @@ namespace Tests.Tools
         
         public static void AssumeHasNoInfluences<TFactor>(TFactor factor)  where TFactor : IOutcome
         {
-            int numberOfInfluences = factor.NumberOfInfluences;
+            int numberOfInfluences = factor.NumberOfTriggers;
             
-            Assume.That(factor.IsBeingInfluenced, Is.False, 
+            Assume.That(factor.HasTriggers, Is.False, 
                 ErrorMessages.HasInfluences<TFactor>("before being used. "));
             
             Assume.That(numberOfInfluences,        Is.Zero, 
@@ -170,13 +170,13 @@ namespace Tests.Tools
 
         public static void Assert_React_CreatesExclusiveDependencyBetween(IDeterminant parent, IReactor dependent)
         {
-            Assert.That(dependent.IsValid,           Is.False);
-            Assert.That(dependent.IsBeingInfluenced, Is.False);
+            Assert.That(dependent.CanReact,           Is.False);
+            Assert.That(dependent.HasTriggers, Is.False);
             Assert.That(parent.HasDependents,    Is.False);
             
-            dependent.React();
+            dependent.ForceReaction();
             
-            Assert.That(dependent.IsBeingInfluenced, Is.True);
+            Assert.That(dependent.HasTriggers, Is.True);
             Assert.That(parent.HasDependents,    Is.True);
         }
 
@@ -194,17 +194,17 @@ namespace Tests.Tools
             return number;
         }
 
-        public static MockDependent[] AddDependentsTo(IFactor factor, int numberOfDependents)
+        public static MockFactorSubscriber[] AddDependentsTo(IFactor factor, int numberOfDependents)
         {
-            var dependents = new MockDependent[numberOfDependents];
+            var dependents = new MockFactorSubscriber[numberOfDependents];
 
             for (int i = 0; i < numberOfDependents; i++)
             {
-                var createdDependent = new MockDependent();
+                var createdDependent = new MockFactorSubscriber();
                 
                 dependents[i] = createdDependent;
                 createdDependent.MakeValid();
-                factor.AddDependent(createdDependent);
+                factor.Subscribe(createdDependent);
             }
 
             return dependents;

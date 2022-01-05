@@ -8,7 +8,7 @@ using static Core.Tools.Collections;
 
 namespace Factors.Outcomes.ObservedOutcomes
 {
-    public abstract class ObservedOutcome : OutcomeBase, IObserved, IInvolved
+    public abstract class ObservedReactorCore : ReactorCore, IObserved, IInvolved
     {
         #region Static Fields
     
@@ -36,17 +36,10 @@ namespace Factors.Outcomes.ObservedOutcomes
         
         #region Properties
 
-        public override bool IsBeingInfluenced  => influences.Length > 0;
-        public override int  NumberOfInfluences => nextOpenInfluenceIndex;
-        public override int  Priority           => priority;
+        public override bool HasTriggers      => influences.Length > 0;
+        public override int  NumberOfTriggers => nextOpenInfluenceIndex;
+        public override int  Priority         => priority;
 
-        //- bool AllowDependencies :  This could be good for Action based Outcomes that want to track their dependencies,
-        //                            but aren't intended to have their own dependents, like a Reaction that just prints
-        //                            a value to the Console.  Alternatively, add a mechanic that allows something to
-        //                            subscribe to a Reactive it accesses, even if the Reactive is hidden below the surface
-        //                            i.e. being able to subscribe to a property that only exposes the value of the Reactive. 
-        //
-        
         #endregion
         
 
@@ -112,7 +105,7 @@ namespace Factors.Outcomes.ObservedOutcomes
     
                 if (currentDeterminant != stateToSkip)
                 {
-                    currentDeterminant.RemoveDependent(this);
+                    currentDeterminant.Unsubscribe(this);
                 }
                 
                 currentDeterminant = null;
@@ -144,7 +137,7 @@ namespace Factors.Outcomes.ObservedOutcomes
 
         #region Constructors
 
-        public ObservedOutcome(string name) : base(name)
+        public ObservedReactorCore(string name) : base(name)
         {
 
         }
@@ -158,9 +151,9 @@ namespace Factors.Outcomes.ObservedOutcomes
         {
             if (determinant is null) { throw new ArgumentNullException(nameof(determinant)); }
 
-            if (IsValid)
+            if (HasBeenTriggered is false)
             {
-                if (determinant.AddDependent(this))
+                if (determinant.Subscribe(this))
                 {
                     //- We expect a Factor to only add us as a dependent if they don't already have us as a dependent. 
                     Add(ref influences, determinant, nextOpenInfluenceIndex);

@@ -12,7 +12,7 @@ namespace Tests.ObservedObjects
             Reactive<int>  dependentReactive    = new Reactive<int>(() => proactiveBeingTested);
             int            triggerValueUpdate   = dependentReactive.Value;
 
-            Assert.That(proactiveBeingTested.HasDependents);
+            Assert.That(proactiveBeingTested.HasSubscribers);
         }
     }
 }

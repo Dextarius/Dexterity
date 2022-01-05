@@ -2,9 +2,8 @@
 
 namespace Core.States
 {
-    public interface IResult<out T> : IOutcome
+    public interface IResult<out T> : IReactor, IFactor<T>
     {
-        T    Value { get; }
-        T    Peek();
+
     }
 }

@@ -7,7 +7,7 @@ using Core.Tools;
 
 namespace Factors.Outcomes.DirectOutcomes
 {
-    public class DirectActionResponse<TArg> : DirectOutcome
+    public class DirectActionResponse<TArg> : DirectReactorCore
     {
         #region Instance Fields
 
@@ -20,7 +20,7 @@ namespace Factors.Outcomes.DirectOutcomes
 
         #region Properties
 
-        public override int NumberOfInfluences => 1;
+        public override int NumberOfTriggers => 1;
         public override int Priority           => inputSource.Priority + 1;
         
         public override IEnumerable<IFactor> Inputs
@@ -39,7 +39,7 @@ namespace Factors.Outcomes.DirectOutcomes
         protected override bool GenerateOutcome()
         {
             responseAction(inputSource.Value);
-            AddSelfAsDependentToInputs();
+            SubscribeToInputs();
 
             return true;
         }

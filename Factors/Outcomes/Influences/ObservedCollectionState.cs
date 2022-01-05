@@ -9,7 +9,7 @@ using static Core.Tools.Types;
 
 namespace Factors.Outcomes.Influences
 {
-    public abstract class ObservedCollectionState<TCollection, TValue> : ObservedInfluence, ICollectionState<TValue> 
+    public abstract class ObservedCollectionState<TCollection, TValue> : ObservedFactorCore, ICollectionState<TValue> 
         where TCollection : ICollection<TValue>
     {
         #region Instance Fields
@@ -36,7 +36,7 @@ namespace Factors.Outcomes.Influences
         protected void OnCollectionChanged()
         {
             NotifyChanged();
-            InvalidateDependents();
+            TriggerSubscribers();
         }
 
         public void Add(TValue item)

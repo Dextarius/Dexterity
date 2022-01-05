@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 
 namespace Factors.Outcomes.Influences
 {
-    public class ObservedState<T> : ObservedInfluence, IState<T>
+    public class ObservedState<T> : ObservedFactorCore, IState<T>
     {
         [NotNull]
         protected readonly IEqualityComparer<T> valueComparer;

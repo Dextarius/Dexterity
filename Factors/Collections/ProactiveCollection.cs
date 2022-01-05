@@ -11,43 +11,35 @@ using static Core.Tools.Types;
 
 namespace Factors.Collections
 {
-    public  abstract class ProactiveCollection<TCollection, TValue> : Proactor, ICollection<TValue>, ICollection
-        where TCollection : ICollectionState<TValue>
+    public  abstract class ProactiveCollection<TCore, TValue> : Factor<TCore>, ICollection<TValue>, ICollection
+        where TCore : ICollectionState<TValue>
     {
-        #region Instance Fields
-
-        protected readonly TCollection collection;
-        
-        #endregion
-        
-        
         #region Properties
 
-        protected override IFactor Influence => collection;
-        public             int     Count     => collection.Count;
+        public int Count => core.Count;
 
         #endregion
 
 
         #region Instance Methods
 
-        public void                Add(TValue item)                         => collection.Add(item);
-        public void                AddRange(IEnumerable<TValue> itemsToAdd) => collection.AddRange(itemsToAdd);
-        public void                AddRange(params TValue[] itemsToAdd)     => collection.AddRange(itemsToAdd);
-        public bool                Remove(TValue itemToRemove)              => collection.Remove(itemToRemove);
-        public bool                Contains(TValue item)                    => collection.Contains(item);
-        public void                Clear()                                  => collection.Clear();
-        public void                CopyTo(TValue[] array, int arrayIndex)   => collection.CopyTo(array, arrayIndex);
-        public IEnumerator<TValue> GetEnumerator()                          => collection.GetEnumerator();
+        public void                Add(TValue item)                         => core.Add(item);
+        public void                AddRange(IEnumerable<TValue> itemsToAdd) => core.AddRange(itemsToAdd);
+        public void                AddRange(params TValue[] itemsToAdd)     => core.AddRange(itemsToAdd);
+        public bool                Remove(TValue itemToRemove)              => core.Remove(itemToRemove);
+        public bool                Contains(TValue item)                    => core.Contains(item);
+        public void                Clear()                                  => core.Clear();
+        public void                CopyTo(TValue[] array, int arrayIndex)   => core.CopyTo(array, arrayIndex);
+        public IEnumerator<TValue> GetEnumerator()                          => core.GetEnumerator();
 
         #endregion
 
         
         #region Constructors
 
-        protected ProactiveCollection(TCollection collectionState, string name = null) : base(name)
+        protected ProactiveCollection(TCore collectionCore, string name = null) : base(collectionCore, name)
         {
-            collection = collectionState;
+
         }
 
         #endregion
@@ -55,12 +47,12 @@ namespace Factors.Collections
 
         #region Explicit Implementations
 
-        void        ICollection.CopyTo(Array array, int index) => collection.CopyTo(array, index);
+        void        ICollection.CopyTo(Array array, int index) => core.CopyTo(array, index);
         bool        ICollection.IsSynchronized                 => false;
         bool        ICollection<TValue>.IsReadOnly             => false;
         IEnumerator IEnumerable.GetEnumerator()                => GetEnumerator();
         object      ICollection.SyncRoot                       => 
-            throw new NotSupportedException($"{NameOf<ProactiveCollection<TCollection, TValue>>()} does not support SyncRoot. ");
+            throw new NotSupportedException($"{NameOf<ProactiveCollection<TCore, TValue>>()} does not support SyncRoot. ");
         //- TODO : Come back to this later and decide if it's worthwhile/possible to implement SyncRoot.
         
         #endregion

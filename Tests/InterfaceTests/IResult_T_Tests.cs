@@ -34,7 +34,7 @@ namespace Tests.InterfaceTests
             for (int i = 0; i < 100; i++)
             {
                 storedValue.Value = resultFactory.CreateRandomInstanceOfValuesType_NotEqualTo(storedValue.Value);
-                resultToTest.React();
+                resultToTest.ForceReaction();
                 returnedValue = resultToTest.Value;
                 
                 Assert.That(returnedValue, Is.EqualTo(storedValue.Value));
@@ -51,7 +51,7 @@ namespace Tests.InterfaceTests
             int          numberOfDependents = 10;
             TDependent[] dependents         = new TDependent[numberOfDependents];
 
-            Assert.That(outcomeBeingTested.HasDependents, Is.False,
+            Assert.That(outcomeBeingTested.HasSubscribers, Is.False,
                 $"The {NameOf<TResult>()} was marked as consequential before being used. ");
             
             AssumeHasNoDependents(outcomeBeingTested);
@@ -61,21 +61,21 @@ namespace Tests.InterfaceTests
                 var createdDependent = dependentFactory.CreateInstance();
 
                 dependents[i] = createdDependent;
-                outcomeBeingTested.AddDependent(createdDependent);
+                outcomeBeingTested.Subscribe(createdDependent);
                 Assert.That(createdDependent.IsValid, Is.True);
             }
 
             AssumeHasSpecificNumberOfDependents(outcomeBeingTested, numberOfDependents);
 
             valueProcess.Value = updatedValue;
-            outcomeBeingTested.React();
+            outcomeBeingTested.ForceReaction();
             
             for (int i = 0; i < numberOfDependents; i++)
             {
                 var createdDependent = dependentFactory.CreateInstance();
 
                 dependents[i] = createdDependent;
-                outcomeBeingTested.AddDependent(createdDependent);
+                outcomeBeingTested.Subscribe(createdDependent);
                 Assert.That(createdDependent.IsValid, Is.False);
             }
         }
@@ -90,7 +90,7 @@ namespace Tests.InterfaceTests
             int          numberOfDependents = 10;
             TDependent[] dependents         = new TDependent[numberOfDependents];
 
-            Assert.That(outcomeBeingTested.HasDependents, Is.False,
+            Assert.That(outcomeBeingTested.HasSubscribers, Is.False,
                 $"The {NameOf<TResult>()} was marked as consequential before being used. ");
             
             AssumeHasNoDependents(outcomeBeingTested);
@@ -100,20 +100,20 @@ namespace Tests.InterfaceTests
                 var createdDependent = dependentFactory.CreateInstance();
 
                 dependents[i] = createdDependent;
-                outcomeBeingTested.AddDependent(createdDependent);
+                outcomeBeingTested.Subscribe(createdDependent);
                 Assert.That(createdDependent.IsValid, Is.True);
             }
 
             AssumeHasSpecificNumberOfDependents(outcomeBeingTested, numberOfDependents);
 
-            outcomeBeingTested.React();
+            outcomeBeingTested.ForceReaction();
             
             for (int i = 0; i < numberOfDependents; i++)
             {
                 var createdDependent = dependentFactory.CreateInstance();
 
                 dependents[i] = createdDependent;
-                outcomeBeingTested.AddDependent(createdDependent);
+                outcomeBeingTested.Subscribe(createdDependent);
                 Assert.That(createdDependent.IsValid, Is.True, 
                    ErrorMessages.ValueFactorInvalidatedDependentsWhenGivenAnEquivalentValue<TResult>());
             }

@@ -57,7 +57,7 @@ namespace Tests.Integration
                 Assert.That(reactive, Is.Not.Null);
             }
 
-            Assert.That(proactiveValue.HasDependents);
+            Assert.That(proactiveValue.HasSubscribers);
 
             return referenceToProactive;
         }

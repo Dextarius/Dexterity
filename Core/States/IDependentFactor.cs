@@ -2,7 +2,7 @@
 
 namespace Core.States
 {
-    public interface IDependentFactor : IDependent, IFactor
+    public interface IDependentFactor : IFactorSubscriber, IFactor
     {
         
     }

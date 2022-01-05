@@ -10,26 +10,26 @@ namespace Factors.Collections
 {
     public class ProactiveSet<T> : ProactiveCollection<ISetState<T>, T>, ISet<T>
     {
-        public new bool       Add(T item)                         => collection.Add(item);
-        public     HashSet<T> AsNormalSet()                       => collection.AsNormalSet();
-        public     int        RemoveWhere(Predicate<T> predicate) => collection.RemoveWhere(predicate);
-        public     void       TrimExcess()                        => collection.TrimExcess();
+        public     HashSet<T> AsNormalSet()                       => core.AsNormalSet();
+        public new bool       Add(T item)                         => core.Add(item);
+        public     void       TrimExcess()                        => core.TrimExcess();
+        public     int        RemoveWhere(Predicate<T> predicate) => core.RemoveWhere(predicate);
 
-        public void SymmetricExceptWith(IEnumerable<T> other) => collection.SymmetricExceptWith(other);
-        public bool  IsProperSupersetOf(IEnumerable<T> other) => collection.IsProperSupersetOf(other);
-        public bool    IsProperSubsetOf(IEnumerable<T> other) => collection.IsProperSubsetOf(other);
-        public void       IntersectWith(IEnumerable<T> other) => collection.IntersectWith(other);
-        public bool        IsSupersetOf(IEnumerable<T> other) => collection.IsSupersetOf(other);
-        public bool          IsSubsetOf(IEnumerable<T> other) => collection.IsSubsetOf(other);
-        public void          ExceptWith(IEnumerable<T> other) => collection.ExceptWith(other);
-        public void           UnionWith(IEnumerable<T> other) => collection.UnionWith(other);
-        public bool           SetEquals(IEnumerable<T> other) => collection.SetEquals(other);
-        public bool            Overlaps(IEnumerable<T> other) => collection.Overlaps(other);
+        public void SymmetricExceptWith(IEnumerable<T> other) => core.SymmetricExceptWith(other);
+        public bool  IsProperSupersetOf(IEnumerable<T> other) => core.IsProperSupersetOf(other);
+        public bool    IsProperSubsetOf(IEnumerable<T> other) => core.IsProperSubsetOf(other);
+        public void       IntersectWith(IEnumerable<T> other) => core.IntersectWith(other);
+        public bool        IsSupersetOf(IEnumerable<T> other) => core.IsSupersetOf(other);
+        public bool          IsSubsetOf(IEnumerable<T> other) => core.IsSubsetOf(other);
+        public void          ExceptWith(IEnumerable<T> other) => core.ExceptWith(other);
+        public void           UnionWith(IEnumerable<T> other) => core.UnionWith(other);
+        public bool           SetEquals(IEnumerable<T> other) => core.SetEquals(other);
+        public bool            Overlaps(IEnumerable<T> other) => core.Overlaps(other);
 
 
         #region Constructors
         
-        public ProactiveSet(ISetState<T> setState, string name = null) : base(setState, name)
+        public ProactiveSet(ISetState<T> setCore, string name = null) : base(setCore, name)
         {
         }
 

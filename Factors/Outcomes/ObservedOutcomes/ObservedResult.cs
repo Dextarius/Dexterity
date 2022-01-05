@@ -4,7 +4,7 @@ using Core.States;
 
 namespace Factors.Outcomes.ObservedOutcomes
 {
-    public abstract class ObservedResult<T> : ObservedOutcome, IResult<T>, IProcess<T>
+    public abstract class ObservedResult<T> : ObservedReactorCore, IResult<T>, IProcess<T>
     {
         #region Instance Fields
 

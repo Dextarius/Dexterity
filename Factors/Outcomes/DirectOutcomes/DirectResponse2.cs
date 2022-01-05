@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 
 namespace Factors.Outcomes.DirectOutcomes
 {
-    public class DirectActionResponse<TArg1, TArg2> : DirectOutcome
+    public class DirectActionResponse<TArg1, TArg2> : DirectReactorCore
     {
         #region Instance Fields
 
@@ -22,7 +22,7 @@ namespace Factors.Outcomes.DirectOutcomes
 
         #region Properties
 
-        public override int NumberOfInfluences => 1;
+        public override int NumberOfTriggers => 1;
         public override int Priority           => priority;
         
         public override IEnumerable<IFactor> Inputs
@@ -41,7 +41,7 @@ namespace Factors.Outcomes.DirectOutcomes
         protected override bool GenerateOutcome()
         {
             responseAction(inputSource1.Value, inputSource2.Value);
-            AddSelfAsDependentToInputs();
+            SubscribeToInputs();
             priority = Math.Max(inputSource1.Priority, inputSource2.Priority);
 
             return true;

@@ -32,9 +32,9 @@ namespace Tests
         {
             TReactor resultToTest = resultFactory.CreateInstance();
             
-            Assert.That(resultToTest.IsValid, Is.False);
-            resultToTest.React();
-            Assert.That(resultToTest.IsValid, Is.True);
+            Assert.That(resultToTest.CanReact, Is.False);
+            resultToTest.ForceReaction();
+            Assert.That(resultToTest.CanReact, Is.True);
         }
         
         [Test]
@@ -42,10 +42,10 @@ namespace Tests
         {
             IReactor resultToTest = resultFactory.CreateInstance();
 
-            resultToTest.React();
-            Assert.That(resultToTest.IsValid, Is.True);
-            resultToTest.Invalidate(null);
-            Assert.That(resultToTest.IsValid, Is.False);
+            resultToTest.ForceReaction();
+            Assert.That(resultToTest.CanReact, Is.True);
+            resultToTest.Trigger(null);
+            Assert.That(resultToTest.CanReact, Is.False);
         }
 
         [Test]
@@ -54,16 +54,16 @@ namespace Tests
             TReactor parentResult = resultFactory.CreateInstance();
             TReactor childResult  = resultFactory.CreateInstance_WhoseUpdateInvolves(parentResult);
 
-            Assert.That(childResult.IsBeingInfluenced, Is.False);
-            Assert.That(parentResult.HasDependents,    Is.False);
+            Assert.That(childResult.HasTriggers, Is.False);
+            Assert.That(parentResult.HasSubscribers,    Is.False);
             
-            parentResult.Invalidate(null);
-            Assert.That(parentResult.IsValid, Is.False);
-            childResult.React();
+            parentResult.Trigger(null);
+            Assert.That(parentResult.CanReact, Is.False);
+            childResult.ForceReaction();
 
-            Assert.That(parentResult.IsValid,          Is.False);
-            Assert.That(childResult.IsBeingInfluenced, Is.True);
-            Assert.That(parentResult.HasDependents,    Is.True);
+            Assert.That(parentResult.CanReact,          Is.False);
+            Assert.That(childResult.HasTriggers, Is.True);
+            Assert.That(parentResult.HasSubscribers,    Is.True);
             
         }
 
@@ -74,22 +74,22 @@ namespace Tests
             TReactor parentResult = resultFactory.CreateInstance();
             TReactor childResult  = resultFactory.CreateInstance_WhoseUpdateInvolves(parentResult);
 
-            parentResult.React();
+            parentResult.ForceReaction();
             
-            Assert.That(childResult.IsBeingInfluenced, Is.False);
-            Assert.That(parentResult.HasDependents,    Is.False);
-            Assert.That(parentResult.IsValid,          Is.True);
+            Assert.That(childResult.HasTriggers, Is.False);
+            Assert.That(parentResult.HasSubscribers,    Is.False);
+            Assert.That(parentResult.CanReact,          Is.True);
 
-            childResult.React();
+            childResult.ForceReaction();
             
-            Assert.That(childResult.IsBeingInfluenced, Is.True);
-            Assert.That(parentResult.HasDependents,    Is.True);
+            Assert.That(childResult.HasTriggers, Is.True);
+            Assert.That(parentResult.HasSubscribers,    Is.True);
             
-            parentResult.Invalidate(null);
+            parentResult.Trigger(null);
 
-            Assert.That(parentResult.IsValid, Is.False);
+            Assert.That(parentResult.CanReact, Is.False);
             Assert.That(childResult.IsStable, Is.False);
-            Assert.That(childResult.IsValid,  Is.True);
+            Assert.That(childResult.CanReact,  Is.True);
         }
 
         [Test]
@@ -99,23 +99,23 @@ namespace Tests
             TReactor parentResult = resultFactory.CreateInstance();
             TReactor childResult  = resultFactory.CreateInstance_WhoseUpdateInvolves(parentResult);
 
-            parentResult.React();
+            parentResult.ForceReaction();
             
-            Assert.That(childResult.IsBeingInfluenced, Is.False);
-            Assert.That(parentResult.HasDependents,    Is.False);
+            Assert.That(childResult.HasTriggers, Is.False);
+            Assert.That(parentResult.HasSubscribers,    Is.False);
             
-            childResult.React();
+            childResult.ForceReaction();
             
-            Assert.That(childResult.IsBeingInfluenced, Is.True);
-            Assert.That(parentResult.HasDependents,    Is.True);
-            Assert.That(parentResult.IsValid,          Is.True);
-            Assert.That(childResult.IsValid,           Is.True);
+            Assert.That(childResult.HasTriggers, Is.True);
+            Assert.That(parentResult.HasSubscribers,    Is.True);
+            Assert.That(parentResult.CanReact,          Is.True);
+            Assert.That(childResult.CanReact,           Is.True);
             Assert.That(childResult.IsStable,          Is.True);
 
-            parentResult.Invalidate(null);
+            parentResult.Trigger(null);
             
-            Assert.That(parentResult.IsValid, Is.False);
-            Assert.That(childResult.IsValid,  Is.True);
+            Assert.That(parentResult.CanReact, Is.False);
+            Assert.That(childResult.CanReact,  Is.True);
             Assert.That(childResult.IsStable, Is.False);
         }
 
@@ -126,10 +126,10 @@ namespace Tests
             TReactor resultToTest = resultFactory.CreateInstance_WhoseUpdateCalls(process);
             
             
-            Assert.That(resultToTest.IsValid,          Is.False);
+            Assert.That(resultToTest.CanReact,          Is.False);
             Assert.That(process.NumberOfTimesExecuted, Is.EqualTo(0));
 
-            resultToTest.React();
+            resultToTest.ForceReaction();
             
             Assert.That(process.NumberOfTimesExecuted, Is.EqualTo(1));
 
@@ -155,23 +155,23 @@ namespace Tests
             parentResult       = resultFactory.CreateInstance_WhoseUpdateCalls(parentProcess);
             resultBeingTested  = resultFactory.CreateInstance_WhoseUpdateCalls(childProcess);
 
-            grandParentResult.React();
-            parentResult.React();
-            resultBeingTested.React();
+            grandParentResult.ForceReaction();
+            parentResult.ForceReaction();
+            resultBeingTested.ForceReaction();
 
-            Assert.That(grandParentResult.IsValid,  Is.True);
+            Assert.That(grandParentResult.CanReact,  Is.True);
             Assert.That(grandParentResult.IsStable, Is.True);
             Assert.That(resultBeingTested.IsStable, Is.True);
             Assert.That(parentResult.IsStable,      Is.True);
 
-            grandParentResult.Invalidate(null);
+            grandParentResult.Trigger(null);
 
             Assert.That(parentResult.IsStable,      Is.False);
             Assert.That(resultBeingTested.IsStable, Is.False);
 
             resultBeingTested.Reconcile();
 
-            Assert.That(grandParentResult.IsValid,  Is.True);
+            Assert.That(grandParentResult.CanReact,  Is.True);
             Assert.That(grandParentResult.IsStable, Is.True);
             Assert.That(resultBeingTested.IsStable, Is.True);
             Assert.That(parentResult.IsStable,      Is.True);
@@ -191,7 +191,7 @@ namespace Tests
             void ParentTests()
             {
                 Assert.That(grandParentResult.IsStable, Is.True);
-                Assert.That(grandParentResult.IsValid,  Is.True);
+                Assert.That(grandParentResult.CanReact,  Is.True);
                 Assert.That(resultBeingTested.IsStable, Is.False);
                 grandParentResult.NotifyInvolved();
                 TestContext.WriteLine("Parent Updated");

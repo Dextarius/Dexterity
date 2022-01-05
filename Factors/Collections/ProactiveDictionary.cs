@@ -15,13 +15,13 @@ namespace Factors.Collections
     {
         #region Properties
         
-        public ICollection<TKey>   Keys   => collection.Keys;
-        public ICollection<TValue> Values => collection.Values;
+        public ICollection<TKey>   Keys   => core.Keys;
+        public ICollection<TValue> Values => core.Values;
         
         public TValue this[TKey key]
         {
-            get => collection[key];
-            set => collection[key] = value;
+            get => core[key];
+            set => core[key] = value;
         }
 
         #endregion
@@ -29,19 +29,19 @@ namespace Factors.Collections
         
         #region Instance Methods
 
-        public     bool                  TryGetValue(TKey key, out TValue value) => collection.TryGetValue(key, out value);
-        public     void                  Add(TKey key, TValue value)             => collection.Add(key, value);
-        public     bool                  Remove(TKey key)                        => collection.Remove(key);
-        public     bool                  ContainsKey(TKey key)                   => collection.ContainsKey(key);
-        public new IDictionaryEnumerator GetEnumerator()                         =>  collection.GetEnumerator();
+        public     bool                  TryGetValue(TKey key, out TValue value) => core.TryGetValue(key, out value);
+        public     void                  Add(TKey key, TValue value)             => core.Add(key, value);
+        public     bool                  Remove(TKey key)                        => core.Remove(key);
+        public     bool                  ContainsKey(TKey key)                   => core.ContainsKey(key);
+        public new IDictionaryEnumerator GetEnumerator()                         =>  core.GetEnumerator();
 
         #endregion
 
         
         #region Constructors
         
-        public ProactiveDictionary(IDictionaryState<TKey, TValue> dictionaryState, string name = null) : 
-            base(dictionaryState, name)
+        public ProactiveDictionary(IDictionaryState<TKey, TValue> dictionaryCore, string name = null) : 
+            base(dictionaryCore, name)
         {
             
         }
@@ -51,8 +51,8 @@ namespace Factors.Collections
         
         #region Explicit Implementations
 
-        ICollection IDictionary.Keys        => collection.GetKeysAsICollection();
-        ICollection IDictionary.Values      => collection.GetValuesAsICollection();
+        ICollection IDictionary.Keys        => core.GetKeysAsICollection();
+        ICollection IDictionary.Values      => core.GetValuesAsICollection();
         bool        IDictionary.IsFixedSize => false;
         bool        IDictionary.IsReadOnly  => false;
         

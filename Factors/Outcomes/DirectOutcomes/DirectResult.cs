@@ -6,7 +6,7 @@ using Core.Tools;
 
 namespace Factors.Outcomes.DirectOutcomes
 {
-    public abstract class DirectResult<TValue> : DirectOutcome, IResult<TValue>
+    public abstract class DirectResult<TValue> : DirectReactorCore, IResult<TValue>
     {
         #region Instance Fields
 
@@ -32,7 +32,7 @@ namespace Factors.Outcomes.DirectOutcomes
             TValue oldValue = currentValue;
             TValue newValue = GenerateValue();
 
-            AddSelfAsDependentToInputs();
+            SubscribeToInputs();
 
             if (valueComparer.Equals(oldValue, newValue))
             {

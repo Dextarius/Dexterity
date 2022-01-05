@@ -6,28 +6,26 @@ using Factors.Outcomes.Influences;
 
 namespace Factors.Outcomes
 {
-    public abstract class OutcomeBase : Influence, IOutcome, IUpdateable
+    public abstract class ReactorCore : FactorCore, IReactor, IUpdateable
     {
         #region Instance Fields
 
-        protected WeakReference<IDependent> weakReferenceToSelf;
-        private   bool                       isReflexive;
+        protected WeakReference<IFactorSubscriber> weakReferenceToSelf;
+        private   bool                             isReflexive;
 
         #endregion
 
 
         #region Instance Properties
 
-        public          bool       IsUpdating         { get; protected set; }
-        public          bool       IsStable           { get; protected set; }
-        public          bool       IsValid            { get; protected set; }
-        public          bool       IsStabilizing      { get; protected set; }
-        public abstract bool       IsBeingInfluenced  { get; }
-        public abstract int        NumberOfInfluences { get; }
-        public          bool       IsUnstable         => IsStable is false;
-        public          bool       IsInvalid          => IsValid is false;
+        public          bool IsReacting       { get; protected set; }
+        public          bool IsStabilizing    { get; protected set; }
+        public abstract bool HasTriggers      { get; }
+        public abstract int  NumberOfTriggers { get; }
+        public          bool IsUnstable       { get; protected set; }
+        public          bool HasBeenTriggered { get; protected set; }
 
-        public WeakReference<IDependent> WeakReference => weakReferenceToSelf ??= new WeakReference<IDependent>(this);
+        public WeakReference<IFactorSubscriber> WeakReference => weakReferenceToSelf ??= new WeakReference<IFactorSubscriber>(this);
         
         public bool IsReflexive
         {
@@ -45,7 +43,7 @@ namespace Factors.Outcomes
                             OnNecessary();
                         }
                         
-                        Stabilize();
+                        AttemptReaction();
                     }
                 }
                 else if (isReflexive is true)
@@ -64,18 +62,21 @@ namespace Factors.Outcomes
         
         #endregion
 
+        
         #region Instance Methods
 
-        public bool Generate()
+        public bool ForceReaction() => React();
+
+        protected bool React()
         {
             bool outcomeChanged;
     
-            if (IsUpdating) { Debug.Fail($"Update loop in Outcome => {this}."); }
+            if (IsReacting) { Debug.Fail($"Update loop in Outcome => {this}."); }
     
-            IsUpdating    = true;
-            IsStable      = true;
-            IsValid       = true;
-            IsStabilizing = false;
+            IsReacting       = true;
+            IsUnstable       = false;
+            HasBeenTriggered = false;
+            IsStabilizing    = false;
     
             try
             {
@@ -91,12 +92,12 @@ namespace Factors.Outcomes
             }
             finally
             {
-                IsUpdating = false;
+                IsReacting = false;
             }
             
             if (outcomeChanged)
             {
-                InvalidateDependents();
+                TriggerSubscribers();
     
                 return true;
             }
@@ -108,11 +109,11 @@ namespace Factors.Outcomes
         
         protected abstract bool GenerateOutcome();
 
-        public bool Stabilize()
+        public bool AttemptReaction()
         {
-            if (IsInvalid)
+            if (HasBeenTriggered)
             {
-                return Generate() is false;
+                return ForceReaction() is false;
             }
             else if (IsUnstable)
             {
@@ -121,41 +122,42 @@ namespace Factors.Outcomes
                 if (TryStabilizeOutcome())
                 {
                     IsStabilizing = false;
-                    IsStable      = true;
+                    IsUnstable    = false;
                     
-                    Debug.Assert(IsValid);
+                    Debug.Assert(HasBeenTriggered is false);
                 
                     return true;
                 }
                 else
                 {
-                    return Generate() is false;
+                    return ForceReaction() is false;
                 }
             }
             else return true;
         }
+        
         protected abstract bool TryStabilizeOutcome();
 
-        public bool Invalidate() => Invalidate(null);
+        public bool Trigger() => Trigger(null);
 
-        public bool Invalidate(IFactor changedFactor)
+        public bool Trigger(IFactor triggeringFactor)
         {
-            if (IsUpdating)
+            if (IsReacting)
             {
                 throw new InvalidOperationException(
                     "An Outcome was invalidated while it was updating, meaning either the Outcome's update process " +
                     "caused it to invalidate itself, creating an update loop, " +
                     "or the Outcome was accessed by two different threads at the same time. \n  " +
-                    $"The invalidated outcome was '{this}' and it was invalidated by '{changedFactor}'. ");
+                    $"The invalidated outcome was '{this}' and it was invalidated by '{triggeringFactor}'. ");
                 //- If this Outcome is in the update list we should know it's a loop, if it's not then it should be
                 //  another thread accessing it.
                 //  Well actually, the parent won't add us to the list until this returns...
             }
             
-            if (IsValid)
+            if (HasBeenTriggered is false)
             {
-                IsValid = false;
-                InvalidateOutcome(changedFactor);
+                HasBeenTriggered = true;
+                InvalidateOutcome(triggeringFactor);
     
                 if (IsNecessary || IsReflexive)
                 {
@@ -191,11 +193,11 @@ namespace Factors.Outcomes
                 //  we're going to be  invalidated when our parent recalculates, or the parent won't
                 //  change, in which case we aren't Unstable.
             }
-            else if (IsInvalid)
+            else if (HasBeenTriggered)
             {
                 return false;
             }
-            else if (IsStable) //- Can we be Stable and Invalid?
+            else if (IsUnstable is false) 
             {
                 bool hasNecessaryDependents = DestabilizeDependents();
                 
@@ -206,7 +208,7 @@ namespace Factors.Outcomes
                 }
                 else
                 {
-                    IsStable = false;
+                    IsUnstable = true;
                 }
             }
     
@@ -216,6 +218,7 @@ namespace Factors.Outcomes
         protected bool DestabilizeDependents()
         {
             var formerDependents = affectedResults;
+            
             if (formerDependents.Count > 0) 
             {
                 foreach (var dependentReference in formerDependents)
@@ -232,16 +235,16 @@ namespace Factors.Outcomes
             return false;
         }
         
-        public override bool AddDependent(IDependent dependentToAdd)
+        public override bool Subscribe(IFactorSubscriber subscriberToAdd)
         {
-            if(dependentToAdd == null) { throw new ArgumentNullException(nameof(dependentToAdd)); }
+            if(subscriberToAdd == null) { throw new ArgumentNullException(nameof(subscriberToAdd)); }
     
-            if (IsUpdating)
+            if (IsReacting)
             {
                 throw new InvalidOperationException(""); //- Recursive dependency
             }
             
-            return base.AddDependent(dependentToAdd);
+            return base.Subscribe(subscriberToAdd);
         }
         
         public override void NotifyNecessary()
@@ -249,16 +252,18 @@ namespace Factors.Outcomes
             bool wasAlreadyNecessary = IsNecessary;
     
             base.NotifyNecessary();
-    
-            if (wasAlreadyNecessary  ||  IsReflexive  ||  (IsValid && IsStable))  
+            
+            if (wasAlreadyNecessary || 
+                IsReflexive         ||  
+               ((HasBeenTriggered || IsUnstable) is false))  
             {
                 return;
                 //- We don't propagate the Necessary status if we don't need to update, to avoid walking up the tree.
             }
-            else //- We know we're either invalid or unstable
+            else //- We're either triggered or unstable
             {
                 OnNecessary(); //- Let our influences stabilize before we do.
-                Stabilize();
+                AttemptReaction();
             }
         }
 
@@ -268,7 +273,7 @@ namespace Factors.Outcomes
             {
                 base.NotifyNotNecessary();
     
-                if (HasDependents is false && 
+                if (HasSubscribers is false && 
                     IsReflexive   is false)
                 {
                     OnNotNecessary();
@@ -284,7 +289,7 @@ namespace Factors.Outcomes
 
         #region Constructors
 
-        protected OutcomeBase(string name) : base(name)
+        protected ReactorCore(string name) : base(name)
         {
         }
 
@@ -293,7 +298,7 @@ namespace Factors.Outcomes
         
         #region Explicit Implementations
 
-        void IUpdateable.Update() => Stabilize();
+        void IUpdateable.Update() => AttemptReaction();
 
         #endregion
     }

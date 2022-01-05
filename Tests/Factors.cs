@@ -9,8 +9,8 @@ namespace Tests
     // [TestFixture(typeof(Reactive<int> ), typeof(Reactive_Int_Factory ))]
     // [TestFixture(typeof(Reaction      ), typeof(ReactionFactory      ))]
     public class Factors<TFactor, TFactory> 
-        where TFactor   : Factor
-        where TFactory  : IFactory<TFactor>, new()
+        where TFactor  : Factor<TCore>
+        where TFactory : IFactory<TFactor>, new()
     {
         #region Instance Fields
 
@@ -39,7 +39,7 @@ namespace Tests
         {
             Factor factorBeingTested = factory.CreateInstance();
 
-            Assert.That(factorBeingTested.HasDependents, Is.False);
+            Assert.That(factorBeingTested.HasSubscribers, Is.False);
         }
         
         [Test]
@@ -47,7 +47,7 @@ namespace Tests
         {
             Factor factorBeingTested = factory.CreateInstance();
 
-            Assert.That(factorBeingTested.NumberOfDependents, Is.Zero);
+            Assert.That(factorBeingTested.NumberOfSubscribers, Is.Zero);
         }
         
         [Test]

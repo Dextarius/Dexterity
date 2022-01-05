@@ -2,21 +2,18 @@
 
 namespace Core.Factors
 {
-    public interface IReactor : IFactor, IStabilizable, IDestabilizable, IInvalidatable
+    public interface IReactor : IFactor, IFactorSubscriber
     {
-        bool IsReflexive        { get; set; }
-        bool IsUpdating         { get; }
-        bool IsStable           { get; }
-        bool IsUnstable         { get; }
-        bool IsValid            { get; }
-        bool IsInvalid          { get; }
-        bool IsStabilizing       { get; }
-        bool IsBeingInfluenced  { get; }
-        int  NumberOfInfluences { get; }
+        bool IsReflexive      { get; set; }
+        bool HasTriggers      { get; }
+        int  NumberOfTriggers { get; }
+        bool HasBeenTriggered { get; }
+        bool IsReacting       { get; }
+        bool IsUnstable       { get; }
+        bool IsStabilizing    { get; }
 
-        
-        bool React();
+
+        bool AttemptReaction();
+        bool ForceReaction();
     }
-    
-    
 }

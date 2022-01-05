@@ -15,7 +15,7 @@ namespace Tests.Tools
         public Reactive<T> Reactive { get; }
         
         
-        public void InvalidateReactive() => Reactive.Invalidate();
+        public void InvalidateReactive() => Reactive.Trigger();
         public void UpdateSourceValue(T newValue) => linkedProactive.Value = newValue;
 
         public void TriggerReaction()

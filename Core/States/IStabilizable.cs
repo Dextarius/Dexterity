@@ -1,7 +1,7 @@
 ﻿namespace Core.States
 {
-    public interface IStabilizable
-    {
-        bool Stabilize();
-    }
+    // public interface IStabilizable
+    // {
+    //     bool Stabilize();
+    // }
 }

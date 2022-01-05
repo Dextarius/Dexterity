@@ -4,11 +4,11 @@ using Core.States;
 
 namespace Tests.Tools.Mocks
 {
-    public class MockDependent : IDependent
+    public class MockFactorSubscriber : IFactorSubscriber
     {
-        private WeakReference<IDependent> weakReference;
+        private WeakReference<IFactorSubscriber> weakReference;
 
-        public WeakReference<IDependent> WeakReference => weakReference ??= new WeakReference<IDependent>(this);
+        public WeakReference<IFactorSubscriber> WeakReference => weakReference ??= new WeakReference<IFactorSubscriber>(this);
         
         public bool IsNecessary { get; set; }
         public bool IsValid     { get; set; } 
@@ -16,8 +16,8 @@ namespace Tests.Tools.Mocks
         public bool WasUpdated  { get; private set; }
 
         
-        public bool Invalidate() => Invalidate(null);
-        public bool Invalidate(IFactor factorThatChanged)
+        public bool Trigger() => Trigger(null);
+        public bool Trigger(IFactor triggeringFactor)
         {
             if (IsValid)
             {

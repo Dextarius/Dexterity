@@ -3,7 +3,7 @@ using Core.States;
 
 namespace Factors.Outcomes.ObservedOutcomes
 {
-    public abstract class ObservedResponse : ObservedOutcome, IProcess, IResponse
+    public abstract class ObservedResponse : ObservedReactorCore, IProcess
     {
         #region Instance Methods
 

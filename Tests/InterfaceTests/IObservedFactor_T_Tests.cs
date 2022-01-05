@@ -25,13 +25,13 @@ namespace Tests.InterfaceTests
             TFactor factorBeingTested          = factory.CreateInstance();
             var     dependent                  = new MockObserved();
             var     process                    = CreateProcessThatPeeksAtTheValueOf(factorBeingTested);
-            int     previousNumberOfDependents = factorBeingTested.NumberOfDependents;
+            int     previousNumberOfDependents = factorBeingTested.NumberOfSubscribers;
             
             Assert.That(dependent.WasInfluenced, Is.False);
 
 
-            Assert.That(factorBeingTested.HasDependents,      Is.False);
-            Assert.That(factorBeingTested.NumberOfDependents, Is.Zero);
+            Assert.That(factorBeingTested.HasSubscribers,      Is.False);
+            Assert.That(factorBeingTested.NumberOfSubscribers, Is.Zero);
             Assert.That(dependent.WasInfluenced,              Is.False);
         }
         
@@ -41,13 +41,13 @@ namespace Tests.InterfaceTests
             TFactor factorBeingTested          = factory.CreateInstance();
             var     dependent                  = new MockObserved();
             var     process                    = CreateProcessThatPeeksAtTheValueOf(factorBeingTested);
-            int     previousNumberOfDependents = factorBeingTested.NumberOfDependents;
+            int     previousNumberOfDependents = factorBeingTested.NumberOfSubscribers;
             
             Assert.That(dependent.WasInfluenced, Is.False);
 
 
-            Assert.That(factorBeingTested.HasDependents,      Is.False);
-            Assert.That(factorBeingTested.NumberOfDependents, Is.Zero);
+            Assert.That(factorBeingTested.HasSubscribers,      Is.False);
+            Assert.That(factorBeingTested.NumberOfSubscribers, Is.Zero);
             Assert.That(dependent.WasInfluenced,           Is.False);
         }
     }
