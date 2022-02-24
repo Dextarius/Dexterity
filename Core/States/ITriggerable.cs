@@ -5,6 +5,6 @@ namespace Core.States
     public interface ITriggerable
     {
         bool Trigger();
-        bool Trigger(IFactor triggeringFactor);
+        bool Trigger(IFactor triggeringFactor, out bool removeSubscription);
     }
 }

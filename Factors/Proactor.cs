@@ -1,7 +1,6 @@
 ﻿using Core.Causality;
 using Core.Factors;
 using Core.States;
-using Factors.Outcomes.Influences;
 using JetBrains.Annotations;
 
 namespace Factors

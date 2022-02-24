@@ -2,7 +2,7 @@
 using Core.Causality;
 using Core.Factors;
 using Core.States;
-using Factors.Outcomes.ObservedOutcomes;
+using Factors.Cores.ObservedReactorCores;
 using JetBrains.Annotations;
 using static Core.Tools.Delegates;
 

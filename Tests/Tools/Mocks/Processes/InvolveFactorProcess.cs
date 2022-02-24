@@ -3,32 +3,34 @@ using Core.Factors;
 
 namespace Tests.Tools.Mocks.Processes
 {
-    public class InvolveFactorProcess : IProcess 
+    public class InvolveFactorProcess<TFactor> : IProcess 
+        where TFactor : IInvolved
     {
-        private readonly IFactor factor;
+        private readonly TFactor factor;
         
         public void Execute()
         {
             factor.NotifyInvolved();
         }
 
-        public InvolveFactorProcess(IFactor factorToInvolve)
+        public InvolveFactorProcess(TFactor factorToInvolve)
         {
             factor = factorToInvolve;
         }
     }
     
-    public class InvolveFactorProcess<T> : IProcess<T>
+    public class InvolveFactorProcess<TFactor, TValue> : IProcess<TValue>
+        where TFactor : IInvolved
     {
-        private readonly IFactor factor;
+        private readonly TFactor factor;
         
-        public T Execute()
+        public TValue Execute()
         {
             factor.NotifyInvolved();
-            return default(T);
+            return default(TValue);
         }
 
-        public InvolveFactorProcess(IFactor factorToInvolve)
+        public InvolveFactorProcess(TFactor factorToInvolve)
         {
             factor = factorToInvolve;
         }

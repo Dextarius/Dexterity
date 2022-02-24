@@ -4,7 +4,7 @@ using Core.Causality;
 using Core.Factors;
 using Core.States;
 using Core.Tools;
-using Factors.Outcomes.ObservedOutcomes;
+using Factors.Cores.ObservedReactorCores;
 using JetBrains.Annotations;
 
 namespace Factors.Observer

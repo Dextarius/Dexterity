@@ -2,7 +2,7 @@
 
 namespace Core.States
 {
-    public interface IResult<out T> : IReactor, IFactor<T>
+    public interface IResult<out T> : IReactive<T>
     {
 
     }

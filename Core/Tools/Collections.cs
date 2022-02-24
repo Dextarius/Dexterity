@@ -11,8 +11,6 @@ namespace Core.Tools
         {
             HashSet<T> createdSet;
             
-            
-
             if (valuesToPutInSet != null)
             {
                 createdSet = new HashSet<T>();

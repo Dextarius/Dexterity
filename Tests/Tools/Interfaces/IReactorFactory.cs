@@ -10,7 +10,7 @@ namespace Tests.Tools.Interfaces
         TResult CreateInstance_WhoseUpdateInvolves(IFactor factorToInvolve);
     }
 
-    public interface IReactorFactory<out TResult, TValue> : IReactorFactory<TResult>, IFactor_T_Factory<TResult, TValue>
+    public interface IReactorFactory<out TResult, TValue> : IReactorFactory<TResult>, IState_T_Factory<TResult, TValue>
         where TResult : IResult<TValue>
     {
         TResult CreateInstance_WhoseUpdateCalls(IProcess<TValue> processToCall);

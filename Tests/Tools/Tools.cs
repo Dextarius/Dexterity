@@ -23,11 +23,10 @@ namespace Tests.Tools
         
         public static Reactive<T> CreateReactiveThatGetsValueOf<T>(Reactive<T>  reactiveSourceValue)  => 
             new Reactive<T>(() => reactiveSourceValue.Value);
-        
-        public static int[] CreateArrayOfRandomNumbers()
+
+        public static int[] CreateArrayOfRandomNumbers(int arraySize) 
         {
-            int   arraySize = numberGenerator.Next(1, 1000);
-            int[] array     = new int[arraySize];
+            int[] array = new int[arraySize];
 
             for (int i = 0; i < array.Length; i++)
             {
@@ -36,6 +35,9 @@ namespace Tests.Tools
 
             return array;
         }
+
+        public static int[] CreateRandomSizedArrayOfRandomNumbers() => 
+            CreateArrayOfRandomNumbers(numberGenerator.Next(1, 1000));
         
         public static int ReturnTheNumber42() => 42;
 
@@ -141,20 +143,9 @@ namespace Tests.Tools
         //     }
         // }
         
-        public static void AssumeHasNoInfluences<TFactor>(TFactor factor)  where TFactor : IOutcome
-        {
-            int numberOfInfluences = factor.NumberOfTriggers;
-            
-            Assume.That(factor.HasTriggers, Is.False, 
-                ErrorMessages.HasInfluences<TFactor>("before being used. "));
-            
-            Assume.That(numberOfInfluences,        Is.Zero, 
-                ErrorMessages.InfluencesGreaterThanZero<TFactor>("before being used. ", numberOfInfluences));
-        }
-        
-        
-        public static IProcess CreateProcessThatCallsNotifyInvolvedOn(IFactor factorToInvolve) => 
-            new InvolveFactorProcess(factorToInvolve);
+        public static IProcess CreateProcessThatCallsNotifyInvolvedOn<TFactor>(TFactor factorToInvolve)
+            where TFactor : IInvolved => 
+                new InvolveFactorProcess<TFactor>(factorToInvolve);
 
         public static IProcess CreateProcessThatRetrievesValueOf<T>(IFactor<T> factorToInvolve) => 
             new RetrieveValueProcess<T>(factorToInvolve);
@@ -167,18 +158,11 @@ namespace Tests.Tools
         
         public static void WriteNameAndValueToTestContext<T>(string name, T value) =>
             TestContext.WriteLine($"{name} => {value}");
+        
+        public static string CreateIncorrectPropertyValueDuringConstructionString<T>(string propertyName, T incorrectValue) =>
+            $"The property {propertyName} was marked as {incorrectValue} during construction.";
+            
 
-        public static void Assert_React_CreatesExclusiveDependencyBetween(IDeterminant parent, IReactor dependent)
-        {
-            Assert.That(dependent.CanReact,           Is.False);
-            Assert.That(dependent.HasTriggers, Is.False);
-            Assert.That(parent.HasDependents,    Is.False);
-            
-            dependent.ForceReaction();
-            
-            Assert.That(dependent.HasTriggers, Is.True);
-            Assert.That(parent.HasDependents,    Is.True);
-        }
 
         public static int GenerateRandomInt() => numberGenerator.Next();
         
@@ -194,20 +178,20 @@ namespace Tests.Tools
             return number;
         }
 
-        public static MockFactorSubscriber[] AddDependentsTo(IFactor factor, int numberOfDependents)
+        public static MockFactorSubscriber[] AddSubscribersTo(IFactor factor, int numberOfSubscribers)
         {
-            var dependents = new MockFactorSubscriber[numberOfDependents];
+            var subscribers = new MockFactorSubscriber[numberOfSubscribers];
 
-            for (int i = 0; i < numberOfDependents; i++)
+            for (int i = 0; i < numberOfSubscribers; i++)
             {
-                var createdDependent = new MockFactorSubscriber();
+                var createdSubscriber = new MockFactorSubscriber();
                 
-                dependents[i] = createdDependent;
-                createdDependent.MakeValid();
-                factor.Subscribe(createdDependent);
+                subscribers[i] = createdSubscriber;
+                createdSubscriber.ResetHasBeenTriggeredToFalse();
+                factor.Subscribe(createdSubscriber);
             }
 
-            return dependents;
+            return subscribers;
         }
     }
     

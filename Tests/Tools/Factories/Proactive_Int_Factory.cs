@@ -2,14 +2,9 @@
 {
     public class Proactive_Int_Factory : Proactive_T_Factory<int>
     {
-        public override int CreateRandomInstanceOfValuesType_NotEqualTo(int valueToAvoid) => 
-            Tests.Tools.Tools.GenerateRandomIntNotEqualTo(valueToAvoid);
+        public override int CreateRandomValueNotEqualTo(int valueToAvoid) => 
+            Tools.GenerateRandomIntNotEqualTo(valueToAvoid);
         
-        public override int CreateRandomInstanceOfValuesType() => Tests.Tools.Tools.GenerateRandomInt();
-        
-        // public override void ChangeValueTo(int newValue)
-        // {
-        //     manipulatedInstance.Value = newValue;
-        // }
+        public override int CreateRandomValue() => Tools.GenerateRandomInt();
     }
 }

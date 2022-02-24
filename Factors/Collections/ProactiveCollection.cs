@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using Core.Causality;
 using Core.Factors;
 using Core.States;
-using Factors.Outcomes.Influences;
 using JetBrains.Annotations;
 using static Core.Tools.Types;
 

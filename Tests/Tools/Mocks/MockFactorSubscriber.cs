@@ -10,37 +10,44 @@ namespace Tests.Tools.Mocks
 
         public WeakReference<IFactorSubscriber> WeakReference => weakReference ??= new WeakReference<IFactorSubscriber>(this);
         
-        public bool IsNecessary { get; set; }
-        public bool IsValid     { get; set; } 
-        public bool IsStable    { get; set; }
-        public bool WasUpdated  { get; private set; }
-
+        public bool IsNecessary                 { get; private set; }
+        public bool HasBeenTriggered            { get; private set; }
+        public bool IsUnstable                  { get; private set; }
+        public bool RemoveSubscriptionOnTrigger { get; set; }
         
-        public bool Trigger() => Trigger(null);
-        public bool Trigger(IFactor triggeringFactor)
+
+
+        public bool Trigger() => Trigger(null, out _);
+        public bool Trigger(IFactor triggeringFactor, out bool removeSubscription)
         {
-            if (IsValid)
+            removeSubscription = RemoveSubscriptionOnTrigger;
+            
+            if (HasBeenTriggered)
             {
-                IsValid = false;
+                return false;
+            }
+            else
+            {
+                HasBeenTriggered = true;
                 return true;
             }
-            else return false;
         }
         
         public bool Destabilize()
         {
-            if (IsStable)
+            if (IsUnstable is false)
             {
-                IsStable = false;
-                return true;
+                IsUnstable = true;
             }
-            else return false;
+            
+            return IsNecessary;
         }
-        
-        public void MakeNecessary()      => IsNecessary = true;
-        public void MakeUnnecessary()    => IsNecessary = false;
-        public void MakeValid()          => IsValid     = true;
-        
+
+        public void ResetHasBeenTriggeredToFalse() => HasBeenTriggered = false;
+        public void ResetIsUnstableToFalse()       => IsUnstable = false;
+        public void MakeNecessary()                => IsNecessary = true;
+        public void MakeUnnecessary()              => IsNecessary = false;
+
         public void NotifyNecessary()    => throw new NotSupportedException();
         public void NotifyNotNecessary() => throw new NotSupportedException();
     }

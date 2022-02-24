@@ -2,7 +2,7 @@
 using Core.Causality;
 using Core.Factors;
 using Core.States;
-using Factors.Outcomes.Influences;
+using Factors.Cores.ProactiveCores;
 using JetBrains.Annotations;
 using static Core.InterlockedUtils;
 using static Core.Tools.Types;
@@ -48,7 +48,7 @@ namespace Factors
         }
 
         public Proactive(T initialValue, IEqualityComparer<T> comparer = null, string name = null) : 
-            this(new ObservedState<T>(initialValue, comparer), name?? NameOf<Proactive<T>>())
+            this(new ObservedStateCore<T>(initialValue, comparer), name?? NameOf<Proactive<T>>())
         {
         }
         

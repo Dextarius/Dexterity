@@ -6,7 +6,6 @@ using Core.Factors;
 using Core.States;
 using Core.Tools;
 using Factors.Exceptions;
-using Factors.Outcomes.ObservedOutcomes.CollectionResults;
 using JetBrains.Annotations;
 using static Core.Tools.Types;
 
