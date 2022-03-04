@@ -37,7 +37,7 @@ namespace Factors.Cores.ObservedReactorCores
         
         #region Properties
 
-        public override bool HasTriggers      => influences.Length > 0;
+        public override bool HasTriggers      => nextOpenInfluenceIndex > 0;
         public override int  NumberOfTriggers => nextOpenInfluenceIndex;
         public override int  Priority         => priority;
 

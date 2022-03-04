@@ -9,6 +9,12 @@ namespace Factors.Cores
 {
     public abstract class ReactorCore : FactorCore, IReactor, IUpdateable
     {
+        #region Constants
+
+        protected enum ReactionState { None, Triggered, Queued, Updating }
+
+        #endregion
+        
         #region Instance Fields
 
         protected WeakReference<IFactorSubscriber> weakReferenceToSelf;
@@ -103,16 +109,9 @@ namespace Factors.Cores
             
             if (outcomeChanged)
             {
-                bool wasNecessary = IsNecessary;
-                
                 TriggerSubscribers();
                 NumberOfTimesReacted++;
 
-                if (wasNecessary && IsNecessary is false)
-                {
-                    OnNotNecessary();
-                }
-                
                 return true;
             }
             else return false;
@@ -250,14 +249,11 @@ namespace Factors.Cores
             
             if (subscribersToDestabilize.Count > 0) 
             {
-                foreach (var subscriberReference in subscribersToDestabilize)
+                foreach (var subscriber in subscribersToDestabilize)
                 {
-                    if (subscriberReference.TryGetTarget(out var subscriber))
+                    if (subscriber.Destabilize())
                     {
-                        if (subscriber.Destabilize())
-                        {
-                            return true;
-                        }
+                        return true;
                     }
                 }
             }
@@ -296,8 +292,11 @@ namespace Factors.Cores
         
         public override void NotifyNecessary()
         {
-            bool wasAlreadyNecessary = IsNecessary;
-    
+            if (IsNecessary)
+            {
+                OnNecessary();
+            }
+            
             base.NotifyNecessary();
 
             if (wasAlreadyNecessary is false)
@@ -305,7 +304,9 @@ namespace Factors.Cores
                 OnNecessary();
             }
         }
+
         
+        //- Tracking isNecessary using only NotifyNecessary/NotifyNot
         public override void NotifyNotNecessary()
         {
             if (base.IsNecessary)
@@ -319,6 +320,8 @@ namespace Factors.Cores
             }
         }
         
+
+
         private void OnNecessary()
         {
             //- We don't propagate the Necessary status if we don't need to update, to avoid walking up the tree.
@@ -326,6 +329,9 @@ namespace Factors.Cores
             //  if need be.
             if (HasBeenTriggered || IsUnstable)
             {
+                AttemptReaction();
+
+                
                 if (HasReacted)
                 {
                     foreach (var trigger in Triggers)
@@ -335,7 +341,6 @@ namespace Factors.Cores
                 }
             }
 
-            AttemptReaction();
             //- Should we check if we're already reacting?
         }
         
@@ -367,6 +372,16 @@ namespace Factors.Cores
             //- TODO : We could probably just return "AttemptReaction() is false" if we can 
             //         guarantee that AttemptReaction() is always going to be based on
             //         HasBeenTriggered and IsUnstable anyways.
+        }
+
+        public void SubscribeTo(IFactor factor)
+        {
+            factor.Subscribe(___);
+
+            if (IsNecessary)
+            {
+                factor.NotifyNecessary();
+            }
         }
 
         #endregion

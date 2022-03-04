@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Core;
 using Core.Factors;
 using Core.States;
@@ -20,8 +21,8 @@ namespace Factors.Cores
         #region Instance Fields
 
         [NotNull, ItemNotNull]
-        protected readonly HashSet<WeakReference<IFactorSubscriber>> subscribers = new HashSet<WeakReference<IFactorSubscriber>>();
-        protected int numberOfNecessarySubscribers;
+        private Dictionary<IFactorSubscriber, SubscriptionState> subscriptionStateBySubscriber = new Dictionary<IFactorSubscriber, SubscriptionState>();
+        protected uint numberOfNecessarySubscribers;
 
         #endregion
         
@@ -34,11 +35,11 @@ namespace Factors.Cores
 
         #region Instance Properties
 
-        public          string Name               { get; }
-        public abstract int    Priority           { get; }
-        public virtual  bool   IsNecessary        => numberOfNecessarySubscribers > 0;
-        public          bool   HasSubscribers      => subscribers.Count > 0;
-        public          int    NumberOfSubscribers => subscribers.Count;
+        public          string Name                { get; }
+        public abstract int    Priority            { get; }
+        public virtual  bool   IsNecessary         => numberOfNecessarySubscribers > 0;
+        public          bool   HasSubscribers      => subscriptionStateBySubscriber.Count > 0;
+        public          int    NumberOfSubscribers => subscriptionStateBySubscriber.Count;
 
         #endregion
         
@@ -49,10 +50,13 @@ namespace Factors.Cores
         {
             if (subscriberToAdd == null) { throw new ArgumentNullException(nameof(subscriberToAdd)); }
 
-            if (subscribers.Add(subscriberToAdd.WeakReference))
+            SubscriptionState subscriptionState = new SubscriptionState(true, subscriberToAdd.IsNecessary);
+            
+            if (subscriptionStateBySubscriber.TryAdd(subscriberToAdd, subscriptionState))
             {
                 if (subscriberToAdd.IsNecessary)
                 {
+                   // numberOfNecessarySubscribers++;
                     NotifyNecessary();
                 }
 
@@ -66,22 +70,17 @@ namespace Factors.Cores
         {
             if (subscriberToRemove != null)
             {
-                if (subscribers.Remove(subscriberToRemove.WeakReference)  &&  
-                    subscriberToRemove.IsNecessary)
-                {
-                    NotifyNotNecessary();
-                }
+                subscribers.Remove(subscriberToRemove);
+                
             }
         }
 
         public void TriggerSubscribers()
         {
-            var formerSubscribers = subscribers;
+            var formerSubscribers = subscriptionStateBySubscriber;
 
             if (formerSubscribers.Count > 0)
             {
-                numberOfNecessarySubscribers = 0;
-                
                 using (UpdateList.QueueUpdates())
                 {
                     formerSubscribers.RemoveWhere(TriggerSubscriberAndPotentiallyRemoveThem);
@@ -90,49 +89,51 @@ namespace Factors.Cores
             
             //- TODO : We might be able to skip establishing the UpdateQueue if there's only 1 dependent.
         }
-        
-        private bool TriggerSubscriberAndPotentiallyRemoveThem(WeakReference<IFactorSubscriber> subscriberReference)
-        {
-            if (subscriberReference.TryGetTarget(out var subscriber))
-            {
-                subscriber.Trigger(this, out bool removeSubscription);
 
-                if (removeSubscription)
-                { 
-                    return true;
-                }
-                else
+        private bool TriggerSubscriberAndPotentiallyRemoveThem(IFactorSubscriber subscriber)
+        {
+            subscriber.Trigger(this, out bool removeSubscription);
+
+            if (removeSubscription)
+            {
+                if (subscriber.IsNecessary)
                 {
-                    if (subscriber.IsNecessary)
-                    {
-                        numberOfNecessarySubscribers++;
-                    }
-                    
-                    return false;
+                    numberOfNecessarySubscribers--;
                 }
+                
+                return true;
             }
-            else return true;
+            else
+            {
+                return false;
+            }
         }
-        
-        
+
+
         public virtual void NotifyNecessary()
         {
-            #if DEBUG
-            Debug.Assert(numberOfNecessarySubscribers >= 0);
-            Debug.Assert(numberOfNecessarySubscribers < subscribers.Count);
-            #endif
-            
-            numberOfNecessarySubscribers++;
+            // #if DEBUG
+            // Debug.Assert(numberOfNecessarySubscribers >= 0);
+            // Debug.Assert(numberOfNecessarySubscribers < subscribers.Count);
+            // #endif
+
+            if (numberOfNecessarySubscribers < uint.MaxValue)
+            {
+                numberOfNecessarySubscribers++;
+            }
         }
         
         public virtual void NotifyNotNecessary()
         {
-            numberOfNecessarySubscribers--;
+            if (numberOfNecessarySubscribers > 0)
+            {
+                numberOfNecessarySubscribers--;
+            }
             
-            #if DEBUG
-            Debug.Assert(numberOfNecessarySubscribers >= 0);
-            Debug.Assert(numberOfNecessarySubscribers <= subscribers.Count);
-            #endif
+            // #if DEBUG
+            // Debug.Assert(numberOfNecessarySubscribers >= 0);
+            // Debug.Assert(numberOfNecessarySubscribers <= subscribers.Count);
+            // #endif
         }
         
         public virtual bool Reconcile()

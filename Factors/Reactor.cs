@@ -22,8 +22,6 @@ namespace Factors
         public bool IsStabilizing    => core.IsStabilizing;
         public bool HasBeenTriggered => core.HasBeenTriggered;
         
-        public WeakReference<IFactorSubscriber> WeakReference => core.WeakReference;
-
         public bool IsReflexive
         {
             get => core.IsReflexive;
