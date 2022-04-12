@@ -10,17 +10,19 @@ using static Core.Tools.Types;
 
 namespace Factors
 {
-    public abstract class Reactor<TCore> : Factor<TCore>, IReactor, IUpdateable 
+    public class Reactor<TCore> : Factor<TCore>, IReactor, IUpdateable 
         where TCore : IReactor
     {
         #region Instance Properties
         
-        public bool HasTriggers      => core.HasTriggers;
-        public int  NumberOfTriggers => core.NumberOfTriggers;
-        public bool IsUnstable       => core.IsUnstable;
-        public bool IsReacting       => core.IsReacting;
-        public bool IsStabilizing    => core.IsStabilizing;
-        public bool HasBeenTriggered => core.HasBeenTriggered;
+        public bool HasTriggers          => core.HasTriggers;
+        public int  NumberOfTriggers     => core.NumberOfTriggers;
+        public bool IsUnstable           => core.IsUnstable;
+        public bool IsReacting           => core.IsReacting;
+        public bool IsStabilizing        => core.IsStabilizing;
+        public bool HasBeenTriggered     => core.HasBeenTriggered;
+        public bool HasReacted           => core.HasReacted;
+        public uint NumberOfTimesReacted => core.NumberOfTimesReacted;
         
         public bool IsReflexive
         {

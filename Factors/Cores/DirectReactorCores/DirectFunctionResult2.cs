@@ -24,7 +24,7 @@ namespace Factors.Cores.DirectReactorCores
         public override int NumberOfTriggers => 2;
         public override int Priority         => priority;
 
-        protected override IEnumerable<IFactor> Triggers
+        protected override IEnumerable<IXXX> Triggers
         {
             get
             {

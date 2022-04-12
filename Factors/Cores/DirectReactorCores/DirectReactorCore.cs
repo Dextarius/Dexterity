@@ -28,7 +28,7 @@ namespace Factors.Cores.DirectReactorCores
             {
                 foreach (var input in Triggers)
                 {
-                    input.Subscribe(this);
+                    input.Subscribe(this, IsNecessary);
                 }
             }
         }

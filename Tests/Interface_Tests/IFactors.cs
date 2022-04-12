@@ -31,6 +31,8 @@ namespace Tests.Interface_Tests
 
         #region Tests
 
+        //- TODO : All of these subscriber methods may have to test both true and false for isNecessary now.
+        
         [Test]
         public void WhenSubscriberAddsItself_HasSubscriberIsTrue()
         {
@@ -49,7 +51,7 @@ namespace Tests.Interface_Tests
                 ErrorMessages.SubscribersGreaterThanZero<IFactor>(
                     $"when {nameof(factorBeingTested.HasSubscribers)} is false. ", factorBeingTested.NumberOfSubscribers));
 
-            factorBeingTested.Subscribe(subscriber);
+            factorBeingTested.Subscribe(subscriber, false);
             Assert.That(factorBeingTested.HasSubscribers, Is.True);
         }
         
@@ -64,7 +66,7 @@ namespace Tests.Interface_Tests
                 var controller = new TSubscriberController();
                 var subscriber = controller.ControlledInstance;
 
-                factorBeingTested.Subscribe(subscriber);
+                factorBeingTested.Subscribe(subscriber, false);
                 
                 Assert.That(factorBeingTested.HasSubscribers,      Is.True);
                 Assert.That(factorBeingTested.NumberOfSubscribers, Is.EqualTo(previousNumberOfSubscribers + 1));
@@ -84,7 +86,7 @@ namespace Tests.Interface_Tests
 
             for (int i = 0; i < 100000; i++)
             {
-                factorBeingTested.Subscribe(subscriber);
+                factorBeingTested.Subscribe(subscriber, false);
             
                 Assert.That(factorBeingTested.HasSubscribers,      Is.True);
                 Assert.That(factorBeingTested.NumberOfSubscribers, Is.EqualTo(expectedNumberOfSubscribers));
@@ -108,7 +110,7 @@ namespace Tests.Interface_Tests
 
                 Assert.That(controller.CheckIfTriggered(), Is.False);
 
-                factorBeingTested.Subscribe(subscriber);
+                factorBeingTested.Subscribe(subscriber, false);
             }
 
             factorBeingTested.TriggerSubscribers();
@@ -122,9 +124,41 @@ namespace Tests.Interface_Tests
         }
 
         [Test]
+        public void WhenNotifiedNecessary_ByACurrentSubscriber_AlsoBecomesNecessary()
+        {
+            var factorToTest = factorFactory.CreateInstance();
+            var subscriber   = new MockFactorSubscriber();
+            
+            Assert.That(factorToTest.IsNecessary, Is.False);
+            Assert.That(subscriber.IsNecessary,   Is.False);
+            
+            factorToTest.Subscribe(subscriber, false); 
+            
+            Assert.That(factorToTest.IsNecessary, Is.False);
+
+            factorToTest.NotifyNecessary(subscriber);  
+            
+            Assert.That(factorToTest.IsNecessary, Is.True);
+        }
+        
+        [Test]
+        public void WhenSubscribedTo_IfSubscriberPassedIsNecessaryAsTrue_AlsoBecomesNecessary()
+        {
+            var factorToTest = factorFactory.CreateInstance();
+            var subscriber   = new MockFactorSubscriber();
+            
+            Assert.That(factorToTest.IsNecessary, Is.False);
+            Assert.That(subscriber.IsNecessary,   Is.False);
+            
+            factorToTest.Subscribe(subscriber, true); 
+            
+            Assert.That(factorToTest.IsNecessary, Is.True);
+        }
+        
+        [Test]
         public void WhenLastNecessarySubscriberUnsubscribes_IsNoLongerNecessary()
         {
-            var factorToTest        = factorFactory.CreateInstance();
+            var factorToTest        = factorFactory.CreateStableInstance();
             int numberOfSubscribers = 10;
             var controllers         = new TSubscriberController[numberOfSubscribers];
 
@@ -140,9 +174,9 @@ namespace Tests.Interface_Tests
                 
                 controllers[i] = controller;
                 controller.MakeStableAndUntriggered();
-                controller.MakeNecessary();
-                Assert.That(subscriber.IsNecessary, Is.True);
-                factorToTest.Subscribe(subscriber);
+             // controller.MakeNecessary();
+             // Assert.That(subscriber.IsNecessary, Is.True);
+                factorToTest.Subscribe(subscriber, true);
             }
 
             Assert.That(factorToTest.IsNecessary, Is.True);
@@ -179,8 +213,8 @@ namespace Tests.Interface_Tests
                 
                 subscribers[i] = createdSubscriber;
                 createdSubscriber.ResetHasBeenTriggeredToFalse();
-                createdSubscriber.MakeNecessary(); 
-                factorToTest.Subscribe(createdSubscriber);
+            //  createdSubscriber.MakeNecessary(); 
+                factorToTest.Subscribe(createdSubscriber, true);
             }
 
             Assert.That(factorToTest.IsNecessary, Is.True);
@@ -188,30 +222,17 @@ namespace Tests.Interface_Tests
             //- Notify not necessary numberOfSubscribers - 1 times.
             for (int i = 0; i < numberOfSubscribers - 1; i++)
             {
-                factorToTest.NotifyNotNecessary();
+                var currentSubscriber = subscribers[i];
+
+                factorToTest.NotifyNotNecessary(currentSubscriber);
             }
             
             Assert.That(factorToTest.IsNecessary, Is.True);
             
-            factorToTest.NotifyNotNecessary();
+            factorToTest.NotifyNotNecessary(subscribers[numberOfSubscribers - 1]);
             Assert.That(factorToTest.IsNecessary, Is.False);
         }
         
-        [Test]
-        public void WhenNotifiedNecessaryByASubscriber_IsNecessary()
-        {
-            var factorToTest = factorFactory.CreateInstance();
-            var subscriber   = new MockFactorSubscriber();
-            
-            Assert.That(factorToTest.IsNecessary, Is.False);
-            Assert.That(subscriber.IsNecessary,   Is.False);
-            
-            factorToTest.Subscribe(subscriber); 
-            factorToTest.NotifyNecessary();  
-            
-            Assert.That(factorToTest.IsNecessary, Is.True);
-        }
-
         [Test]
         public void WhenSubscribersAreTriggered_IfSubscriberDoesNotRequestToBeRemoved_SubscriberIsNotRemovedFromSubscriptionList()
         {
@@ -247,7 +268,7 @@ namespace Tests.Interface_Tests
                 subscribers[i] = createdSubscriber;
                 createdSubscriber.ResetHasBeenTriggeredToFalse();
                 createdSubscriber.RemoveSubscriptionOnTrigger = true;
-                factorBeingTested.Subscribe(createdSubscriber);
+                factorBeingTested.Subscribe(createdSubscriber, false);
             }
             
             Assert.That(factorBeingTested.NumberOfSubscribers, 
@@ -259,6 +280,14 @@ namespace Tests.Interface_Tests
                 Is.EqualTo(initialNumberOfSubscribers),
                 $"One or more of an {nameof(IFactor)}s subscribers were not removed when triggered, even though they " +
                  "indicated they wished to be removed from the subscription list. ");
+        }
+
+       // [Test]
+        public void WhenTriggeringSubscribers_IfSubscriberRemovesItself_ExceptionIsNotThrown()
+        {
+            //- A test to make sure whatever process the Factor goes through to trigger it's subscribers
+            //  doesn't use a foreach loop or something else that will throw when the collection of subscribers
+            //  is changed.
         }
         
         

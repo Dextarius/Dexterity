@@ -3,5 +3,6 @@
     public interface IFactory<out TClass>
     {
         TClass CreateInstance();
+        TClass CreateStableInstance();
     }
 }

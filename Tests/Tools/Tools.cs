@@ -6,6 +6,7 @@ using Core.Factors;
 using Core.States;
 using Factors;
 using NUnit.Framework;
+using Tests.Tools.Interfaces;
 using Tests.Tools.Mocks;
 using Tests.Tools.Mocks.Processes;
 using static Core.Tools.Threading;
@@ -188,7 +189,24 @@ namespace Tests.Tools
                 
                 subscribers[i] = createdSubscriber;
                 createdSubscriber.ResetHasBeenTriggeredToFalse();
-                factor.Subscribe(createdSubscriber);
+                factor.Subscribe(createdSubscriber, false);
+            }
+
+            return subscribers;
+        }
+        
+        public static TSubscriber[] AddSubscribersTo<TSubscriber>(IFactor factor, int numberOfSubscribers, 
+                                                                  IFactory<TSubscriber> subscriberFactory)
+            where TSubscriber : IFactorSubscriber
+        {
+            var subscribers = new TSubscriber[numberOfSubscribers];
+
+            for (int i = 0; i < numberOfSubscribers; i++)
+            {
+                var createdSubscriber = subscriberFactory.CreateStableInstance();
+                
+                subscribers[i] = createdSubscriber;
+                factor.Subscribe(createdSubscriber, false);
             }
 
             return subscribers;

@@ -13,7 +13,7 @@ namespace Factors.Cores.ObservedReactorCores
     {
         #region Static Fields
     
-        protected static readonly IFactor[] defaultInfluences = Array.Empty<IFactor>();
+        protected static readonly IFactor[] defaultTriggers = Array.Empty<IFactor>();
 
         #endregion
 
@@ -21,9 +21,9 @@ namespace Factors.Cores.ObservedReactorCores
         #region Instance Fields
 
         [NotNull] 
-        protected IFactor[] influences = defaultInfluences;
+        protected IFactor[] triggers = defaultTriggers;
         protected int       priority;
-        protected int       nextOpenInfluenceIndex;
+        protected int       nextOpenTriggerIndex;
 
         #endregion
         
@@ -37,20 +37,20 @@ namespace Factors.Cores.ObservedReactorCores
         
         #region Properties
 
-        public override bool HasTriggers      => nextOpenInfluenceIndex > 0;
-        public override int  NumberOfTriggers => nextOpenInfluenceIndex;
+        public override bool HasTriggers      => nextOpenTriggerIndex > 0;
+        public override int  NumberOfTriggers => nextOpenTriggerIndex;
         public override int  Priority         => priority;
 
-        protected override IEnumerable<IFactor> Triggers
+        protected override IEnumerable<IXXX> Triggers
         {
             get
             {
-                var currentInfluences  = influences;
-                int lastInfluenceIndex = nextOpenInfluenceIndex - 1;
+                var currentTriggers  = triggers;
+                int lastTriggerIndex = nextOpenTriggerIndex - 1;
             
-                for (int i = 0; i < lastInfluenceIndex; i++)
+                for (int i = 0; i < lastTriggerIndex; i++)
                 {
-                    yield return currentInfluences[i];
+                    yield return currentTriggers[i];
                 }
             }
         }
@@ -60,29 +60,29 @@ namespace Factors.Cores.ObservedReactorCores
 
         #region Instance Methods
 
-        protected override void InvalidateOutcome(IFactor factorToSkip) => RemoveInfluences(factorToSkip);
+        protected override void InvalidateOutcome(IFactor factorToSkip) => RemoveTriggers(factorToSkip);
 
-        protected void RemoveInfluences(IFactor factorToSkip)
+        protected void RemoveTriggers(IFactor factorToSkip)
         {
-            var formerInfluences   = influences;
-            var lastInfluenceIndex = nextOpenInfluenceIndex - 1;
+            var formerTriggers   = triggers;
+            var lastTriggerIndex = nextOpenTriggerIndex - 1;
             
-            for (int i = 0; i <= lastInfluenceIndex; i++)
+            for (int i = 0; i <= lastTriggerIndex; i++)
             {
-                ref IFactor currentInfluence = ref formerInfluences[i];
+                ref IFactor currentTrigger = ref formerTriggers[i];
     
-                if (currentInfluence != factorToSkip)
+                if (currentTrigger != factorToSkip)
                 {
-                    currentInfluence.Unsubscribe(this);
+                    currentTrigger.Unsubscribe(this);
                 }
                 
-                currentInfluence = null;
+                currentTrigger = null;
             }
     
-            nextOpenInfluenceIndex = 0;
+            nextOpenTriggerIndex = 0;
             
-            //- Note : We could choose to keep the influences until we recalculate, and then compare them with 
-            //         the influences that are added during the update process.  
+            //- Note : We could choose to keep the triggers until we recalculate, and then compare them with 
+            //         the triggers that are added during the update process.  
         }
         
         public void NotifyInvolved()
@@ -123,11 +123,22 @@ namespace Factors.Cores.ObservedReactorCores
 
             if (HasBeenTriggered is false)
             {
-                if (influentialFactor.Subscribe(this))
+                if (influentialFactor.Subscribe(this, IsReflexive))
                 {
-                    //- We expect a Factor to only add us as a dependent if they didn't already have us as a dependent. 
-                    Add(ref influences, influentialFactor, nextOpenInfluenceIndex);
-                    nextOpenInfluenceIndex++;
+                    //- Observed Reactors don't mark themselves as necessary when they subscribe here, if they
+                    //  have necessary dependents, but are not Reflexive themselves.  This is because if they
+                    //  are subscribing through this method then they are in the process of reacting, and as
+                    //  soon as they finish they're likely to trigger their own subscribers.  If the necessary
+                    //  subscribers we trigger are all Observed Reactors like this one is, then they'll end up
+                    //  unsubscribing anyways, causing us to no longer be necessary and then have to propagate
+                    //  that up the tree. If we react and don't end up triggering our subscribers because the
+                    //  outcome doesn't change, our triggers will just find out we're necessary when they
+                    //  destabilize us anyways.
+                    
+                    //- Factors are expected to only add us as a dependent if they didn't already have us as a dependent, so
+                    //  so if we're here we should be good to assume we haven't added them as a trigger yet. 
+                    Add(ref triggers, influentialFactor, nextOpenTriggerIndex);
+                    nextOpenTriggerIndex++;
 
                     if (influentialFactor.Priority >= this.Priority)
                     {

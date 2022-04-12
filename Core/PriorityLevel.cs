@@ -1,5 +1,5 @@
 ﻿using Core.States;
-using Core.Tools;
+using static Core.Tools.Collections;
 
 namespace Core
 {
@@ -31,7 +31,7 @@ namespace Core
 
         public void AddUpdate(IUpdateable objectToAdd)
         {
-            Collections.Add(ref queuedElements, objectToAdd, count);
+            Add(ref queuedElements, objectToAdd, count);
             count++;
         }
 

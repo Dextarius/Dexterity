@@ -3,18 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Core.Factors;
 using Core.States;
+using static Core.Factors.Reactors;
 using static Core.Tools.Types;
 
 namespace Factors.Cores
 {
     public abstract class ReactorCore : FactorCore, IReactor, IUpdateable
     {
-        #region Constants
-
-        protected enum ReactionState { None, Triggered, Queued, Updating }
-
-        #endregion
-        
         #region Instance Fields
 
         protected WeakReference<IFactorSubscriber> weakReferenceToSelf;
@@ -26,16 +21,17 @@ namespace Factors.Cores
 
         #region Instance Properties
 
-        public             bool                 IsReacting           { get; protected set; }
-        public             bool                 IsStabilizing        { get; protected set; }
-        protected abstract IEnumerable<IFactor> Triggers             { get; }
-        public    abstract bool                 HasTriggers          { get; }
-        public    abstract int                  NumberOfTriggers     { get; }
-        public             bool                 IsUnstable           { get; protected set; }
-        public             bool                 HasBeenTriggered     { get; protected set; } = true;
-        public    override bool                 IsNecessary          => IsReflexive || base.IsNecessary;
-        public             bool                 HasReacted           => NumberOfTimesReacted > 0;
-        public             uint                 NumberOfTimesReacted { get; private set; }
+        public             bool                  IsReacting           { get; protected set; }
+        public             bool                  IsStabilizing        { get; protected set; }
+        protected          bool                  IsQueued             { get; set; }
+        protected abstract IEnumerable<IXXX> Triggers             { get; }
+        public    abstract bool                  HasTriggers          { get; }
+        public    abstract int                   NumberOfTriggers     { get; }
+        public             bool                  IsUnstable           { get; protected set; }
+        public             bool                  HasBeenTriggered     { get; protected set; } = true;
+        public    override bool                  IsNecessary          => IsReflexive || base.IsNecessary;
+        public             bool                  HasReacted           => NumberOfTimesReacted > 0;
+        public             uint                  NumberOfTimesReacted { get; private set; }
 
         public WeakReference<IFactorSubscriber> WeakReference => weakReferenceToSelf ??= new WeakReference<IFactorSubscriber>(this);
         
@@ -84,11 +80,10 @@ namespace Factors.Cores
 
             if (IsReacting)                { Debug.Fail($"Update loop in {NameOf<ReactorCore>()} => {this}."); }
             if (HasBeenTriggered is false) { InvalidateOutcome(null); }
-
+            
             IsReacting       = true;
             IsUnstable       = false;
             HasBeenTriggered = false;
-            IsStabilizing    = false;
     
             try
             {
@@ -123,19 +118,14 @@ namespace Factors.Cores
         {
             if (HasBeenTriggered)
             {
-                return React() is false;
+                return React();
             }
             else if (IsUnstable)
             {
-                IsStabilizing = true;
-                
                 if (TryStabilizeOutcome())
                 {
-                    IsStabilizing = false;
-                    IsUnstable    = false;
-                    
                     Debug.Assert(HasBeenTriggered is false);
-                
+
                     return true;
                 }
                 else
@@ -148,11 +138,19 @@ namespace Factors.Cores
 
         protected bool TryStabilizeOutcome()
         {
+            bool successfullyReconciled = true;
+            
+            IsStabilizing = true;
+
             foreach (var determinant in Triggers)
             {
                 if (determinant.Reconcile() is false)
                 {
-                    return false;
+                    successfullyReconciled = false;
+                    Debug.Assert(HasBeenTriggered);
+                    //^ If the reconciliation failed then the trigger should have reacted and triggered its subscribers
+
+                    break;
                     //- No point in stabilizing the rest.  We try to stabilize to avoid updating, and if one
                     //  of our triggers fails to stabilize then we have no choice but to update.  In addition
                     //  we don't even know if we'll use the same triggers when we update. If we do end
@@ -160,8 +158,11 @@ namespace Factors.Cores
                     //  them anyways.
                 }
             }
+            
+            IsUnstable    = false;
+            IsStabilizing = false;
 
-            return true;
+            return successfullyReconciled;
         }
 
         public bool Trigger() => Trigger(null, out _);
@@ -173,10 +174,10 @@ namespace Factors.Cores
             if (IsReacting)
             {
                 throw new InvalidOperationException(
-                    "An Outcome was invalidated while it was updating, meaning either the Outcome's update process " +
+                    "A Reactor was invalidated while it was updating, meaning either, the Reactor's update process " +
                     "caused it to invalidate itself, creating an update loop, " +
                     "or the Outcome was accessed by two different threads at the same time. \n  " +
-                    $"The invalidated outcome was '{this}' and it was invalidated by '{triggeringFactor}'. ");
+                   $"The invalidated outcome was '{this}' and it was invalidated by '{triggeringFactor}'. ");
                 //- If this Outcome is in the update list we should know it's a loop, if it's not then it should be
                 //  another thread accessing it.
                 //  Well actually, the parent won't add us to the list until this returns...
@@ -184,19 +185,15 @@ namespace Factors.Cores
             
             if (HasBeenTriggered is false)
             {
+                Debug.Assert(IsQueued is false);
                 HasBeenTriggered = true;
                 InvalidateOutcome(triggeringFactor);
-    
-                if (IsNecessary)
+
+                if (IsNecessary || DestabilizeSubscribers())
                 {
                     UpdateOutcome();
                 }
-                else if (DestabilizeSubscribers())
-                {
-                    numberOfNecessarySubscribers++;
-                    UpdateOutcome();
-                }
-    
+
                 return true;
             }
     
@@ -205,8 +202,12 @@ namespace Factors.Cores
 
         protected abstract void InvalidateOutcome(IFactor changedParentState);
         
-        protected virtual void UpdateOutcome() => UpdateList.Update(this);
-        
+        protected virtual void UpdateOutcome()
+        {
+            IsQueued = true;
+            UpdateList.Update(this);
+        }
+
         public bool Destabilize()
         {
             if (IsStabilizing)
@@ -218,7 +219,7 @@ namespace Factors.Cores
                 return true;
                 
                 //- We shouldn't need to mark ourselves as Unstable. If we're Necessary then either
-                //  we're going to be triggered when our parent recalculates, or the parent won't
+                //  we're going to be triggered when our parent updates, or the parent won't
                 //  change, in which case we aren't Unstable.
             }
             else if (HasBeenTriggered)
@@ -231,7 +232,6 @@ namespace Factors.Cores
                 
                 if (hasNecessaryDependents)
                 {
-                    numberOfNecessarySubscribers++;
                     return true;
                 }
                 else
@@ -245,7 +245,7 @@ namespace Factors.Cores
         
         protected bool DestabilizeSubscribers()
         {
-            var subscribersToDestabilize = subscribers;
+            var subscribersToDestabilize = allSubscribers;
             
             if (subscribersToDestabilize.Count > 0) 
             {
@@ -253,65 +253,55 @@ namespace Factors.Cores
                 {
                     if (subscriber.Destabilize())
                     {
+                        necessarySubscribers.Add(subscriber);
                         return true;
                     }
                 }
+                
+                //- TODO : We specifically tried to avoid foreach when triggering subscribers because they might
+                //         choose to remove themselves, so consider if we really want to use it here.  
             }
             return false;
         }
         
-        public override bool Subscribe(IFactorSubscriber subscriberToAdd)
+        public override bool Subscribe(IFactorSubscriber subscriberToAdd, bool isNecessary)
         {
-            if(subscriberToAdd == null) { throw new ArgumentNullException(nameof(subscriberToAdd)); }
-    
-            if (IsReacting)
-            {
-                throw new InvalidOperationException("Recursive dependency"); //- TODO : Better error message.
-            }
+            if (IsReacting) { throw new InvalidOperationException("Recursive dependency"); } //- TODO : Better error message.
 
-            if (base.Subscribe(subscriberToAdd))
-            {
-                if (HasBeenTriggered || IsUnstable)
-                {
-                    bool subscriberIsNecessary = subscriberToAdd.Destabilize();
+            bool successfullySubscribed = base.Subscribe(subscriberToAdd, isNecessary);
 
-                    if (subscriberIsNecessary)
-                    {
-                        AttemptReaction();
-                        //- TODO : This seems like it could lead to some weird behavior 
-                        //         when combined with the fact that the 'involved' process
-                        //         already updates Reactors before adding subscribers.
-                        //         Think about it for a bit when you get a chance.
-                    }
-                }
-                
-                return true;
-            }
-            else return false;
-        }
-        
-        public override void NotifyNecessary()
-        {
-            if (IsNecessary)
+            if (successfullySubscribed && 
+                isNecessary is false   &&
+                HasBeenTriggered  ||  IsUnstable)
             {
-                OnNecessary();
+                subscriberToAdd.Destabilize();
+                //- TODO : Doesn't this break the rule that Destabilize is supposed to cause the caller to update 
+                //         based on its return value?
             }
             
-            base.NotifyNecessary();
+            return successfullySubscribed;
+        }
+
+        protected override void AddSubscriberAsNecessary(IFactorSubscriber necessarySubscriber)
+        {
+            bool wasAlreadyNecessary = IsNecessary;
+            
+            base.AddSubscriberAsNecessary(necessarySubscriber);
 
             if (wasAlreadyNecessary is false)
             {
                 OnNecessary();
+                
+                //- TODO : OnNecessary is going to update this Reactor, so do we want that to happen before or after
+                //         we add the subscriber?
             }
         }
-
         
-        //- Tracking isNecessary using only NotifyNecessary/NotifyNot
-        public override void NotifyNotNecessary()
+        protected override void RemoveSubscriberFromNecessary(IFactorSubscriber unnecessarySubscriber)
         {
             if (base.IsNecessary)
             {
-                base.NotifyNotNecessary();
+                base.RemoveSubscriberFromNecessary(unnecessarySubscriber);
     
                 if (IsNecessary is false)
                 {
@@ -319,29 +309,21 @@ namespace Factors.Cores
                 }
             }
         }
-        
-
 
         private void OnNecessary()
         {
-            //- We don't propagate the Necessary status if we don't need to update, to avoid walking up the tree.
-            //  All Factors walk down the tree to destabilize their dependents, so we can let them know then
-            //  if need be.
             if (HasBeenTriggered || IsUnstable)
             {
                 AttemptReaction();
-
-                
-                if (HasReacted)
-                {
-                    foreach (var trigger in Triggers)
-                    {
-                        trigger.NotifyNecessary();
-                    }
-                }
+                //- TODO : This seems like it could lead to some weird behavior when combined with the fact that Reactives
+                //         already update before returning a value. Think about it for a bit when you get a chance.
             }
 
-            //- Should we check if we're already reacting?
+            //- TODO : Should we check if we're already reacting, or if we're queued?
+            
+            //- We don't propagate the Necessary status to avoid walking up the tree.
+            //  All Reactors walk down the tree to destabilize their dependents, so we can let them know then
+            //  if need be.
         }
         
         private void OnNotNecessary()
@@ -350,7 +332,7 @@ namespace Factors.Cores
             {
                 foreach (var trigger in Triggers)
                 {
-                    trigger.NotifyNotNecessary();
+                    trigger.NotifyNotNecessary(this);
                 }
             }
         }
@@ -369,19 +351,8 @@ namespace Factors.Cores
             // before this call, and we would have triggered our subscribers if the reaction 'changed something'.
             // Since they're trying to reconcile, then they haven't been triggered, so we accept the reconciliation.
 
-            //- TODO : We could probably just return "AttemptReaction() is false" if we can 
-            //         guarantee that AttemptReaction() is always going to be based on
-            //         HasBeenTriggered and IsUnstable anyways.
-        }
-
-        public void SubscribeTo(IFactor factor)
-        {
-            factor.Subscribe(___);
-
-            if (IsNecessary)
-            {
-                factor.NotifyNecessary();
-            }
+            //- TODO : We could probably just return "AttemptReaction() is false" if we can guarantee that
+            //         AttemptReaction() is always going to be based on HasBeenTriggered and IsUnstable anyways.
         }
 
         #endregion
@@ -391,7 +362,6 @@ namespace Factors.Cores
 
         protected ReactorCore(string name) : base(name)
         {
-            
         }
 
         #endregion
@@ -399,7 +369,11 @@ namespace Factors.Cores
         
         #region Explicit Implementations
 
-        void IUpdateable.Update() => AttemptReaction();
+        void IUpdateable.Update()
+        {
+            IsQueued = false;
+            AttemptReaction();
+        }
 
         #endregion
     }

@@ -14,6 +14,9 @@ namespace Tests.Tools.Factories
             return new DirectStateCore<TValue>(value);
         }
 
+        public DirectStateCore<TValue> CreateStableInstance() => CreateInstance();
+
+
         public abstract TValue CreateRandomValue();
         public abstract TValue CreateRandomValueNotEqualTo(TValue valueToAvoid);
     }

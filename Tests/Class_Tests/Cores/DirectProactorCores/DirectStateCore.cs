@@ -33,5 +33,7 @@ namespace Tests.Class_Tests.Cores.DirectProactorCores
             GenerateRandomIntNotEqualTo(valueToAvoid);
         
         public DirectStateCore<int> CreateInstance() => new DirectStateCore<int>(1);
+        
+        public DirectStateCore<int> CreateStableInstance() => CreateInstance();
     }
 }

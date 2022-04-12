@@ -41,8 +41,7 @@ namespace Factors
 
         #region Constructors
 
-        public Proactive(IState<T> valueState, string name = null) : 
-            base(valueState, name?? NameOf<Proactive<T>>())
+        public Proactive(IState<T> valueState, string name = null) : base(valueState, name?? NameOf<Proactive<T>>())
         {
 
         }

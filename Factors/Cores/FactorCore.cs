@@ -21,8 +21,8 @@ namespace Factors.Cores
         #region Instance Fields
 
         [NotNull, ItemNotNull]
-        private Dictionary<IFactorSubscriber, SubscriptionState> subscriptionStateBySubscriber = new Dictionary<IFactorSubscriber, SubscriptionState>();
-        protected uint numberOfNecessarySubscribers;
+        protected readonly HashSet<IFactorSubscriber> allSubscribers       = new HashSet<IFactorSubscriber>();
+        protected readonly HashSet<IFactorSubscriber> necessarySubscribers = new HashSet<IFactorSubscriber>();
 
         #endregion
         
@@ -37,47 +37,45 @@ namespace Factors.Cores
 
         public          string Name                { get; }
         public abstract int    Priority            { get; }
-        public virtual  bool   IsNecessary         => numberOfNecessarySubscribers > 0;
-        public          bool   HasSubscribers      => subscriptionStateBySubscriber.Count > 0;
-        public          int    NumberOfSubscribers => subscriptionStateBySubscriber.Count;
+        public virtual  bool   IsNecessary         => necessarySubscribers.Count > 0;
+        public          bool   HasSubscribers      => allSubscribers.Count > 0;
+        public          int    NumberOfSubscribers => allSubscribers.Count;
 
         #endregion
         
 
         #region Instance Methods
         
-        public virtual bool Subscribe(IFactorSubscriber subscriberToAdd)
+        public virtual bool Subscribe(IFactorSubscriber subscriberToAdd, bool isNecessary)
         {
             if (subscriberToAdd == null) { throw new ArgumentNullException(nameof(subscriberToAdd)); }
 
-            SubscriptionState subscriptionState = new SubscriptionState(true, subscriberToAdd.IsNecessary);
-            
-            if (subscriptionStateBySubscriber.TryAdd(subscriberToAdd, subscriptionState))
+            if (allSubscribers.Add(subscriberToAdd))
             {
-                if (subscriberToAdd.IsNecessary)
+                if (isNecessary)
                 {
-                   // numberOfNecessarySubscribers++;
-                    NotifyNecessary();
+                    AddSubscriberAsNecessary(subscriberToAdd);
                 }
 
                 return true;
             }
-
-            return false;
+            else return false;
         }
 
         public virtual void Unsubscribe(IFactorSubscriber subscriberToRemove)
         {
             if (subscriberToRemove != null)
             {
-                subscribers.Remove(subscriberToRemove);
-                
+                if (allSubscribers.Remove(subscriberToRemove))
+                {
+                    RemoveSubscriberFromNecessary(subscriberToRemove);
+                }
             }
         }
 
         public void TriggerSubscribers()
         {
-            var formerSubscribers = subscriptionStateBySubscriber;
+            var formerSubscribers = allSubscribers;
 
             if (formerSubscribers.Count > 0)
             {
@@ -87,7 +85,9 @@ namespace Factors.Cores
                 }
             }
             
-            //- TODO : We might be able to skip establishing the UpdateQueue if there's only 1 dependent.
+            //- TODO : We might be able to skip establishing the UpdateQueue if there's only 1 subscriber.
+            //         If this factor was triggered by another one, the subscriber will get picked up by their
+            //         queue anyways.
         }
 
         private bool TriggerSubscriberAndPotentiallyRemoveThem(IFactorSubscriber subscriber)
@@ -96,51 +96,43 @@ namespace Factors.Cores
 
             if (removeSubscription)
             {
-                if (subscriber.IsNecessary)
-                {
-                    numberOfNecessarySubscribers--;
-                }
-                
+                //- Working On : Do we want to use RemoveSubscriberFromNecessary() here?
+                //  We probably should, but that means we're going to check if we need
+                //  to notify we're not necessary every time we remove one instead of just
+                //  checking when we're done triggering all of them.
+
+                RemoveSubscriberFromNecessary(subscriber);
                 return true;
             }
-            else
-            {
-                return false;
-            }
-        }
-
-
-        public virtual void NotifyNecessary()
-        {
-            // #if DEBUG
-            // Debug.Assert(numberOfNecessarySubscribers >= 0);
-            // Debug.Assert(numberOfNecessarySubscribers < subscribers.Count);
-            // #endif
-
-            if (numberOfNecessarySubscribers < uint.MaxValue)
-            {
-                numberOfNecessarySubscribers++;
-            }
+            else return false;
         }
         
-        public virtual void NotifyNotNecessary()
+        //- Working On : Changing the subscription and trigger processes for observed reactors so that
+        //               parents are only notified that they are necessary during destabilizing, not
+        //               when they subscribe.
+
+        public virtual void NotifyNecessary(IFactorSubscriber necessarySubscriber)
         {
-            if (numberOfNecessarySubscribers > 0)
+            if (allSubscribers.Contains(necessarySubscriber))
             {
-                numberOfNecessarySubscribers--;
+                AddSubscriberAsNecessary(necessarySubscriber);
             }
-            
-            // #if DEBUG
-            // Debug.Assert(numberOfNecessarySubscribers >= 0);
-            // Debug.Assert(numberOfNecessarySubscribers <= subscribers.Count);
-            // #endif
         }
+
+        protected virtual void AddSubscriberAsNecessary(IFactorSubscriber necessarySubscriber) => 
+            necessarySubscribers.Add(necessarySubscriber);
+
+        public virtual void NotifyNotNecessary(IFactorSubscriber unnecessarySubscriber) => 
+            RemoveSubscriberFromNecessary(unnecessarySubscriber);
+
+        protected virtual void RemoveSubscriberFromNecessary(IFactorSubscriber necessarySubscriber) => 
+            necessarySubscribers.Remove(necessarySubscriber);
         
         public virtual bool Reconcile()
         {
             return true; 
-            //^ A non-reactive factor never destabilizes its dependents, so unless this is a reactive
-            //  it should never be the parent that the caller needs to reconcile with.
+            //^ Reconcile is used when a subscriber is destabilized, and since only reactors destabilize their dependents,
+            //  a basic factor should never be the parent that the caller needs to reconcile with.
         }
         
         public override string ToString() => Name;

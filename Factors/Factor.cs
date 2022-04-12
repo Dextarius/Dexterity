@@ -9,7 +9,7 @@ using JetBrains.Annotations;
 
 namespace Factors
 {
-    public abstract class Factor<TCore> : IFactor  where TCore : IFactor
+    public abstract class Factor<TCore> : IDeterminant  where TCore : IDeterminant
     {
         #region Constants
 
@@ -38,13 +38,15 @@ namespace Factors
 
         #region Instance Methods
 
-        public bool Subscribe(IFactorSubscriber subscriberToAdd)      => core.Subscribe(subscriberToAdd);
-        public void Unsubscribe(IFactorSubscriber subscriberToRemove) => core.Unsubscribe(subscriberToRemove);
-        public void TriggerSubscribers()                              => core.TriggerSubscribers();
-        public void NotifyNecessary()                                 => core.NotifyNecessary();
-        public void NotifyNotNecessary()                              => core.NotifyNotNecessary();
-        public bool Reconcile()                                       => core.Reconcile();
-        
+        public bool Subscribe(IFactorSubscriber subscriberToAdd, bool isNecessary) => core.Subscribe(subscriberToAdd, isNecessary);
+        public void Unsubscribe(IFactorSubscriber subscriberToRemove)              => core.Unsubscribe(subscriberToRemove);
+        public void NotifyNecessary(IFactorSubscriber necessarySubscriber)         => core.NotifyNecessary(necessarySubscriber);
+        public void NotifyNotNecessary(IFactorSubscriber unnecessarySubscriber)    => core.NotifyNotNecessary(unnecessarySubscriber);
+        public void TriggerSubscribers()                                           => core.TriggerSubscribers();
+        public bool Reconcile()                                                    => core.Reconcile();
+
+        public override string ToString() => core.ToString();
+
         #endregion
         
 

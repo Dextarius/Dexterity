@@ -2,7 +2,8 @@
 
 namespace Core.States
 {
-    public interface IFactorSubscriber : INecessary, ITriggerable, IDestabilizable
+    public interface IFactorSubscriber : ITriggerable, IDestabilizable
     {
+        
     }
 }

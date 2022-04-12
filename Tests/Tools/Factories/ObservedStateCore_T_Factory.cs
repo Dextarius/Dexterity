@@ -3,16 +3,18 @@ using Tests.Tools.Interfaces;
 
 namespace Tests.Tools.Factories
 {
-    public abstract class ObservedStateCore_T_Factory<TValue> :  IState_T_Factory<DirectStateCore<TValue>, TValue>
+    public abstract class ObservedStateCore_T_Factory<TValue> :  IState_T_Factory<ObservedStateCore<TValue>, TValue>
     {
-        public DirectStateCore<TValue> CreateInstance_WithValue(TValue value) => new DirectStateCore<TValue>(value);
+        public ObservedStateCore<TValue> CreateInstance_WithValue(TValue value) => new ObservedStateCore<TValue>(value);
         
-        public DirectStateCore<TValue> CreateInstance()
+        public ObservedStateCore<TValue> CreateInstance()
         {
             var value = CreateRandomValue();
 
-            return new DirectStateCore<TValue>(value);
+            return new ObservedStateCore<TValue>(value);
         }
+
+        public ObservedStateCore<TValue> CreateStableInstance() => CreateInstance();
 
         public abstract TValue CreateRandomValue();
         public abstract TValue CreateRandomValueNotEqualTo(TValue valueToAvoid);

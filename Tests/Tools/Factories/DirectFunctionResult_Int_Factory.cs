@@ -15,9 +15,22 @@ namespace Tests.Tools.Factories
             return new DirectFunctionResult<int, int>(valueFunction, valueSource);
         }
 
-        public DirectFunctionResult<int, int> CreateInstance() =>
-            CreateInstance(
-                new DirectStateCore<int>(
-                    Tools.GenerateRandomInt()));
+        public DirectFunctionResult<int, int> CreateInstance()
+        {
+            int            randomNumber  = Tools.GenerateRandomInt();
+            var            valueSource   = new DirectStateCore<int>(randomNumber);
+            Func<int, int> valueFunction = (number) => number + Tools.GenerateRandomInt();
+
+            return new DirectFunctionResult<int, int>(valueFunction, valueSource);
+        }
+        
+        public DirectFunctionResult<int, int> CreateStableInstance()
+        {
+            var createdInstance = CreateInstance();
+
+            createdInstance.ForceReaction();
+
+            return createdInstance;
+        }
     }
 }

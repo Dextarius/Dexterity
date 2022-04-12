@@ -15,6 +15,7 @@ namespace Tests.Tools.Factories
 
             return new Proactive<TValue>(value);
         }
+        public Proactive<TValue> CreateStableInstance() => CreateInstance();
 
         public abstract TValue CreateRandomValue();
         public abstract TValue CreateRandomValueNotEqualTo(TValue valueToAvoid);

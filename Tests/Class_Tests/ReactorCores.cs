@@ -301,6 +301,12 @@ namespace Tests.Class_Tests
             
         }
         
+        // [Test]
+        public void WhenTriggeringDependent_IfAllNecessaryDependentsRemoveThemselves_NotifiesTriggersItIsNotNecessary()
+        {
+            
+        }
+        
         
         #region Outdated Tests
 

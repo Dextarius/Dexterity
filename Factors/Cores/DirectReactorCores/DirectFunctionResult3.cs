@@ -25,7 +25,7 @@ namespace Factors.Cores.DirectReactorCores
         public override int NumberOfTriggers => 3;
         public override int Priority         => priority;
 
-        protected override IEnumerable<IFactor> Triggers
+        protected override IEnumerable<IXXX> Triggers
         {
             get
             {
@@ -46,7 +46,7 @@ namespace Factors.Cores.DirectReactorCores
             int     highestPriority = Math.Max(inputSource1.Priority, inputSource2.Priority);
 
             highestPriority = Math.Max(highestPriority, inputSource3.Priority);
-            priority = highestPriority + 1;
+            priority        = highestPriority + 1;
 
             return result;
         }

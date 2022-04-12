@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using Core.Causality;
 using Core.Factors;
 using Core.States;
+using Factors.Cores.ProactiveCores;
 using static Core.Tools.Types;
 
 namespace Factors.Collections
@@ -44,6 +45,11 @@ namespace Factors.Collections
             base(dictionaryCore, name)
         {
             
+        }
+        
+        public ProactiveDictionary(string name) : 
+            this(new ObservedDictionaryState<TKey, TValue>(name), name)
+        {
         }
 
         #endregion
