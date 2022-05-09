@@ -7,8 +7,8 @@ using static Core.Tools.Types;
 
 namespace Factors.Cores.ProactiveCores
 {
-    public class ObservedDictionaryState<TKey, TValue> : 
-        ObservedCollectionState<Dictionary<TKey,TValue>, KeyValuePair<TKey, TValue>>, IDictionaryState<TKey, TValue>
+    public class ObservedDictionaryCore<TKey, TValue> : 
+        ObservedCollectionCore<Dictionary<TKey,TValue>, KeyValuePair<TKey, TValue>>, IDictionaryCore<TKey, TValue>
     {
         #region Instance Fields
 
@@ -75,7 +75,7 @@ namespace Factors.Cores.ProactiveCores
 
         #region Constructors
         
-        public ObservedDictionaryState(ICollection<KeyValuePair<TKey, TValue>> collectionToCopy  = null,
+        public ObservedDictionaryCore(ICollection<KeyValuePair<TKey, TValue>> collectionToCopy  = null,
                                        IEqualityComparer<TKey>                 comparerForKeys   = null, 
                                        IEqualityComparer<TValue>               comparerForValues = null, 
                                        string                                  name              = null) : 
@@ -85,43 +85,43 @@ namespace Factors.Cores.ProactiveCores
             valueComparer = comparerForValues ?? EqualityComparer<TValue>.Default;
         }
         
-        public ObservedDictionaryState(ICollection<KeyValuePair<TKey, TValue>> collectionToCopy  = null,
+        public ObservedDictionaryCore(ICollection<KeyValuePair<TKey, TValue>> collectionToCopy  = null,
                                        IEqualityComparer<TKey>                 comparerForKeys   = null, 
                                        string                                  name              = null) : 
             this(collectionToCopy, comparerForKeys, null, name)
         {
         }
         
-        public ObservedDictionaryState(ICollection<KeyValuePair<TKey, TValue>> collectionToCopy, 
+        public ObservedDictionaryCore(ICollection<KeyValuePair<TKey, TValue>> collectionToCopy, 
                                        IEqualityComparer<TValue>               comparerForValues, 
                                        string                                  name = null) : 
             this(collectionToCopy, null, comparerForValues, name)
         {
         }
         
-        public ObservedDictionaryState(IEqualityComparer<TKey>   comparerForKeys, 
+        public ObservedDictionaryCore(IEqualityComparer<TKey>   comparerForKeys, 
                                        IEqualityComparer<TValue> comparerForValues = null, 
                                        string                    name              = null) : 
             this(null, comparerForKeys, comparerForValues, name)
         {
         }
 
-        public ObservedDictionaryState(ICollection<KeyValuePair<TKey, TValue>> collectionToCopy, string name = null) : 
+        public ObservedDictionaryCore(ICollection<KeyValuePair<TKey, TValue>> collectionToCopy, string name = null) : 
             this(collectionToCopy, null, null, name)
         {
         }
         
-        public ObservedDictionaryState(IEqualityComparer<TKey> comparerForKeys, string name = null) : 
+        public ObservedDictionaryCore(IEqualityComparer<TKey> comparerForKeys, string name = null) : 
             this(null, comparerForKeys, null, name)
         {
         }
         
-        public ObservedDictionaryState(IEqualityComparer<TValue> comparerForValues, string name = null) : 
+        public ObservedDictionaryCore(IEqualityComparer<TValue> comparerForValues, string name = null) : 
             this(null, null, comparerForValues, name)
         {
         }
 
-        public ObservedDictionaryState(string name) : this(null, null, null, name)
+        public ObservedDictionaryCore(string name) : this(null, null, null, name)
         {
         }
 
@@ -130,23 +130,23 @@ namespace Factors.Cores.ProactiveCores
 
         #region Nested Classes
 
-        protected class StateKeyConservator : ReadOnlyConservator< ObservedDictionaryState<TKey, TValue>, TKey>
+        protected class StateKeyConservator : ReadOnlyConservator< ObservedDictionaryCore<TKey, TValue>, TKey>
         {
             public override ICollection<TKey> ManagedCollection => collectionSource.Collection.Keys;
             
             protected override string GetCollectionDescription() => "The Keys collection of a ProactiveDictionary";
             
-            internal StateKeyConservator(ObservedDictionaryState<TKey, TValue> creator) : base(creator) { }
+            internal StateKeyConservator(ObservedDictionaryCore<TKey, TValue> creator) : base(creator) { }
         }
 
 
-        protected class StateValueConservator : ReadOnlyConservator< ObservedDictionaryState<TKey, TValue>, TValue>
+        protected class StateValueConservator : ReadOnlyConservator< ObservedDictionaryCore<TKey, TValue>, TValue>
         {
             public override ICollection<TValue> ManagedCollection => collectionSource.Collection.Values;
 
             protected override string GetCollectionDescription() => "The Values collection of a ProactiveDictionary";
 
-            internal StateValueConservator(ObservedDictionaryState<TKey, TValue> creator) : base(creator) { }
+            internal StateValueConservator(ObservedDictionaryCore<TKey, TValue> creator) : base(creator) { }
         }
 
         #endregion

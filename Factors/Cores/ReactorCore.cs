@@ -21,17 +21,17 @@ namespace Factors.Cores
 
         #region Instance Properties
 
-        public             bool                  IsReacting           { get; protected set; }
-        public             bool                  IsStabilizing        { get; protected set; }
-        protected          bool                  IsQueued             { get; set; }
-        protected abstract IEnumerable<IXXX> Triggers             { get; }
-        public    abstract bool                  HasTriggers          { get; }
-        public    abstract int                   NumberOfTriggers     { get; }
-        public             bool                  IsUnstable           { get; protected set; }
-        public             bool                  HasBeenTriggered     { get; protected set; } = true;
-        public    override bool                  IsNecessary          => IsReflexive || base.IsNecessary;
-        public             bool                  HasReacted           => NumberOfTimesReacted > 0;
-        public             uint                  NumberOfTimesReacted { get; private set; }
+        public             bool                 IsReacting           { get; protected set; }
+        public             bool                 IsStabilizing        { get; protected set; }
+        protected          bool                 IsQueued             { get; set; }
+        protected abstract IEnumerable<IFactor> Triggers             { get; }
+        public    abstract bool                 HasTriggers          { get; }
+        public    abstract int                  NumberOfTriggers     { get; }
+        public             bool                 IsUnstable           { get; protected set; } = true;
+        public             bool                 HasBeenTriggered     { get; protected set; } = true;
+        public    override bool                 IsNecessary          => IsReflexive || base.IsNecessary;
+        public             bool                 HasReacted           => NumberOfTimesReacted > 0;
+        public             uint                 NumberOfTimesReacted { get; private set; }
 
         public WeakReference<IFactorSubscriber> WeakReference => weakReferenceToSelf ??= new WeakReference<IFactorSubscriber>(this);
         
@@ -310,7 +310,7 @@ namespace Factors.Cores
             }
         }
 
-        private void OnNecessary()
+        protected virtual void OnNecessary()
         {
             if (HasBeenTriggered || IsUnstable)
             {
@@ -326,7 +326,7 @@ namespace Factors.Cores
             //  if need be.
         }
         
-        private void OnNotNecessary()
+        protected virtual void OnNotNecessary()
         {
             if (HasReacted)
             {

@@ -11,10 +11,13 @@ namespace Tests.Tools.Factories.Controllers
         private readonly IFactor_T_Controller<int> inputController;
     
         protected override void ChangeInputsToANonEqualValue() => inputController.ChangeValueToANonEqualValue();
-        protected override void ChangeInputsToAnEqualValue()   => inputController.ChangeValueToAnEqualValue();
+        protected override void ChangeInputsToAnEqualValue()   => inputController.SetValueToAnEqualValue();
         protected override int  CallValueFunction()            => valueFunction();
-    
-    
+        
+        public override int GetRandomInstanceOfValuesType_NotEqualTo(int valueToAvoid) => 
+            Tools.GenerateRandomIntNotEqualTo(valueToAvoid);
+
+
         public ObservedFunctionResult_Controller(IFactor_T_Controller<int> inputSourceController)
         {
             inputController    = inputSourceController;
@@ -44,7 +47,7 @@ namespace Tests.Tools.Factories.Controllers
     //
     //         return reactive.Value;
     //     }
-    //     public override int ChangeValueToAnEqualValue()
+    //     public override int SetValueToAnEqualValue()
     //     {
     //         //- This does essentially nothing, except prevent odd situations from unintentionally
     //         //  changing the value to something new, such as this method being called before the 

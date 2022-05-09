@@ -27,7 +27,7 @@ namespace Factors
 
         #region Instance Methods
 
-        public T Peek() => core.Peek();
+     //   public T Peek() => core.Peek();
 
         #endregion
 

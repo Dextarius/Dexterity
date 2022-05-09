@@ -18,7 +18,7 @@ namespace Factors.Cores.ProactiveCores
         #region Properties
 
         public abstract T   Value    { get; set; }
-        public override int Priority => 0;
+        public override int UpdatePriority => 0;
         
         #endregion
 

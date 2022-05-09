@@ -14,7 +14,7 @@ namespace Factors
     //     public    bool    IsNecessary         => Influence.IsNecessary;
     //     public    bool    HasSubscribers      => Influence.HasSubscribers;
     //     public    int     NumberOfSubscribers => Influence.NumberOfSubscribers;
-    //     public    int     Priority            => Influence.Priority;
+    //     public    int     UpdatePriority            => Influence.UpdatePriority;
     //
     //     public bool Subscribe(IFactorSubscriber subscriberToAdd)      => Influence.Subscribe(subscriberToAdd);
     //     public void Unsubscribe(IFactorSubscriber subscriberToRemove) => Influence.Unsubscribe(subscriberToRemove);

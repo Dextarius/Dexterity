@@ -18,7 +18,7 @@ namespace Tests.Tools.Mocks
     //
     //     #endregion
     //     
-    //     public int    Priority           => 0;
+    //     public int    UpdatePriority           => 0;
     //     public string Name               => nameof(MockFactor);
     //     public bool   IsNecessary        => numberOfNecessarySubscribers > 0;
     //     public bool   HasSubscribers      => subscribers.Count > 0;
@@ -83,7 +83,7 @@ namespace Tests.Tools.Mocks
     //             currenSubscribers.RemoveWhere(TriggerSubscriberAndPotentiallyRemoveThem);
     //         }
     //         
-    //         //- Note : This doesn't invalidate the dependents in order of Priority
+    //         //- Note : This doesn't invalidate the dependents in order of UpdatePriority
     //     }
     //     
     //     private bool TriggerSubscriberAndPotentiallyRemoveThem(WeakReference<IFactorSubscriber> subscriberReference)
@@ -111,7 +111,7 @@ namespace Tests.Tools.Mocks
 
     internal class MockFactor : FactorCore
     {
-        public override int Priority => 0;
+        public override int UpdatePriority => 0;
         
         
         public MockFactor() : base(nameof(MockFactor))

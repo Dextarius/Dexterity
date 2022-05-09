@@ -8,7 +8,7 @@ using static Core.Tools.Types;
 
 namespace Factors.Collections
 {
-    public class ProactiveList<T> : ProactiveCollection<IListState<T>, T>, IList<T>, IList
+    public class ProactiveList<T> : ProactiveCollection<IListCore<T>, T>, IList<T>, IList
     {
         #region Instance Properties
 
@@ -71,7 +71,7 @@ namespace Factors.Collections
         
         #region Constructors
 
-        public ProactiveList(IListState<T> listCore, string name) : base(listCore, name?? NameOf<ProactiveList<T>>())
+        public ProactiveList(IListCore<T> listCore, string name) : base(listCore, name?? NameOf<ProactiveList<T>>())
         {
             
         }

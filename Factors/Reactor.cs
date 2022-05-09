@@ -14,7 +14,7 @@ namespace Factors
         where TCore : IReactor
     {
         #region Instance Properties
-        
+
         public bool HasTriggers          => core.HasTriggers;
         public int  NumberOfTriggers     => core.NumberOfTriggers;
         public bool IsUnstable           => core.IsUnstable;
@@ -52,7 +52,6 @@ namespace Factors
         
 
         #region Instance Methods
-
         
         //- Does not imply the caller will queue this Outcome to be updated.
         //  Only that the caller should be notified if this Outcome is Necessary
@@ -69,6 +68,7 @@ namespace Factors
         
         #region Constructors
 
+        //- TODO : We shouldn't need to give the core a name and ourselves a name as well.
         protected Reactor(TCore reactorCore, string nameToGive) : base(reactorCore, nameToGive)
         {
             

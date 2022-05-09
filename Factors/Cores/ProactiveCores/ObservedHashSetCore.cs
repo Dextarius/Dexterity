@@ -5,7 +5,7 @@ using static Core.Tools.Types;
 
 namespace Factors.Cores.ProactiveCores
 { 
-    public class ObservedHashSetState<T> : ObservedCollectionState<HashSet<T>, T>, ISetState<T>
+    public class ObservedHashSetCore<T> : ObservedCollectionCore<HashSet<T>, T>, ISetCore<T>
     {
         public HashSet<T> AsNormalSet() => new HashSet<T>(Collection);
 
@@ -104,24 +104,24 @@ namespace Factors.Cores.ProactiveCores
 
         #region Constructors
 
-        protected ObservedHashSetState(
+        protected ObservedHashSetCore(
             ICollection<T> collectionToCopy, IEqualityComparer<T> comparerForElements = null, string name = null) :
-                base(new HashSet<T>(collectionToCopy, comparerForElements), name ?? NameOf<ObservedHashSetState<T>>())
+                base(new HashSet<T>(collectionToCopy, comparerForElements), name ?? NameOf<ObservedHashSetCore<T>>())
         {
             
         }
         
-        public ObservedHashSetState(string name = null) : this(null, null, name)
+        public ObservedHashSetCore(string name = null) : this(null, null, name)
         {
         }
 
-        public ObservedHashSetState(IEqualityComparer<T> comparer, string name = null) : 
+        public ObservedHashSetCore(IEqualityComparer<T> comparer, string name = null) : 
             this(new HashSet<T>(comparer), comparer ?? EqualityComparer<T>.Default, name)
         {
         }
 
-        public ObservedHashSetState(HashSet<T> setToUse, string name = null) : 
-            this(setToUse, setToUse.Comparer, name ?? NameOf<ObservedHashSetState<T>>())
+        public ObservedHashSetCore(HashSet<T> setToUse, string name = null) : 
+            this(setToUse, setToUse.Comparer, name ?? NameOf<ObservedHashSetCore<T>>())
         {
         }
 

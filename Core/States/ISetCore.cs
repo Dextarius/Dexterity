@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Core.States
 { 
-    public interface ISetState<T> : ICollectionState<T>, IReadOnlySetMembers<T>
+    public interface ISetCore<T> : ICollectionCore<T>, IReadOnlySetMembers<T>
     {
         new bool       Add(T item);
             int        RemoveWhere(Predicate<T> predicate);

@@ -36,7 +36,7 @@ namespace Factors.Cores
         #region Instance Properties
 
         public          string Name                { get; }
-        public abstract int    Priority            { get; }
+        public abstract int    UpdatePriority      { get; }
         public virtual  bool   IsNecessary         => necessarySubscribers.Count > 0;
         public          bool   HasSubscribers      => allSubscribers.Count > 0;
         public          int    NumberOfSubscribers => allSubscribers.Count;

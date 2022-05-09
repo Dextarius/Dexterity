@@ -22,16 +22,12 @@ namespace Tests.Tools.Factories.Controllers
             return ControlledInstance.Value;
         }
         
-        public override TValue ChangeValueToAnEqualValue()
+        public override TValue SetValueToAnEqualValue()
         {
             ChangeInputsToAnEqualValue();
             ControlledInstance.ForceReaction();
             
             return ControlledInstance.Value;
-        }
-
-        protected FunctionBasedReactive_Controller()
-        {
         }
     }
 }

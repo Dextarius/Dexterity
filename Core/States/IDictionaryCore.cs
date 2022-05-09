@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Core.States
 {
-    public interface IDictionaryState<TKey, TValue> : ICollectionState<KeyValuePair<TKey, TValue>>
+    public interface IDictionaryCore<TKey, TValue> : ICollectionCore<KeyValuePair<TKey, TValue>>
     {
         ICollection<TKey>   Keys           { get; }
         ICollection<TValue> Values         { get; }

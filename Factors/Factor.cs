@@ -31,7 +31,7 @@ namespace Factors
         public bool   IsNecessary         => core.IsNecessary;
         public bool   HasSubscribers      => core.HasSubscribers;
         public int    NumberOfSubscribers => core.NumberOfSubscribers;
-        public int    Priority            => core.Priority;
+        public int    UpdatePriority      => core.UpdatePriority;
 
         #endregion
 

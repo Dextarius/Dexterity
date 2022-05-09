@@ -24,7 +24,7 @@ namespace Core
         private bool             updatesAreBeingQueued;
         private UpdateQueueToken updateQueueToken;
 
-        //- We could use Priority 0 for elements that have no priority and should always update last.
+        //- We could use UpdatePriority 0 for elements that have no priority and should always update last.
         //  Although that may be counterintuitive.  
         
         #endregion
@@ -77,7 +77,7 @@ namespace Core
         
         public void Update<TUpdate>(TUpdate updateable)  where TUpdate : IUpdateable, IPrioritizable
         {
-            Update(updateable, updateable.Priority);
+            Update(updateable, updateable.UpdatePriority);
         }
         
         protected void AddUpdate(IUpdateable objectToAdd, int priority)
@@ -163,12 +163,12 @@ namespace Core
             
             if (priority <= lowestCreatedPriority)
             {
-                throw new InvalidOperationException("Priority already exists. ");
+                throw new InvalidOperationException("UpdatePriority already exists. ");
             }
 
             for (int i = lowestCreatedPriority + 1; i <= priority; ++i)
             {
-                Core.Tools.Collections.Add(ref priorityLevels, new PriorityLevel(i), i);
+                Tools.Collections.Add(ref priorityLevels, new PriorityLevel(i), i);
             }
 
             lowestCreatedPriority = priority;

@@ -10,7 +10,7 @@ namespace Factors.Cores.ProactiveCores
 {
 
 
-    public class ObservedListState<T> : ObservedCollectionState<List<T>, T>, IListState<T>
+    public class ObservedListCore<T> : ObservedCollectionCore<List<T>, T>, IListCore<T>
     {
         #region Instance Fields
 
@@ -104,7 +104,7 @@ namespace Factors.Cores.ProactiveCores
             else
             {
                 throw new ArgumentException("A process attempted to add an object of type " +
-                                           $"{value?.GetType()} to a {NameOf<ObservedListState<T>>()}");
+                                           $"{value?.GetType()} to a {NameOf<ObservedListCore<T>>()}");
             }
         }
         
@@ -187,22 +187,22 @@ namespace Factors.Cores.ProactiveCores
         
         #region Constructors
 
-        public ObservedListState(
+        public ObservedListCore(
             ICollection<T> collectionToCopy, IEqualityComparer<T> comparerForItems = null, string name = null) : 
-                base(new List<T>(collectionToCopy), name ?? NameOf<ObservedListState<T>>())
+                base(new List<T>(collectionToCopy), name ?? NameOf<ObservedListCore<T>>())
         {
             itemComparer = comparerForItems ?? EqualityComparer<T>.Default;
         }
-        public ObservedListState([NotNull] IEqualityComparer<T> itemComparer, string name = null) : 
+        public ObservedListCore([NotNull] IEqualityComparer<T> itemComparer, string name = null) : 
             this(null, itemComparer, name)
         {
         }
 
-        public ObservedListState(string name) : this(null, null, name)
+        public ObservedListCore(string name) : this(null, null, name)
         {
         }
 
-        public ObservedListState(ICollection<T> collectionToCopy, string name = null) : 
+        public ObservedListCore(ICollection<T> collectionToCopy, string name = null) : 
             this(collectionToCopy, null, name)
         {
         }

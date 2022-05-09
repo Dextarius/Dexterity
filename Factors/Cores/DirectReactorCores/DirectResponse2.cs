@@ -22,9 +22,9 @@ namespace Factors.Cores.DirectReactorCores
         #region Properties
 
         public override int NumberOfTriggers => 2;
-        public override int Priority         => priority;
+        public override int UpdatePriority         => priority;
 
-        protected override IEnumerable<IXXX> Triggers
+        protected override IEnumerable<IFactor> Triggers
         {
             get
             {
@@ -41,7 +41,7 @@ namespace Factors.Cores.DirectReactorCores
         {
             responseAction(inputSource1.Value, inputSource2.Value);
             SubscribeToInputs();
-            priority = Math.Max(inputSource1.Priority, inputSource2.Priority);
+            priority = Math.Max(inputSource1.UpdatePriority, inputSource2.UpdatePriority);
 
             return true;
         }

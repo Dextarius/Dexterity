@@ -14,7 +14,7 @@ namespace Factors.Cores.ProactiveCores
         
         #region Instance Properties
 
-        public override int Priority => 0;
+        public override int UpdatePriority => 0;
 
         #endregion
 

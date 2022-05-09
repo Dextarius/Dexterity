@@ -2,6 +2,6 @@
 {
     public interface IPrioritizable
     {
-        int Priority { get; }
+        int UpdatePriority { get; }
     }
 }

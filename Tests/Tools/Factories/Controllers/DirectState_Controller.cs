@@ -12,12 +12,14 @@ namespace Tests.Tools.Factories.Controllers
             return ControlledInstance.Value = newValue;
         }
         
-        public override int ChangeValueToAnEqualValue()
+        public override int SetValueToAnEqualValue()
         {
             var previousValue = ControlledInstance.Value;
             
             return ControlledInstance.Value = previousValue;
         }
+        public override int GetRandomInstanceOfValuesType_NotEqualTo(int valueToAvoid) => 
+            Tools.GenerateRandomIntNotEqualTo(valueToAvoid);
 
 
         public DirectState_Controller()

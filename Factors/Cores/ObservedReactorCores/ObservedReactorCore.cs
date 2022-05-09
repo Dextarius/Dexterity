@@ -39,9 +39,9 @@ namespace Factors.Cores.ObservedReactorCores
 
         public override bool HasTriggers      => nextOpenTriggerIndex > 0;
         public override int  NumberOfTriggers => nextOpenTriggerIndex;
-        public override int  Priority         => priority;
+        public override int  UpdatePriority   => priority;
 
-        protected override IEnumerable<IXXX> Triggers
+        protected override IEnumerable<IFactor> Triggers
         {
             get
             {
@@ -140,9 +140,9 @@ namespace Factors.Cores.ObservedReactorCores
                     Add(ref triggers, influentialFactor, nextOpenTriggerIndex);
                     nextOpenTriggerIndex++;
 
-                    if (influentialFactor.Priority >= this.Priority)
+                    if (influentialFactor.UpdatePriority >= this.UpdatePriority)
                     {
-                        this.priority = influentialFactor.Priority + 1;
+                        this.priority = influentialFactor.UpdatePriority + 1;
                     }
                 }
             }

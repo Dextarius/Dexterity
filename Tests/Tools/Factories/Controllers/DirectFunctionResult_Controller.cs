@@ -11,6 +11,8 @@ namespace Tests.Tools.Factories.Controllers
 
         protected override int  CallValueFunction() => valueFunction(inputControllers[0].ControlledInstance.Value);
 
+        public override int GetRandomInstanceOfValuesType_NotEqualTo(int valueToAvoid) => 
+            Tools.GenerateRandomIntNotEqualTo(valueToAvoid);
 
         public DirectFunctionResult_Controller(IFactor_T_Controller<int> inputSourceController) : 
             base(new []{ inputSourceController })
@@ -34,6 +36,8 @@ namespace Tests.Tools.Factories.Controllers
         protected override int CallValueFunction() => valueFunction(inputControllers[0].ControlledInstance.Value, 
                                                                     inputControllers[1].ControlledInstance.Value);
 
+        public override int GetRandomInstanceOfValuesType_NotEqualTo(int valueToAvoid) => 
+            Tools.GenerateRandomIntNotEqualTo(valueToAvoid);
 
 
         public DirectFunctionResult2_Controller(IFactor_T_Controller<int> inputSourceController1, 
@@ -64,6 +68,8 @@ namespace Tests.Tools.Factories.Controllers
                                                                     inputControllers[1].ControlledInstance.Value,
                                                                     inputControllers[2].ControlledInstance.Value);
 
+        public override int GetRandomInstanceOfValuesType_NotEqualTo(int valueToAvoid) => 
+            Tools.GenerateRandomIntNotEqualTo(valueToAvoid);
 
 
         public DirectFunctionResult3_Controller(IFactor_T_Controller<int> inputSourceController1, 

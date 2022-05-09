@@ -19,13 +19,13 @@ namespace Tests.Interface_Tests
     [TestFixture(typeof(ObservedStateCore<int>),                   typeof(int), typeof(ObservedState_Controller))]
     [TestFixture(typeof(DirectStateCore<int>),                     typeof(int), typeof(DirectState_Controller))]
     public class IFactor_Ts<TFactor, TValue, TController>
-        where TFactor            : IFactor<TValue>
+        where TFactor            : IFactor<TValue>, IDeterminant  //- TODO : Try to separate the IDeterminant related parts
         where TController        : IFactor_T_Controller<TFactor, TValue>, new()
     //  where TSubscriber        : IFactorSubscriber
     //  where TSubscriberFactory : IFactory<TSubscriber>, new()
     {
         [Test]
-        public void WhenGivenAValueNotEqualToToCurrentValue_SubscribersAreTriggered()
+        public void WhenGivenAValueNotEqualToCurrentValue_SubscribersAreTriggered()
         {
             TController controller               = new TController();
             TFactor     factorBeingTested        = controller.ControlledInstance;
@@ -60,7 +60,7 @@ namespace Tests.Interface_Tests
                 Assert.That(subscriber.HasBeenTriggered, Is.False);
             }
 
-            controller.ChangeValueToAnEqualValue();
+            controller.SetValueToAnEqualValue();
             
             foreach (var subscriber in subscribers)
             {
@@ -106,7 +106,7 @@ namespace Tests.Interface_Tests
             Assert.That(factorBeingTested.NumberOfSubscribers, 
                 Is.EqualTo(initialNumberOfSubscribers + numberOfSubscribersToAdd));
 
-            controller.ChangeValueToAnEqualValue();
+            controller.SetValueToAnEqualValue();
 
             Assert.That(factorBeingTested.HasSubscribers, Is.True);
             Assert.That(factorBeingTested.NumberOfSubscribers, 

@@ -6,16 +6,11 @@ namespace Tests.Tools.Factories.Controllers
     public abstract class Factor_T_Controller<TFactor, TValue> : IFactor_T_Controller<TFactor, TValue> 
         where TFactor : IFactor<TValue>
     {
-        #region Instance Fields
-
-
-        
-        #endregion
-
-
         #region Properties
 
         public TFactor ControlledInstance { get; protected init; }
+        //- The property is init only because some of the Observed Factors can't
+        //  create an instance of their Factor type without using non-static data
 
         #endregion
         
@@ -23,7 +18,8 @@ namespace Tests.Tools.Factories.Controllers
         #region Instance Methods
 
         public abstract TValue ChangeValueToANonEqualValue();
-        public abstract TValue ChangeValueToAnEqualValue();
+        public abstract TValue SetValueToAnEqualValue();
+        public abstract TValue GetRandomInstanceOfValuesType_NotEqualTo(TValue valueToAvoid);
 
         #endregion
 

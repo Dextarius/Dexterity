@@ -23,9 +23,9 @@ namespace Factors.Cores.DirectReactorCores
         #region Properties
 
         public override int NumberOfTriggers => 3;
-        public override int Priority         => priority;
+        public override int UpdatePriority         => priority;
 
-        protected override IEnumerable<IXXX> Triggers
+        protected override IEnumerable<IFactor> Triggers
         {
             get
             {
@@ -43,9 +43,9 @@ namespace Factors.Cores.DirectReactorCores
         protected override TOutput GenerateValue()
         {
             TOutput result          = valueFunction(inputSource1.Value, inputSource2.Value, inputSource3.Value);
-            int     highestPriority = Math.Max(inputSource1.Priority, inputSource2.Priority);
+            int     highestPriority = Math.Max(inputSource1.UpdatePriority, inputSource2.UpdatePriority);
 
-            highestPriority = Math.Max(highestPriority, inputSource3.Priority);
+            highestPriority = Math.Max(highestPriority, inputSource3.UpdatePriority);
             priority        = highestPriority + 1;
 
             return result;

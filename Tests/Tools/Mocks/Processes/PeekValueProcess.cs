@@ -6,7 +6,7 @@ namespace Tests.Tools.Mocks.Processes
 {
     public class PeekValueProcess<T> : IProcess, IProcess<T>
     {
-        private readonly IFactor<T> factor;
+        private readonly IObservedFactor<T> factor;
         
         [MethodImpl(MethodImplOptions.NoOptimization)]
         public T Execute()
@@ -16,7 +16,7 @@ namespace Tests.Tools.Mocks.Processes
             return value;
         }
 
-        public PeekValueProcess(IFactor<T> factorWithValue)
+        public PeekValueProcess(IObservedFactor<T> factorWithValue)
         {
             factor = factorWithValue;
         }

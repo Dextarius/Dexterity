@@ -11,7 +11,7 @@ using static Core.Tools.Types;
 namespace Factors.Collections
 {
     public partial class ProactiveDictionary<TKey, TValue> : 
-        ProactiveCollection< IDictionaryState<TKey, TValue>, KeyValuePair<TKey, TValue>>, 
+        ProactiveCollection< IDictionaryCore<TKey, TValue>, KeyValuePair<TKey, TValue>>, 
         IDictionary<TKey, TValue>, IDictionary
     {
         #region Properties
@@ -41,14 +41,14 @@ namespace Factors.Collections
         
         #region Constructors
         
-        public ProactiveDictionary(IDictionaryState<TKey, TValue> dictionaryCore, string name = null) : 
+        public ProactiveDictionary(IDictionaryCore<TKey, TValue> dictionaryCore, string name = null) : 
             base(dictionaryCore, name)
         {
             
         }
         
         public ProactiveDictionary(string name) : 
-            this(new ObservedDictionaryState<TKey, TValue>(name), name)
+            this(new ObservedDictionaryCore<TKey, TValue>(name), name)
         {
         }
 

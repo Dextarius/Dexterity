@@ -8,7 +8,7 @@ using static Core.Tools.Types;
 
 namespace Factors.Collections
 {
-    public class ProactiveSet<T> : ProactiveCollection<ISetState<T>, T>, ISet<T>
+    public class ProactiveSet<T> : ProactiveCollection<ISetCore<T>, T>, ISet<T>
     {
         public     HashSet<T> AsNormalSet()                       => core.AsNormalSet();
         public new bool       Add(T item)                         => core.Add(item);
@@ -29,7 +29,7 @@ namespace Factors.Collections
 
         #region Constructors
         
-        public ProactiveSet(ISetState<T> setCore, string name = null) : base(setCore, name)
+        public ProactiveSet(ISetCore<T> setCore, string name = null) : base(setCore, name)
         {
         }
 

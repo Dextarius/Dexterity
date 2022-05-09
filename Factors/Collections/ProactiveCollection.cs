@@ -11,7 +11,7 @@ using static Core.Tools.Types;
 namespace Factors.Collections
 {
     public  abstract class ProactiveCollection<TCore, TValue> : Factor<TCore>, ICollection<TValue>, ICollection
-        where TCore : ICollectionState<TValue>
+        where TCore : ICollectionCore<TValue>
     {
         #region Properties
 

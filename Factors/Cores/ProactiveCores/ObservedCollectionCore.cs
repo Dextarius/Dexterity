@@ -5,7 +5,7 @@ using Core.States;
 
 namespace Factors.Cores.ProactiveCores
 {
-    public abstract class ObservedCollectionState<TCollection, TValue> : ObservedFactorCore, ICollectionState<TValue> 
+    public abstract class ObservedCollectionCore<TCollection, TValue> : ObservedFactorCore, ICollectionCore<TValue> 
         where TCollection : ICollection<TValue>
     {
         #region Instance Fields
@@ -107,7 +107,7 @@ namespace Factors.Cores.ProactiveCores
         
         #region Constructors
         
-        public ObservedCollectionState(TCollection initialValue, string name = null) : base(name)
+        public ObservedCollectionCore(TCollection initialValue, string name = null) : base(name)
         {
             collection = initialValue;
         }

@@ -19,8 +19,6 @@ namespace Factors
             set => core.Value = value;
         }
         
-        public T Peek() => core.Peek();
-
         #endregion
 
 

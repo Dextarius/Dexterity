@@ -1,8 +1,9 @@
-﻿using Core.States;
+﻿using Core.Redirection;
+using Core.States;
 
 namespace Core.Factors
 {
-    public interface IReactor : IFactor, IFactorSubscriber, ITriggeredState
+    public interface IReactor : IDeterminant, IFactorSubscriber, ITriggeredState
     {
         bool IsReacting           { get; }
         bool IsStabilizing        { get; }
@@ -15,5 +16,10 @@ namespace Core.Factors
 
         bool AttemptReaction();
         bool ForceReaction();
+    }
+
+    public interface IReactor<out T> : IReactor, IValue<T>
+    {
+        
     }
 }

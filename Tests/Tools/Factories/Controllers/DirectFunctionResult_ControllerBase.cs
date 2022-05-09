@@ -8,6 +8,7 @@ namespace Tests.Tools.Factories.Controllers
         where TReactive : IReactive<TValue>
     {
         protected readonly IFactor_T_Controller<int>[] inputControllers;
+        //^ The controllers for each of the Factors used in the Reactive's function
 
         protected override void ChangeInputsToANonEqualValue()
         {
@@ -20,11 +21,10 @@ namespace Tests.Tools.Factories.Controllers
         {
             foreach (var inputController in inputControllers)
             {
-                inputController.ChangeValueToAnEqualValue();
+                inputController.SetValueToAnEqualValue();
             }
         }
-
-
+        
         protected DirectFunctionResult_ControllerBase(IFactor_T_Controller<int>[] controllersForInputs)
         {
             inputControllers = controllersForInputs;
