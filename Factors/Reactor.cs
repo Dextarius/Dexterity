@@ -15,14 +15,13 @@ namespace Factors
     {
         #region Instance Properties
 
-        public bool HasTriggers          => core.HasTriggers;
-        public int  NumberOfTriggers     => core.NumberOfTriggers;
-        public bool IsUnstable           => core.IsUnstable;
-        public bool IsReacting           => core.IsReacting;
-        public bool IsStabilizing        => core.IsStabilizing;
-        public bool HasBeenTriggered     => core.HasBeenTriggered;
-        public bool HasReacted           => core.HasReacted;
-        public uint NumberOfTimesReacted => core.NumberOfTimesReacted;
+        public bool HasTriggers      => core.HasTriggers;
+        public int  NumberOfTriggers => core.NumberOfTriggers;
+        public bool IsUnstable       => core.IsUnstable;
+        public bool IsReacting       => core.IsReacting;
+        public bool IsStabilizing    => core.IsStabilizing;
+        public bool HasBeenTriggered => core.HasBeenTriggered;
+        public bool HasReacted       => core.HasReacted;
         
         public bool IsReflexive
         {

@@ -209,14 +209,14 @@ namespace Tests.Interface_Tests
         {
             var  reactorToTest               = reactorFactory.CreateStableInstance();
             var  subscriber                  = subscriberFactory.CreateStableInstance();
-            uint initialNumberOfTimesReacted = reactorToTest.NumberOfTimesReacted;
+            uint initialNumberOfTimesReacted = reactorToTest.VersionNumber;
             
             Assert.That(reactorToTest.HasBeenTriggered, Is.False);
             
             reactorToTest.Subscribe(subscriber, true);
             reactorToTest.Trigger();
             
-            Assert.That(reactorToTest.NumberOfTimesReacted, Is.EqualTo(initialNumberOfTimesReacted + 1));
+            Assert.That(reactorToTest.VersionNumber, Is.EqualTo(initialNumberOfTimesReacted + 1));
             //- TODO : Is there a better way of testing if the reaction goes off?
         }
         
@@ -245,10 +245,10 @@ namespace Tests.Interface_Tests
             reactorToTest.Trigger();
             Assert.That(reactorToTest.HasBeenTriggered, Is.True);
             
-            initialNumberOfReactions  = reactorToTest.NumberOfTimesReacted;
+            initialNumberOfReactions  = reactorToTest.VersionNumber;
             reactorToTest.IsReflexive = true;
             
-            Assert.That(reactorToTest.NumberOfTimesReacted, Is.EqualTo(initialNumberOfReactions + 1));
+            Assert.That(reactorToTest.VersionNumber, Is.EqualTo(initialNumberOfReactions + 1));
         }
 
         
@@ -320,7 +320,33 @@ namespace Tests.Interface_Tests
             
         }
         
+        //[Test]
         public void WhenTriggeredReactorIntendsToUpdate_ParentReactorsAreUpdatedFirst()
+        {
+            
+        }
+        
+        //[Test]
+        public void AttemptReaction_WhenUnstable_ReactsAndReturnsTrue()
+        {
+            
+        }
+        
+        //[Test]
+
+        public void AttemptReaction_WhenTriggered_ReactsAndReturnsTrue()
+        {
+            
+        }
+        
+        //[Test]
+        public void AttemptReaction_WhenNotTriggeredOrUnstable_ReturnsFalse()
+        {
+            
+        }
+        
+        //[Test]
+        public void AttemptReaction_WhenSuccessfullyStabilized_ReturnsFalse()
         {
             
         }
@@ -369,10 +395,10 @@ namespace Tests.Interface_Tests
         //     reactorToTest.Destabilize();
         //     Assert.That(reactorToTest.IsUnstable, Is.True);
         //     
-        //     initialNumberOfReactions  = reactorToTest.NumberOfTimesReacted;
+        //     initialNumberOfReactions  = reactorToTest.VersionNumber;
         //     reactorToTest.IsReflexive = true;
         //     
-        //     Assert.That(reactorToTest.NumberOfTimesReacted, Is.EqualTo(initialNumberOfReactions + 1));
+        //     Assert.That(reactorToTest.VersionNumber, Is.EqualTo(initialNumberOfReactions + 1));
         //     
         //     //- The reactor is just going to stabilize, and without owning the Triggers we can't
         //     //  confirm Reconcile is called or control its return value.

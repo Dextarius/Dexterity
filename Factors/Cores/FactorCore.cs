@@ -40,6 +40,8 @@ namespace Factors.Cores
         public virtual  bool   IsNecessary         => necessarySubscribers.Count > 0;
         public          bool   HasSubscribers      => allSubscribers.Count > 0;
         public          int    NumberOfSubscribers => allSubscribers.Count;
+        public          uint   VersionNumber       { get; protected set; }
+
 
         #endregion
         
@@ -71,6 +73,12 @@ namespace Factors.Cores
                     RemoveSubscriberFromNecessary(subscriberToRemove);
                 }
             }
+        }
+
+        public void MarkChanged()
+        {
+            VersionNumber++;
+            TriggerSubscribers();
         }
 
         public void TriggerSubscribers()
@@ -137,6 +145,16 @@ namespace Factors.Cores
         
         public override string ToString() => Name;
 
+        public void CopySubscriptionsTo(IFactor newCore)
+        {
+            foreach (var subscriber in allSubscribers)
+            {
+                bool subscriberIsNecessary = necessarySubscribers.Contains(subscriber);
+                
+                newCore.Subscribe(subscriber, subscriberIsNecessary);
+            }
+        }
+        
         #endregion
 
 

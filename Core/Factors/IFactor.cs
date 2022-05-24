@@ -5,6 +5,8 @@ namespace Core.Factors
 {
     public interface IFactor : INameable, IPrioritizable
     {
+        uint VersionNumber { get; }
+
         bool Subscribe(IFactorSubscriber subscriberToAdd, bool isNecessary);
         void Unsubscribe(IFactorSubscriber subscriberToRemove);
         void NotifyNecessary(IFactorSubscriber necessarySubscriber);

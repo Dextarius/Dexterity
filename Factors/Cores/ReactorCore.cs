@@ -4,6 +4,7 @@ using System.Diagnostics;
 using Core.Factors;
 using Core.States;
 using static Core.Factors.Reactors;
+using static Core.Settings;
 using static Core.Tools.Types;
 
 namespace Factors.Cores
@@ -13,7 +14,7 @@ namespace Factors.Cores
         #region Instance Fields
 
         protected WeakReference<IFactorSubscriber> weakReferenceToSelf;
-        protected bool                             removeSubscriptionWhenTriggered;
+        protected bool                             unsubscribeWhenTriggered;
         private   bool                             isReflexive;
 
         #endregion
@@ -21,17 +22,16 @@ namespace Factors.Cores
 
         #region Instance Properties
 
-        public             bool                 IsReacting           { get; protected set; }
-        public             bool                 IsStabilizing        { get; protected set; }
-        protected          bool                 IsQueued             { get; set; }
-        protected abstract IEnumerable<IFactor> Triggers             { get; }
-        public    abstract bool                 HasTriggers          { get; }
-        public    abstract int                  NumberOfTriggers     { get; }
-        public             bool                 IsUnstable           { get; protected set; } = true;
-        public             bool                 HasBeenTriggered     { get; protected set; } = true;
-        public    override bool                 IsNecessary          => IsReflexive || base.IsNecessary;
-        public             bool                 HasReacted           => NumberOfTimesReacted > 0;
-        public             uint                 NumberOfTimesReacted { get; private set; }
+        public             bool                 IsReacting       { get; protected set; }
+        public             bool                 IsStabilizing    { get; protected set; }
+        public             bool                 IsUnstable       { get; protected set; } = true;
+        public             bool                 HasBeenTriggered { get; protected set; } = true;
+        protected          bool                 IsQueued         { get; set; }
+        public    override bool                 IsNecessary      => IsReflexive || base.IsNecessary;
+        protected abstract IEnumerable<IFactor> Triggers         { get; }
+        public    abstract bool                 HasTriggers      { get; }
+        public    abstract int                  NumberOfTriggers { get; }
+        public             bool                 HasReacted       => VersionNumber > 0;
 
         public WeakReference<IFactorSubscriber> WeakReference => weakReferenceToSelf ??= new WeakReference<IFactorSubscriber>(this);
         
@@ -71,9 +71,7 @@ namespace Factors.Cores
 
         
         #region Instance Methods
-
-        public bool ForceReaction() => React();
-
+        
         protected bool React()
         {
             bool outcomeChanged;
@@ -104,15 +102,15 @@ namespace Factors.Cores
             
             if (outcomeChanged)
             {
-                TriggerSubscribers();
-                NumberOfTimesReacted++;
-
+                MarkChanged();
                 return true;
             }
             else return false;
         }
         
         protected abstract bool GenerateOutcome();
+
+        public bool ForceReaction() => React();
 
         public bool AttemptReaction()
         {
@@ -126,11 +124,11 @@ namespace Factors.Cores
                 {
                     Debug.Assert(HasBeenTriggered is false);
 
-                    return true;
+                    return false;
                 }
                 else
                 {
-                    return React() is false;
+                    return React();
                 }
             }
             else return false;
@@ -169,15 +167,12 @@ namespace Factors.Cores
 
         public bool Trigger(IFactor triggeringFactor, out bool removeSubscription)
         {
-            removeSubscription = removeSubscriptionWhenTriggered;
+            removeSubscription = unsubscribeWhenTriggered;
             
             if (IsReacting)
             {
-                throw new InvalidOperationException(
-                    "A Reactor was invalidated while it was updating, meaning either, the Reactor's update process " +
-                    "caused it to invalidate itself, creating an update loop, " +
-                    "or the Outcome was accessed by two different threads at the same time. \n  " +
-                   $"The invalidated outcome was '{this}' and it was invalidated by '{triggeringFactor}'. ");
+                Logging.Notify_ReactorTriggeredWhileUpdating(this, triggeringFactor);
+                
                 //- If this Outcome is in the update list we should know it's a loop, if it's not then it should be
                 //  another thread accessing it.
                 //  Well actually, the parent won't add us to the list until this returns...
@@ -258,7 +253,7 @@ namespace Factors.Cores
                     }
                 }
                 
-                //- TODO : We specifically tried to avoid foreach when triggering subscribers because they might
+                //- TODO : We specifically tried to avoid using foreach before when triggering subscribers because they might
                 //         choose to remove themselves, so consider if we really want to use it here.  
             }
             return false;
@@ -266,7 +261,7 @@ namespace Factors.Cores
         
         public override bool Subscribe(IFactorSubscriber subscriberToAdd, bool isNecessary)
         {
-            if (IsReacting) { throw new InvalidOperationException("Recursive dependency"); } //- TODO : Better error message.
+            if (IsReacting) { Logging.Notify_ReactorHasRecursiveDependency(this, subscriberToAdd); }
 
             bool successfullySubscribed = base.Subscribe(subscriberToAdd, isNecessary);
 
@@ -277,6 +272,9 @@ namespace Factors.Cores
                 subscriberToAdd.Destabilize();
                 //- TODO : Doesn't this break the rule that Destabilize is supposed to cause the caller to update 
                 //         based on its return value?
+                
+                //- If the subscriber is necessary we'll be as well, so we'll update or be queued to update,
+                //  which will trigger them if the update actually changes something.
             }
             
             return successfullySubscribed;
@@ -354,7 +352,8 @@ namespace Factors.Cores
             //- TODO : We could probably just return "AttemptReaction() is false" if we can guarantee that
             //         AttemptReaction() is always going to be based on HasBeenTriggered and IsUnstable anyways.
         }
-
+        
+        
         #endregion
 
 

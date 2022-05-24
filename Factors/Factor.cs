@@ -20,7 +20,7 @@ namespace Factors
         
         #region Instance Fields
 
-        protected readonly TCore core;
+        protected TCore core;
 
         #endregion
         
@@ -32,6 +32,8 @@ namespace Factors
         public bool   HasSubscribers      => core.HasSubscribers;
         public int    NumberOfSubscribers => core.NumberOfSubscribers;
         public int    UpdatePriority      => core.UpdatePriority;
+        public uint   VersionNumber       => core.VersionNumber;
+
 
         #endregion
 
