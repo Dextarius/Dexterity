@@ -19,22 +19,18 @@ namespace Factors.Cores.ObservedReactorCores.CollectionResults
 
         protected override IEnumerable<T> GetElements() => elementGenerator();
 
+        public override string ToString() => Delegates.GetClassAndMethodName(elementGenerator);
+
         #endregion
         
         
         #region Constructors
 
         public ObservedListFunctionResult(Func<IEnumerable<T>> functionForElements,
-                                          IEqualityComparer<T> comparerForElements = null, 
-                                          string               name                = null) : 
-            base(name ?? Delegates.GetClassAndMethodName(functionForElements), comparerForElements)
+                                          IEqualityComparer<T> comparerForElements = null) : 
+            base(comparerForElements)
         {
             elementGenerator = functionForElements ?? throw new ArgumentNullException(nameof(functionForElements));
-        }
-        
-        public ObservedListFunctionResult(Func<IEnumerable<T>> functionForElements, string name) : 
-            this(functionForElements, null, name)
-        {
         }
 
         #endregion

@@ -34,7 +34,7 @@ namespace Factors.Cores.ObservedReactorCores.CollectionResults
 
         #region Constructors
 
-        protected ObservedHashSetResult(string name, IEqualityComparer<T> comparerForElements = null) : base(name)
+        protected ObservedHashSetResult(IEqualityComparer<T> comparerForElements = null) : base()
         {
             elementComparer   = comparerForElements ?? EqualityComparer<T>.Default;
             currentCollection = new HashSet<T>();

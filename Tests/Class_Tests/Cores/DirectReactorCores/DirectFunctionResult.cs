@@ -11,7 +11,7 @@ namespace Tests.Class_Tests.Cores.DirectReactorCores
         [Test]
         public void WhenCreatedWithFunction_ValueMatchesTheOneReturnedByFunction()
         {
-            var            valueSource     = new DirectStateCore<int>(GenerateRandomInt());
+            var            valueSource     = new DirectProactiveCore<int>(GenerateRandomInt());
             Func<int, int> valueFunction   = (value) => value;
             var            coreBeingTested = new DirectFunctionResult<int, int>(valueFunction, valueSource);
             int            functionValue;
@@ -23,7 +23,7 @@ namespace Tests.Class_Tests.Cores.DirectReactorCores
         [Test]
         public void IfGivenAFactorWithAValue_ReactUpdatesTheResultToMatchTheOneReturnedByFactor()
         {
-            var            valueSource     = new DirectStateCore<int>(int.MinValue);
+            var            valueSource     = new DirectProactiveCore<int>(int.MinValue);
             Func<int, int> valueFunction   = (value) => value;
             var            coreBeingTested = new DirectFunctionResult<int, int>(valueFunction, valueSource);
             int            functionValue;

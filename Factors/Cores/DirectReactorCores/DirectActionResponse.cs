@@ -20,7 +20,7 @@ namespace Factors.Cores.DirectReactorCores
         #region Properties
 
         public override int NumberOfTriggers => 1;
-        public override int UpdatePriority         => inputSource.UpdatePriority + 1;
+        public override int UpdatePriority   => inputSource.UpdatePriority + 1;
 
         protected override IEnumerable<IFactor> Triggers
         {
@@ -35,7 +35,7 @@ namespace Factors.Cores.DirectReactorCores
         
         #region Instance Methods
 
-        protected override bool GenerateOutcome()
+        protected override bool CreateOutcome()
         {
             responseAction(inputSource.Value);
             SubscribeToInputs();
@@ -43,14 +43,14 @@ namespace Factors.Cores.DirectReactorCores
             return true;
         }
 
+        public override string ToString() => Delegates.GetClassAndMethodName(responseAction);
 
         #endregion
 
 
         #region Constructors
 
-        public DirectActionResponse(Action<TArg> actionToTake, IFactor<TArg> inputArgSource, string name = null) : 
-            base(name ?? Delegates.GetClassAndMethodName(actionToTake))
+        public DirectActionResponse(Action<TArg>  actionToTake, IFactor<TArg> inputArgSource) 
         {
             responseAction = actionToTake;
             inputSource    = inputArgSource;

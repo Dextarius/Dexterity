@@ -8,22 +8,22 @@ using static Tests.Tools.Tools;
 
 namespace Tests.Class_Tests.Cores.DirectProactorCores
 {
-    public class DirectStateCores : ITestableConstructor_Name<DirectStateCore<int>>,
-                                    ITestableConstructor_Value<DirectStateCore<int>,  int> 
+    public class DirectStateCores : ITestableConstructor_Name<DirectProactiveCore<int>>,
+                                    ITestableConstructor_Value<DirectProactiveCore<int>,  int> 
     {
-        public DirectStateCore<int>[] CallAllConstructors_AndPassName(string nameToUse)
+        public DirectProactiveCore<int>[] CallAllConstructors_AndPassName(string nameToUse)
         {
             return new[]
             {
-                new DirectStateCore<int>(0, nameToUse)
+                new DirectProactiveCore<int>(0, nameToUse)
             };
         }
-        public DirectStateCore<int>[] CallAllConstructors_AndPassValue(int valueToUse)
+        public DirectProactiveCore<int>[] CallAllConstructors_AndPassValue(int valueToUse)
         {
             return new[]
             {
-                new DirectStateCore<int>(valueToUse),
-                new DirectStateCore<int>(valueToUse, EqualityComparer<int>.Default)
+                new DirectProactiveCore<int>(valueToUse),
+                new DirectProactiveCore<int>(valueToUse, EqualityComparer<int>.Default)
             };
         }
         
@@ -31,8 +31,8 @@ namespace Tests.Class_Tests.Cores.DirectProactorCores
 
         public int CreateRandomValueNotEqualTo(int valueToAvoid) => GenerateRandomIntNotEqualTo(valueToAvoid);
         
-        public DirectStateCore<int> CreateInstance() => new DirectStateCore<int>(1);
+        public DirectProactiveCore<int> CreateInstance() => new DirectProactiveCore<int>(1);
         
-        public DirectStateCore<int> CreateStableInstance() => CreateInstance();
+        public DirectProactiveCore<int> CreateStableInstance() => CreateInstance();
     }
 }

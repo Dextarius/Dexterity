@@ -1,4 +1,5 @@
 ﻿using Core.Causality;
+using Core.Factors;
 
 namespace Factors.Cores.ObservedReactorCores
 {
@@ -6,9 +7,10 @@ namespace Factors.Cores.ObservedReactorCores
     {
         #region Instance Methods
 
-        protected override bool GenerateOutcome()
+        protected override bool CreateOutcome()
         {
             Observer.ObserveInteractions(this);
+            RemoveUnusedTriggers();
 
             return true;
         }
@@ -21,7 +23,7 @@ namespace Factors.Cores.ObservedReactorCores
         
         #region Constructors
 
-        protected ObservedResponse(string name) : base(name)
+        protected ObservedResponse() : base()
         {
         }
 

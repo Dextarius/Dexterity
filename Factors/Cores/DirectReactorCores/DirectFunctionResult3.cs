@@ -12,10 +12,10 @@ namespace Factors.Cores.DirectReactorCores
 
         [NotNull]
         private readonly Func<TInput1, TInput2, TInput3, TOutput> valueFunction;
-        private readonly IFactor<TInput1> inputSource1;
-        private readonly IFactor<TInput2> inputSource2;
-        private readonly IFactor<TInput3> inputSource3;
-        private          int              priority;
+        private readonly IFactor<TInput1>                         inputSource1;
+        private readonly IFactor<TInput2>                         inputSource2;
+        private readonly IFactor<TInput3>                         inputSource3;
+        private          int                                      priority;
 
         #endregion
 
@@ -37,6 +37,15 @@ namespace Factors.Cores.DirectReactorCores
 
         #endregion
         
+
+        #region Static Methods
+
+        protected static string CreateNameFrom(
+            Func<TInput1, TInput2, TInput3, TOutput> valueDelegate, 
+            IFactor<TInput1> input1, IFactor<TInput2> input2, IFactor<TInput3> input3) => 
+                Delegates.CreateStringShowingArgumentBeingPassedToDelegate(input1, input2, input3, valueDelegate);
+
+        #endregion
         
         #region Instance Methods
 
@@ -51,18 +60,19 @@ namespace Factors.Cores.DirectReactorCores
             return result;
         }
 
+        public override string ToString() => CreateNameFrom(valueFunction, inputSource1, inputSource2, inputSource3);
+
         #endregion
         
         
         #region Constructors
 
-        public DirectFunctionResult(Func<TInput1, TInput2, TInput3, TOutput> functionThatDeterminesValue, 
-                                    IFactor<TInput1>                         firstInput, 
-                                    IFactor<TInput2>                         secondInput, 
+        public DirectFunctionResult(Func<TInput1, TInput2, TInput3, TOutput> functionThatDeterminesValue,
+                                    IFactor<TInput1>                         firstInput,
+                                    IFactor<TInput2>                         secondInput,
                                     IFactor<TInput3>                         thirdInput,
-                                    IEqualityComparer<TOutput>               comparer = null,
-                                    string                                   name     = null)
-            : base(name ?? Delegates.GetClassAndMethodName(functionThatDeterminesValue), comparer)
+                                    IEqualityComparer<TOutput>               comparer = null)
+            : base(comparer)
         {
             valueFunction = functionThatDeterminesValue??  
                             throw new ArgumentNullException(nameof(functionThatDeterminesValue));
@@ -72,15 +82,6 @@ namespace Factors.Cores.DirectReactorCores
             inputSource3 = thirdInput;
         }
         
-        public DirectFunctionResult(Func<TInput1, TInput2, TInput3, TOutput> functionThatDeterminesValue, 
-                                    IFactor<TInput1>                         firstInput, 
-                                    IFactor<TInput2>                         secondInput, 
-                                    IFactor<TInput3>                         thirdInput,
-                                    string                                   name)
-            : this(functionThatDeterminesValue, firstInput, secondInput, thirdInput, null, name)
-        {
-        }
-
         #endregion
     }
 }

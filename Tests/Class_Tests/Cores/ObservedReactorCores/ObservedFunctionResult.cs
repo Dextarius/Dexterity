@@ -13,8 +13,8 @@ namespace Tests.Class_Tests.Cores.ObservedReactorCores
             Func<int> functionToTest = () => valueToTest;
             var       objectsToTest  = new[]
             {
-                new ObservedFunctionResult<int>(functionToTest),
-                new ObservedFunctionResult<int>(functionToTest, "Name")
+                new ObservedFunctionResult<int>(functionToTest, TODO),
+                new ObservedFunctionResult<int>(functionToTest, "Name", TODO)
             };
             
             foreach (var objectBeingTested in objectsToTest)

@@ -37,7 +37,7 @@ namespace Factors.Cores.DirectReactorCores
         
         #region Instance Methods
 
-        protected override bool GenerateOutcome()
+        protected override bool CreateOutcome()
         {
             responseAction(inputSource1.Value, inputSource2.Value);
             SubscribeToInputs();
@@ -45,17 +45,18 @@ namespace Factors.Cores.DirectReactorCores
 
             return true;
         }
+        
+        public override string ToString() => Delegates.GetClassAndMethodName(responseAction);
+
 
         #endregion
 
 
         #region Constructors
 
-        public DirectActionResponse(Action<TArg1, TArg2> actionToTake, 
+        public DirectActionResponse(Action<TArg1, TArg2> actionToTake,
                                     IFactor<TArg1>       firstInput,
-                                    IFactor<TArg2>       secondInput,
-                                    string               name = null) : 
-            base(name ?? Delegates.GetClassAndMethodName(actionToTake))
+                                    IFactor<TArg2>       secondInput)
         {
             inputSource1   = firstInput;
             inputSource2   = secondInput;

@@ -3,96 +3,66 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Core.Factors;
 using Core.States;
-using static Core.Factors.Reactors;
-using static Core.Settings;
 using static Core.Tools.Types;
+using static Core.Settings;
 
 namespace Factors.Cores
 {
-    public abstract class ReactorCore : FactorCore, IReactor, IUpdateable
+    public abstract class ReactorCore : FactorCore, IFactorSubscriber, IReactorCore
     {
         #region Instance Fields
 
-        protected WeakReference<IFactorSubscriber> weakReferenceToSelf;
-        protected bool                             unsubscribeWhenTriggered;
-        private   bool                             isReflexive;
+        protected readonly WeakSubscriber    weakSubscriber;
+        protected          bool              unsubscribeWhenTriggered = false;
 
         #endregion
 
 
         #region Instance Properties
 
+        protected          IReactorCoreOwner    Owner            { get; set; }
         public             bool                 IsReacting       { get; protected set; }
         public             bool                 IsStabilizing    { get; protected set; }
-        public             bool                 IsUnstable       { get; protected set; } = true;
-        public             bool                 HasBeenTriggered { get; protected set; } = true;
-        protected          bool                 IsQueued         { get; set; }
-        public    override bool                 IsNecessary      => IsReflexive || base.IsNecessary;
         protected abstract IEnumerable<IFactor> Triggers         { get; }
         public    abstract bool                 HasTriggers      { get; }
         public    abstract int                  NumberOfTriggers { get; }
+        
+        public             bool                 IsUnstable       {           get => weakSubscriber.IsUnstable;
+                                                                   protected set => weakSubscriber.IsUnstable = value; }
+        public             bool                 IsNecessary      {           get => weakSubscriber.IsNecessary;
+                                                                   protected set => weakSubscriber.IsNecessary = value; }
+        public             bool                 HasBeenTriggered {           get => weakSubscriber.HasBeenTriggered;
+                                                                   protected set => weakSubscriber.HasBeenTriggered = value; }
         public             bool                 HasReacted       => VersionNumber > 0;
-
-        public WeakReference<IFactorSubscriber> WeakReference => weakReferenceToSelf ??= new WeakReference<IFactorSubscriber>(this);
+        //^ TODO : This wont work if the outcome value is the same as the type's default value
         
-        public bool IsReflexive
-        {
-            get => isReflexive;
-            set
-            {
-                if (value is true)
-                {
-                    if (isReflexive is false)
-                    {
-                        isReflexive = true;
-                        
-                        if (base.IsNecessary is false)
-                        {
-                            OnNecessary();
-                        }
-                    }
-                }
-                else if (isReflexive is true)
-                {
-                    isReflexive = false;
-    
-                    if (base.IsNecessary is false) 
-                    {
-                        OnNotNecessary();
-                    }
-                }
-            }
-        }
 
-        //^ What happens if someone sets IsReflexive to true inside an update method, on a Reactor that 
-        //  has been invalidated during that same update process?
-        
         #endregion
 
         
         #region Instance Methods
-        
-        protected bool React()
-        {
-            bool outcomeChanged;
 
+        public bool GenerateOutcome()
+        {
             if (IsReacting)                { Debug.Fail($"Update loop in {NameOf<ReactorCore>()} => {this}."); }
             if (HasBeenTriggered is false) { InvalidateOutcome(null); }
+            
+            bool outcomeChanged;
             
             IsReacting       = true;
             IsUnstable       = false;
             HasBeenTriggered = false;
-    
+            
             try
             {
-                outcomeChanged = GenerateOutcome();
+                outcomeChanged = CreateOutcome();
             }
             catch (Exception e)
             {
                 //- TODO : Consider storing exceptions as an accessible field,
                 //         similar to some of the reactives available in other libraries.
                 
-             // InvalidateOutcome(null);
+                // InvalidateOutcome(null);
                 throw;
             }
             finally
@@ -102,39 +72,16 @@ namespace Factors.Cores
             
             if (outcomeChanged)
             {
-                MarkChanged();
+                VersionNumber++;
                 return true;
             }
             else return false;
         }
+
+        protected abstract void InvalidateOutcome(IFactor changedParentState);
+        protected abstract bool CreateOutcome();
         
-        protected abstract bool GenerateOutcome();
-
-        public bool ForceReaction() => React();
-
-        public bool AttemptReaction()
-        {
-            if (HasBeenTriggered)
-            {
-                return React();
-            }
-            else if (IsUnstable)
-            {
-                if (TryStabilizeOutcome())
-                {
-                    Debug.Assert(HasBeenTriggered is false);
-
-                    return false;
-                }
-                else
-                {
-                    return React();
-                }
-            }
-            else return false;
-        }
-
-        protected bool TryStabilizeOutcome()
+        public bool TryStabilizeOutcome()
         {
             bool successfullyReconciled = true;
             
@@ -146,7 +93,8 @@ namespace Factors.Cores
                 {
                     successfullyReconciled = false;
                     Debug.Assert(HasBeenTriggered);
-                    //^ If the reconciliation failed then the trigger should have reacted and triggered its subscribers
+                    //^ If the reconciliation failed then the trigger should have reacted and then
+                    //  triggered us since we're one of its subscribers.
 
                     break;
                     //- No point in stabilizing the rest.  We try to stabilize to avoid updating, and if one
@@ -162,7 +110,7 @@ namespace Factors.Cores
 
             return successfullyReconciled;
         }
-
+        
         public bool Trigger() => Trigger(null, out _);
 
         public bool Trigger(IFactor triggeringFactor, out bool removeSubscription)
@@ -172,38 +120,26 @@ namespace Factors.Cores
             if (IsReacting)
             {
                 Logging.Notify_ReactorTriggeredWhileUpdating(this, triggeringFactor);
-                
+
                 //- If this Outcome is in the update list we should know it's a loop, if it's not then it should be
                 //  another thread accessing it.
                 //  Well actually, the parent won't add us to the list until this returns...
+                //  Don't we add ourselves now?
             }
             
             if (HasBeenTriggered is false)
             {
-                Debug.Assert(IsQueued is false);
                 HasBeenTriggered = true;
                 InvalidateOutcome(triggeringFactor);
-
-                if (IsNecessary || DestabilizeSubscribers())
-                {
-                    UpdateOutcome();
-                }
-
+                Owner?.CoreTriggered();
+                
                 return true;
             }
     
             return false;
         }
-
-        protected abstract void InvalidateOutcome(IFactor changedParentState);
         
-        protected virtual void UpdateOutcome()
-        {
-            IsQueued = true;
-            UpdateList.Update(this);
-        }
-
-        public bool Destabilize()
+        public bool Destabilize(IFactor factor)
         {
             if (IsStabilizing)
             {
@@ -223,9 +159,7 @@ namespace Factors.Cores
             }
             else if (IsUnstable is false) 
             {
-                bool hasNecessaryDependents = DestabilizeSubscribers();
-                
-                if (hasNecessaryDependents)
+                if (NotifyOwner_CoreDestabilized())
                 {
                     return true;
                 }
@@ -238,94 +172,21 @@ namespace Factors.Cores
             return false;
         }
         
-        protected bool DestabilizeSubscribers()
-        {
-            var subscribersToDestabilize = allSubscribers;
-            
-            if (subscribersToDestabilize.Count > 0) 
-            {
-                foreach (var subscriber in subscribersToDestabilize)
-                {
-                    if (subscriber.Destabilize())
-                    {
-                        necessarySubscribers.Add(subscriber);
-                        return true;
-                    }
-                }
-                
-                //- TODO : We specifically tried to avoid using foreach before when triggering subscribers because they might
-                //         choose to remove themselves, so consider if we really want to use it here.  
-            }
-            return false;
-        }
+        protected bool NotifyOwner_CoreDestabilized() => Owner?.CoreDestabilized() ?? false;
         
-        public override bool Subscribe(IFactorSubscriber subscriberToAdd, bool isNecessary)
+        public virtual void OnNecessary()
         {
-            if (IsReacting) { Logging.Notify_ReactorHasRecursiveDependency(this, subscriberToAdd); }
-
-            bool successfullySubscribed = base.Subscribe(subscriberToAdd, isNecessary);
-
-            if (successfullySubscribed && 
-                isNecessary is false   &&
-                HasBeenTriggered  ||  IsUnstable)
-            {
-                subscriberToAdd.Destabilize();
-                //- TODO : Doesn't this break the rule that Destabilize is supposed to cause the caller to update 
-                //         based on its return value?
-                
-                //- If the subscriber is necessary we'll be as well, so we'll update or be queued to update,
-                //  which will trigger them if the update actually changes something.
-            }
+            IsNecessary = true;
             
-            return successfullySubscribed;
-        }
-
-        protected override void AddSubscriberAsNecessary(IFactorSubscriber necessarySubscriber)
-        {
-            bool wasAlreadyNecessary = IsNecessary;
-            
-            base.AddSubscriberAsNecessary(necessarySubscriber);
-
-            if (wasAlreadyNecessary is false)
-            {
-                OnNecessary();
-                
-                //- TODO : OnNecessary is going to update this Reactor, so do we want that to happen before or after
-                //         we add the subscriber?
-            }
-        }
-        
-        protected override void RemoveSubscriberFromNecessary(IFactorSubscriber unnecessarySubscriber)
-        {
-            if (base.IsNecessary)
-            {
-                base.RemoveSubscriberFromNecessary(unnecessarySubscriber);
-    
-                if (IsNecessary is false)
-                {
-                    OnNotNecessary();
-                }
-            }
-        }
-
-        protected virtual void OnNecessary()
-        {
-            if (HasBeenTriggered || IsUnstable)
-            {
-                AttemptReaction();
-                //- TODO : This seems like it could lead to some weird behavior when combined with the fact that Reactives
-                //         already update before returning a value. Think about it for a bit when you get a chance.
-            }
-
-            //- TODO : Should we check if we're already reacting, or if we're queued?
-            
-            //- We don't propagate the Necessary status to avoid walking up the tree.
+            //- We don't propagate the Necessary status to our triggers, to avoid walking up the tree.
             //  All Reactors walk down the tree to destabilize their dependents, so we can let them know then
             //  if need be.
         }
         
-        protected virtual void OnNotNecessary()
+        public virtual void OnNotNecessary()
         {
+            IsNecessary = false;
+
             if (HasReacted)
             {
                 foreach (var trigger in Triggers)
@@ -333,47 +194,49 @@ namespace Factors.Cores
                     trigger.NotifyNotNecessary(this);
                 }
             }
-        }
-
-        public override bool Reconcile()
-        {
-            if (HasBeenTriggered || IsUnstable)
-            {
-                return AttemptReaction() is false;
-            }
-            else return true;
             
-            //- This method is intended to be used by factors that have been made unstable.
-            //  If they were made unstable, then we (or another Reactor) were either triggered or made unstable,
-            // and in turn made them unstable. If we are no longer triggered or unstable then we reacted
-            // before this call, and we would have triggered our subscribers if the reaction 'changed something'.
-            // Since they're trying to reconcile, then they haven't been triggered, so we accept the reconciliation.
+            //- Note : This may not work as intended if Observed cores continue to pass themselves as triggers,
+            //         because the core won't be able to tell its owner when its dependents notify it that it's
+            //         not necessary.
+        }
 
-            //- TODO : We could probably just return "AttemptReaction() is false" if we can guarantee that
-            //         AttemptReaction() is always going to be based on HasBeenTriggered and IsUnstable anyways.
+        protected bool AddTrigger(IFactor trigger, bool necessary) => trigger.Subscribe(weakSubscriber, necessary);
+        protected void RemoveTrigger(IFactor trigger) => trigger.Unsubscribe(weakSubscriber);
+
+        public void SetOwner(IReactorCoreOwner reactor)
+        {
+            if (Owner != null)
+            {
+                throw new InvalidOperationException(
+                    $"A process attempted to set the Owner for a ReactorCore to {reactor}, " +
+                    $"but its Owner property is already assigned to {Owner}. ");
+            }
+            
+            Owner = reactor ?? throw new ArgumentNullException(nameof(reactor));
         }
         
-        
+        public virtual void Dispose()
+        {
+            Owner = null;
+
+            foreach (var trigger in Triggers)
+            {
+                RemoveTrigger(trigger);
+            }
+        }
+
         #endregion
 
 
         #region Constructors
 
-        protected ReactorCore(string name) : base(name)
+        protected ReactorCore()
         {
+            weakSubscriber = new WeakSubscriber(this);
         }
 
         #endregion
 
-        
-        #region Explicit Implementations
 
-        void IUpdateable.Update()
-        {
-            IsQueued = false;
-            AttemptReaction();
-        }
-
-        #endregion
     }
 }

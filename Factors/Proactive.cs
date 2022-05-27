@@ -9,16 +9,22 @@ using static Core.Tools.Types;
 
 namespace Factors
 {
-    public class Proactive<T> : Factor<IState<T>>, IState<T>
+    public class Proactive<T> : Factor<IProactiveCore<T>>, IState<T>
     {
         #region Properties
         
         public T Value
         {
             get => core.Value;
-            set => core.Value = value;
+            set
+            {
+                if (core.ChangeValueTo(value))
+                {
+                    TriggerSubscribers();
+                }
+            }
         }
-        
+
         #endregion
 
 
@@ -39,13 +45,13 @@ namespace Factors
 
         #region Constructors
 
-        public Proactive(IState<T> valueState, string name = null) : base(valueState, name?? NameOf<Proactive<T>>())
+        public Proactive(IProactiveCore<T> core, string name = null) : base(core, name?? NameOf<Proactive<T>>())
         {
 
         }
 
         public Proactive(T initialValue, IEqualityComparer<T> comparer = null, string name = null) : 
-            this(new ObservedStateCore<T>(initialValue, comparer), name?? NameOf<Proactive<T>>())
+            this(new ObservedProactiveCore<T>(initialValue, comparer), name?? NameOf<Proactive<T>>())
         {
         }
         
@@ -98,13 +104,13 @@ namespace Factors
     //
     //     #region Constructors
     //
-    //     public Proactive(IState<T> valueState, string name) : 
+    //     public Proactive(IState<T> core, string name) : 
     //         base(name?? NameOf<Proactive<T>>())
     //     {
-    //         state = valueState;
+    //         state = core;
     //     }
     //
-    //     public Proactive(IState<T> valueState) : this(valueState, null)
+    //     public Proactive(IState<T> core) : this(core, null)
     //     {
     //         
     //     }

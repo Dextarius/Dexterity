@@ -20,14 +20,35 @@ namespace Factors
         
         #region Instance Properties
 
-        public T Value => core.Value;
+        public T Value
+        {
+            get
+            {
+                AttemptReaction();
+                return core.Value;
+            }
+        }
 
         #endregion
 
 
         #region Instance Methods
 
-     //   public T Peek() => core.Peek();
+        public override void SwapCore(IResult<T> newCore)
+        {
+            var oldValue = core.Value;
+
+            base.SwapCore(newCore);
+
+            if (newCore.ValueEquals(oldValue) is false)
+            {
+                TriggerSubscribers();
+            }
+        }
+        
+        public override string ToString() => $"{Name} => {Value}";
+
+        //   public T Peek() => core.Peek();
 
         #endregion
 

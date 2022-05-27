@@ -16,8 +16,8 @@ namespace Tests.Interface_Tests
     [TestFixture(typeof(DirectFunctionResult<int, int>),           typeof(int), typeof(DirectFunctionResult_Controller))]
     [TestFixture(typeof(DirectFunctionResult<int, int, int>),      typeof(int), typeof(DirectFunctionResult2_Controller))]
     [TestFixture(typeof(DirectFunctionResult<int, int, int, int>), typeof(int), typeof(DirectFunctionResult3_Controller))]
-    [TestFixture(typeof(ObservedStateCore<int>),                   typeof(int), typeof(ObservedState_Controller))]
-    [TestFixture(typeof(DirectStateCore<int>),                     typeof(int), typeof(DirectState_Controller))]
+    [TestFixture(typeof(ObservedProactiveCore<int>),                   typeof(int), typeof(ObservedState_Controller))]
+    [TestFixture(typeof(DirectProactiveCore<int>),                     typeof(int), typeof(DirectState_Controller))]
     public class IFactor_Ts<TFactor, TValue, TController>
         where TFactor            : IFactor<TValue>, IDeterminant  //- TODO : Try to separate the IDeterminant related parts
         where TController        : IFactor_T_Controller<TFactor, TValue>, new()

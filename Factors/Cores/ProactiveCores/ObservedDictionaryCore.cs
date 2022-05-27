@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Core.Redirection;
 using Core.States;
+using Dextarius.Collections;
 using Factors.Collections;
 using static Core.Tools.Types;
 
@@ -75,53 +76,46 @@ namespace Factors.Cores.ProactiveCores
 
         #region Constructors
         
-        public ObservedDictionaryCore(ICollection<KeyValuePair<TKey, TValue>> collectionToCopy  = null,
-                                       IEqualityComparer<TKey>                 comparerForKeys   = null, 
-                                       IEqualityComparer<TValue>               comparerForValues = null, 
-                                       string                                  name              = null) : 
-            base(new Dictionary<TKey, TValue>(collectionToCopy, comparerForKeys), 
-                 name ?? NameOf<ProactiveDictionary<TKey, TValue>>())
+        protected ObservedDictionaryCore(Dictionary<TKey, TValue> dictionaryToCopy, IEqualityComparer<TValue> comparerForValues) : 
+            base(dictionaryToCopy)
         {
             valueComparer = comparerForValues ?? EqualityComparer<TValue>.Default;
         }
         
-        public ObservedDictionaryCore(ICollection<KeyValuePair<TKey, TValue>> collectionToCopy  = null,
-                                       IEqualityComparer<TKey>                 comparerForKeys   = null, 
-                                       string                                  name              = null) : 
-            this(collectionToCopy, comparerForKeys, null, name)
+        public ObservedDictionaryCore(IEnumerable<KeyValuePair<TKey, TValue>> collectionToCopy  = null,
+                                      IEqualityComparer<TKey>                 comparerForKeys   = null, 
+                                      IEqualityComparer<TValue>               comparerForValues = null) : 
+            this(new Dictionary<TKey, TValue>(collectionToCopy, comparerForKeys ?? EqualityComparer<TKey>.Default), 
+                 comparerForValues)
         {
+            
         }
         
         public ObservedDictionaryCore(ICollection<KeyValuePair<TKey, TValue>> collectionToCopy, 
-                                       IEqualityComparer<TValue>               comparerForValues, 
-                                       string                                  name = null) : 
-            this(collectionToCopy, null, comparerForValues, name)
+                                      IEqualityComparer<TValue>               comparerForValues) : 
+            this(collectionToCopy, null, comparerForValues)
         {
         }
         
         public ObservedDictionaryCore(IEqualityComparer<TKey>   comparerForKeys, 
-                                       IEqualityComparer<TValue> comparerForValues = null, 
-                                       string                    name              = null) : 
-            this(null, comparerForKeys, comparerForValues, name)
+                                      IEqualityComparer<TValue> comparerForValues = null) : 
+            this(new Dictionary<TKey, TValue>(comparerForKeys ?? EqualityComparer<TKey>.Default), comparerForValues)
         {
         }
 
-        public ObservedDictionaryCore(ICollection<KeyValuePair<TKey, TValue>> collectionToCopy, string name = null) : 
-            this(collectionToCopy, null, null, name)
+        public ObservedDictionaryCore(IEqualityComparer<TValue> comparerForValues) : 
+            this(null, null, comparerForValues)
         {
         }
         
-        public ObservedDictionaryCore(IEqualityComparer<TKey> comparerForKeys, string name = null) : 
-            this(null, comparerForKeys, null, name)
-        {
-        }
-        
-        public ObservedDictionaryCore(IEqualityComparer<TValue> comparerForValues, string name = null) : 
-            this(null, null, comparerForValues, name)
+        public ObservedDictionaryCore(Dictionary<TKey, TValue>  dictionaryToCopy,
+                                      IEqualityComparer<TKey>   comparerForKeys   = null, 
+                                      IEqualityComparer<TValue> comparerForValues = null) : 
+            this(new Dict<TKey, TValue>(dictionaryToCopy, comparerForKeys ?? dictionaryToCopy.Comparer), comparerForValues)
         {
         }
 
-        public ObservedDictionaryCore(string name) : this(null, null, null, name)
+        public ObservedDictionaryCore() : this(new Dictionary<TKey, TValue>(), null)
         {
         }
 

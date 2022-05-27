@@ -19,6 +19,9 @@ namespace Factors.Cores.ObservedReactorCores.CollectionResults
         #region Instance Methods
 
         protected override IEnumerable<KeyValuePair<TKey, TValue>> GetElements() => elementGenerator();
+        
+        public override string ToString() => Delegates.GetClassAndMethodName(elementGenerator);
+
 
         #endregion
 
@@ -27,24 +30,16 @@ namespace Factors.Cores.ObservedReactorCores.CollectionResults
         #region Constructors
 
         public ObservedDictionaryFunctionResult(Func<IEnumerable<KeyValuePair<TKey, TValue>>> functionForElements,
-                                                string                    name,
-                                                IEqualityComparer<TKey>   comparerForKeys   = null,
-                                                IEqualityComparer<TValue> comparerForValues = null) : 
-            base(name ?? Delegates.GetClassAndMethodName(functionForElements), comparerForKeys, comparerForValues)
+                                                IEqualityComparer<TKey>                       comparerForKeys   = null,
+                                                IEqualityComparer<TValue>                     comparerForValues = null) : 
+            base(comparerForKeys, comparerForValues)
         {
             elementGenerator = functionForElements ?? throw new ArgumentNullException(nameof(functionForElements));
         }
-        
+
         public ObservedDictionaryFunctionResult(Func<IEnumerable<KeyValuePair<TKey, TValue>>> functionForElements,
-                                                IEqualityComparer<TKey>   comparerForKeys   = null,
-                                                IEqualityComparer<TValue> comparerForValues = null) : 
-            this(functionForElements, null, comparerForKeys, comparerForValues)
-        {
-        }
-        
-        public ObservedDictionaryFunctionResult(Func<IEnumerable<KeyValuePair<TKey, TValue>>> functionForElements,
-                                                IEqualityComparer<TValue> comparerForValues) : 
-            this(functionForElements, null, null, comparerForValues)
+                                                IEqualityComparer<TValue>                     comparerForValues) : 
+            this(functionForElements, null, comparerForValues)
         {
         }
 

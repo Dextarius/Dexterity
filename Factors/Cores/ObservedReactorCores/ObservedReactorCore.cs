@@ -2,28 +2,20 @@
 using System.Collections.Generic;
 using Core.Factors;
 using Core.States;
+using Dextarius.Collections;
 using Factors.Observer;
 using JetBrains.Annotations;
-using static Core.Tools.Collections;
 
 
 namespace Factors.Cores.ObservedReactorCores
 {
     public abstract class ObservedReactorCore : ReactorCore, IObserved, IInvolved
     {
-        #region Static Fields
-    
-        protected static readonly IFactor[] defaultTriggers = Array.Empty<IFactor>();
-
-        #endregion
-
-        
         #region Instance Fields
 
         [NotNull] 
-        protected IFactor[] triggers = defaultTriggers;
-        protected int       priority;
-        protected int       nextOpenTriggerIndex;
+        protected readonly Dict<IFactor, bool> triggersByInUse = new Dict<IFactor, bool>();
+        protected          int                 priority;
 
         #endregion
         
@@ -37,23 +29,11 @@ namespace Factors.Cores.ObservedReactorCores
         
         #region Properties
 
-        public override bool HasTriggers      => nextOpenTriggerIndex > 0;
-        public override int  NumberOfTriggers => nextOpenTriggerIndex;
+        public override bool HasTriggers      => triggersByInUse.Count > 0;
+        public override int  NumberOfTriggers => triggersByInUse.Count;
         public override int  UpdatePriority   => priority;
 
-        protected override IEnumerable<IFactor> Triggers
-        {
-            get
-            {
-                var currentTriggers  = triggers;
-                int lastTriggerIndex = nextOpenTriggerIndex - 1;
-            
-                for (int i = 0; i < lastTriggerIndex; i++)
-                {
-                    yield return currentTriggers[i];
-                }
-            }
-        }
+        protected override IEnumerable<IFactor> Triggers => triggersByInUse.Keys;
 
         #endregion
         
@@ -64,30 +44,12 @@ namespace Factors.Cores.ObservedReactorCores
 
         protected void RemoveTriggers(IFactor factorToSkip)
         {
-            var formerTriggers   = triggers;
-            var lastTriggerIndex = nextOpenTriggerIndex - 1;
-            
-            for (int i = 0; i <= lastTriggerIndex; i++)
-            {
-                ref IFactor currentTrigger = ref formerTriggers[i];
-    
-                if (currentTrigger != factorToSkip)
-                {
-                    currentTrigger.Unsubscribe(this);
-                }
-                
-                currentTrigger = null;
-            }
-    
-            nextOpenTriggerIndex = 0;
-            
-            //- Note : We could choose to keep the triggers until we recalculate, and then compare them with 
-            //         the triggers that are added during the update process.  
+            triggersByInUse.SetAllValuesTo(false);
         }
         
         public void NotifyInvolved()
         {
-            Observer.NotifyInvolved(this);
+            Observer.NotifyInvolved(Owner);
             
             //- We could test for recursion here. If this Outcome is updating, then either it's accessing
             //  itself in its update method, or something it affected during this update is.  We could ask
@@ -98,8 +60,16 @@ namespace Factors.Cores.ObservedReactorCores
 
         public void NotifyChanged()
         {
-            Observer.NotifyChanged(this);
+            Observer.NotifyChanged(Owner);
             //- TODO : Decide if we need something here.
+        }
+
+        protected void RemoveUnusedTriggers()
+        {
+            foreach (var keyValuePair in triggersByInUse.RemoveWhereValueEquals(false))
+            {
+                RemoveTrigger(keyValuePair.Key);
+            }
         }
 
         #endregion
@@ -107,9 +77,9 @@ namespace Factors.Cores.ObservedReactorCores
 
         #region Constructors
 
-        protected ObservedReactorCore(string name) : base(name)
+        protected ObservedReactorCore() : base()
         {
-            removeSubscriptionWhenTriggered = true;
+            
         }
 
         #endregion
@@ -123,23 +93,23 @@ namespace Factors.Cores.ObservedReactorCores
 
             if (HasBeenTriggered is false)
             {
-                if (influentialFactor.Subscribe(this, IsReflexive))
+                if (AddTrigger(influentialFactor, IsNecessary))
                 {
-                    //- Observed Reactors don't mark themselves as necessary when they subscribe here, if they
-                    //  have necessary dependents, but are not Reflexive themselves.  This is because if they
-                    //  are subscribing through this method then they are in the process of reacting, and as
-                    //  soon as they finish they're likely to trigger their own subscribers.  If the necessary
-                    //  subscribers we trigger are all Observed Reactors like this one is, then they'll end up
-                    //  unsubscribing anyways, causing us to no longer be necessary and then have to propagate
-                    //  that up the tree. If we react and don't end up triggering our subscribers because the
-                    //  outcome doesn't change, our triggers will just find out we're necessary when they
-                    //  destabilize us anyways.
-                    
+                    //- If an Observed Reactor is necessary, but not Reflexive, it won't mark themselves as necessary
+                    //  when it subscribes here.  This is because if we're subscribing through this method then
+                    //  we're in the process of reacting, and as soon as we finish we're likely to trigger
+                    //  our own subscribers.  If the subscribers that made us necessary are all Observed Reactors
+                    //  like this one is, then they'll end up unsubscribing anyways when we trigger them, causing us
+                    //  to no longer be necessary and we'll have to go back and notify all of the triggers that we just
+                    //  told we were necessary, to mark us as not necessary. If we react and don't end up triggering our
+                    //  subscribers because the outcome doesn't change, our triggers will just find out we're necessary
+                    //  when they destabilize us anyways.
+
                     //- Factors are expected to only add us as a dependent if they didn't already have us as a dependent, so
                     //  so if we're here we should be good to assume we haven't added them as a trigger yet. 
-                    Add(ref triggers, influentialFactor, nextOpenTriggerIndex);
-                    nextOpenTriggerIndex++;
-
+                    
+                    triggersByInUse[influentialFactor] = true;
+                    
                     if (influentialFactor.UpdatePriority >= this.UpdatePriority)
                     {
                         this.priority = influentialFactor.UpdatePriority + 1;

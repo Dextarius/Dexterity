@@ -11,7 +11,7 @@ namespace Tests.Class_Tests.Cores.DirectProactorCores
         public void WhenPassedAValueDuringConstruction_HasThatValue()
         {
             int testValue        = GenerateRandomInt();
-            var stateBeingTested = new ObservedStateCore<int>(testValue);
+            var stateBeingTested = new ObservedProactiveCore<int>(testValue);
 
            AssertThatFactorHasValue(stateBeingTested, testValue);
         }

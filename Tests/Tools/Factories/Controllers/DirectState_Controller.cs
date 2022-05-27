@@ -2,7 +2,7 @@
 
 namespace Tests.Tools.Factories.Controllers
 {
-    public class DirectState_Controller : Factor_T_Controller<DirectStateCore<int>, int>
+    public class DirectState_Controller : Factor_T_Controller<DirectProactiveCore<int>, int>
     {
         public override int ChangeValueToANonEqualValue()
         {
@@ -24,7 +24,7 @@ namespace Tests.Tools.Factories.Controllers
 
         public DirectState_Controller()
         {
-            ControlledInstance = new DirectStateCore<int>(Tools.GenerateRandomInt());
+            ControlledInstance = new DirectProactiveCore<int>(Tools.GenerateRandomInt());
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Core.Collections;
 using Core.States;
 using Core.Tools;
+using static Dextarius.Collections.ExtensionMethods;
 
 namespace Factors.Cores.ObservedReactorCores.CollectionResults
 {
@@ -62,7 +63,7 @@ namespace Factors.Cores.ObservedReactorCores.CollectionResults
 
         #region Constructors
 
-        protected ObservedListResult(string name, IEqualityComparer<T> comparerForElements = null) : base(name)
+        protected ObservedListResult(IEqualityComparer<T> comparerForElements = null) : base()
         {
             elementComparer   = comparerForElements ?? EqualityComparer<T>.Default;
             currentCollection = new List<T>();

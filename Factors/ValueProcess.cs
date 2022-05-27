@@ -1,4 +1,5 @@
 ﻿using Core.Causality;
+using Core.Factors;
 using Core.Redirection;
 
 namespace Factors

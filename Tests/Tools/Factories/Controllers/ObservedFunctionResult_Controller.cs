@@ -22,7 +22,7 @@ namespace Tests.Tools.Factories.Controllers
         {
             inputController    = inputSourceController;
             valueFunction      = () => inputSourceController.ControlledInstance.Value;
-            ControlledInstance = new ObservedFunctionResult<int>(valueFunction);
+            ControlledInstance = new ObservedFunctionResult<int>(valueFunction, TODO);
         }
 
         public ObservedFunctionResult_Controller() : this(new ObservedState_Controller())

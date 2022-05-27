@@ -1,4 +1,5 @@
-﻿using Core.Factors;
+﻿using System;
+using Core.Factors;
 using Factors.Observer;
 
 namespace Factors.Cores.ProactiveCores
@@ -14,20 +15,38 @@ namespace Factors.Cores.ProactiveCores
         
         #region Instance Properties
 
-        public override int UpdatePriority => 0;
+        protected          IFactor Owner          { get; set; }
+        public    override int     UpdatePriority => 0;
 
         #endregion
 
 
         #region Instance Methods
 
-        public void NotifyInvolved() => Observer.NotifyInvolved(this);
-        public void NotifyChanged()  => Observer.NotifyChanged(this);
+        public void NotifyInvolved() => Observer.NotifyInvolved(Owner);
+        public void NotifyChanged()  => Observer.NotifyChanged(Owner);
+        
+        public void SetOwner(IReactorCoreOwner reactor)
+        {
+            if (Owner != null)
+            {
+                throw new InvalidOperationException(
+                    $"A process attempted to set the Owner for a ReactorCore to {reactor}, " +
+                    $"but its Owner property is already assigned to {Owner}. ");
+            }
+            
+            Owner = reactor ?? throw new ArgumentNullException(nameof(reactor));
+        }
+        
+        public override void Dispose()
+        {
+            Owner = null;
+        }
         
         #endregion
         
         
-        public ObservedFactorCore(string name) : base(name)
+        public ObservedFactorCore() : base()
         {
             
         }

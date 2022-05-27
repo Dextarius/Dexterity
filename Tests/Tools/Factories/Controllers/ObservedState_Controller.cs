@@ -2,7 +2,7 @@
 
 namespace Tests.Tools.Factories.Controllers
 {
-    public class ObservedState_Controller : Factor_T_Controller<ObservedStateCore<int>, int>
+    public class ObservedState_Controller : Factor_T_Controller<ObservedProactiveCore<int>, int>
     {
         public override int ChangeValueToANonEqualValue()
         {
@@ -24,7 +24,7 @@ namespace Tests.Tools.Factories.Controllers
 
         public ObservedState_Controller()
         {
-            ControlledInstance = new ObservedStateCore<int>(Tools.GenerateRandomInt());
+            ControlledInstance = new ObservedProactiveCore<int>(Tools.GenerateRandomInt());
         }
     }
 }

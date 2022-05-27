@@ -48,7 +48,7 @@ namespace Core
                 return updateQueueToken;
             }
 
-            return default(UpdateQueueToken);
+            return default;
         }
 
         protected void StopQueueingUpdates()

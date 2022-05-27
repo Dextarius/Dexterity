@@ -18,7 +18,7 @@ namespace Tests.Tools.Factories
         public DirectFunctionResult<int, int> CreateInstance()
         {
             int            randomNumber  = Tools.GenerateRandomInt();
-            var            valueSource   = new DirectStateCore<int>(randomNumber);
+            var            valueSource   = new DirectProactiveCore<int>(randomNumber);
             Func<int, int> valueFunction = (number) => number + Tools.GenerateRandomInt();
 
             return new DirectFunctionResult<int, int>(valueFunction, valueSource);

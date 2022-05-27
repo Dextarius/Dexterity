@@ -47,8 +47,7 @@ namespace Factors.Collections
             
         }
         
-        public ProactiveDictionary(string name) : 
-            this(new ObservedDictionaryCore<TKey, TValue>(name), name)
+        public ProactiveDictionary(string name)  :  this(new ObservedDictionaryCore<TKey, TValue>(), name)
         {
         }
 

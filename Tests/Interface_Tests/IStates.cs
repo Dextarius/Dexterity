@@ -11,8 +11,8 @@ using static Tests.Tools.Tools;
 
 namespace Tests.Interface_Tests
 {
-    [TestFixture(typeof(DirectStateCore<int>),   typeof(DirectStateCore_Int_Factory),   typeof(int))]
-    [TestFixture(typeof(ObservedStateCore<int>), typeof(ObservedStateCore_Int_Factory), typeof(int))]
+    [TestFixture(typeof(DirectProactiveCore<int>),   typeof(DirectStateCore_Int_Factory),   typeof(int))]
+    [TestFixture(typeof(ObservedProactiveCore<int>), typeof(ObservedStateCore_Int_Factory), typeof(int))]
     public class IStates<TState, TStateFactory, TValue> 
         where TState         : IState<TValue>
         where TStateFactory  : IState_T_Factory<TState, TValue>, new()

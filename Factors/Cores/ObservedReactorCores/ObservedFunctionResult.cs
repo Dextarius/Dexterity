@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Core.Factors;
 using Core.Tools;
 using JetBrains.Annotations;
 
@@ -19,21 +20,19 @@ namespace Factors.Cores.ObservedReactorCores
 
         protected override T GenerateValue() => valueFunction();
 
+        public override string ToString() => Delegates.GetClassAndMethodName(valueFunction);
+
         #endregion
 
         
         #region Constructors
 
-        public ObservedFunctionResult(Func<T> functionThatDeterminesValue, IEqualityComparer<T> comparer = null, string name = null)
-            : base(name ?? Delegates.GetClassAndMethodName(functionThatDeterminesValue), comparer)
+        public ObservedFunctionResult(Func<T>              functionThatDeterminesValue,
+                                      IEqualityComparer<T> comparer = null)
+            : base(comparer)
         {
             valueFunction = functionThatDeterminesValue??  
                             throw new ArgumentNullException(nameof(functionThatDeterminesValue));
-        }
-        
-        public ObservedFunctionResult(Func<T> functionThatDeterminesValue, string name)
-            : this(functionThatDeterminesValue, null, name)
-        {
         }
 
         #endregion

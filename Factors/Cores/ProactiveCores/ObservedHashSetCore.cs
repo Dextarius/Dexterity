@@ -104,26 +104,33 @@ namespace Factors.Cores.ProactiveCores
 
         #region Constructors
 
-        protected ObservedHashSetCore(
-            ICollection<T> collectionToCopy, IEqualityComparer<T> comparerForElements = null, string name = null) :
-                base(new HashSet<T>(collectionToCopy, comparerForElements), name ?? NameOf<ObservedHashSetCore<T>>())
+        protected ObservedHashSetCore(HashSet<T> hashSet) : base(hashSet)
         {
             
         }
         
-        public ObservedHashSetCore(string name = null) : this(null, null, name)
+        public ObservedHashSetCore(
+            IEnumerable<T> collectionToCopy, IEqualityComparer<T> comparerForElements = null) :
+                this(new HashSet<T>(collectionToCopy, comparerForElements))
+        {
+            
+        }
+        
+        public ObservedHashSetCore(HashSet<T> setToCopy, IEqualityComparer<T> comparerForElements = null) : 
+            this(new HashSet<T>(setToCopy, comparerForElements ?? setToCopy.Comparer))
+        {
+            
+        }
+        
+        public ObservedHashSetCore(IEqualityComparer<T> comparer) : this(new HashSet<T>(comparer))
         {
         }
 
-        public ObservedHashSetCore(IEqualityComparer<T> comparer, string name = null) : 
-            this(new HashSet<T>(comparer), comparer ?? EqualityComparer<T>.Default, name)
+        public ObservedHashSetCore() : this(new HashSet<T>())
         {
         }
 
-        public ObservedHashSetCore(HashSet<T> setToUse, string name = null) : 
-            this(setToUse, setToUse.Comparer, name ?? NameOf<ObservedHashSetCore<T>>())
-        {
-        }
+
 
         #endregion
     }

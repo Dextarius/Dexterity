@@ -5,7 +5,7 @@ using Core.Factors;
 
 namespace Core.States
 {
-    public interface ICollectionCore<TValue> : IDeterminant
+    public interface ICollectionCore<TValue> : IFactorCore
     {
         int Count { get; }
         

@@ -32,7 +32,7 @@ namespace Factors.Cores.ProactiveCores
         protected void OnCollectionChanged()
         {
             NotifyChanged();
-            TriggerSubscribers();
+            
         }
 
         public void Add(TValue item)
@@ -107,7 +107,7 @@ namespace Factors.Cores.ProactiveCores
         
         #region Constructors
         
-        public ObservedCollectionCore(TCollection initialValue, string name = null) : base(name)
+        public ObservedCollectionCore(TCollection initialValue) : base()
         {
             collection = initialValue;
         }

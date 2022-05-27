@@ -10,16 +10,17 @@ namespace Factors.Cores
         #region Instance Fields
 
         private readonly IFactorSubscriber                subscriber;
-        private          WeakReference<IFactorSubscriber> weakReferenceToSubscriber;
+        private readonly WeakReference<IFactorSubscriber> weakReferenceToSubscriber;
+        private          int                              interactionCount;
 
         #endregion
 
         
         #region Properties
 
-        public bool IsNecessary      { get; private   set; }
-        public bool IsUnstable       { get; protected set; }
-        public bool HasBeenTriggered { get; protected set; } = true;
+        public bool IsNecessary      { get; set; }
+        public bool IsUnstable       { get; set; }
+        public bool HasBeenTriggered { get; set; } = true;
 
         #endregion
 
@@ -30,46 +31,112 @@ namespace Factors.Cores
 
         public bool Trigger(IFactor triggeringFactor, out bool removeSubscription)
         {
-            if (subscriber != null)
+            if (HasBeenTriggered is false)
             {
-                return subscriber.Trigger(triggeringFactor, out removeSubscription);
-            }
-            else
-            {
-                if (weakReferenceToSubscriber.TryGetTarget(out var weakSubscriber))
+                if (subscriber != null)
                 {
-                    return weakSubscriber.Trigger(triggeringFactor, out removeSubscription);
+                    return subscriber.Trigger(triggeringFactor, out removeSubscription);
+                }
+                else
+                {
+                    if (weakReferenceToSubscriber.TryGetTarget(out var weakSubscriber))
+                    {
+                        return weakSubscriber.Trigger(triggeringFactor, out removeSubscription);
+                    }
+                    else
+                    {
+                        removeSubscription = true;
+                        return false;
+                    }
+                }
+            }
+            else if (subscriber == null)
+            {
+                if (EnsureReferenceIsStillValid())
+                {
+                    interactionCount++;
+                    removeSubscription = false;
                 }
                 else
                 {
                     removeSubscription = true;
-                    
-                    return false;
                 }
-            }
-        }
-
-        public bool Destabilize()
-        {
-            if (IsNecessary)
-            {
-                return true;
-            }
-            else if (subscriber != null)
-            {
-                return subscriber.Destabilize();
+                
+                return false;
             }
             else
             {
-                if (weakReferenceToSubscriber.TryGetTarget(out var weakSubscriber))
+                removeSubscription = false;
+                return false;
+            }
+        }
+
+        private bool EnsureReferenceIsStillValid()
+        {
+            if (interactionCount >= 10)
+            {
+                if (weakReferenceToSubscriber.TryGetTarget(out var target))
                 {
-                    return weakSubscriber.Destabilize();
+                    interactionCount = 0;
+                    return true;
+                }
+                else return false;
+            }
+            else return true;
+        }
+
+        public bool Destabilize(IFactor factor)
+        {
+            if (IsUnstable is false)
+            {
+                if (IsNecessary)
+                {
+                    if (subscriber != null) return true;
+                    
+                    if (EnsureReferenceIsStillValid())
+                    {
+                        interactionCount++;
+                    }
+                    else
+                    {
+                        factor.Unsubscribe(this);
+                        return false;
+                    }
+
+                    return true;
+                }
+                else if (subscriber != null)
+                {
+                    return subscriber.Destabilize(factor);
                 }
                 else
                 {
-                    return false;
+                    if (weakReferenceToSubscriber.TryGetTarget(out var weakSubscriber))
+                    {
+                        return weakSubscriber.Destabilize(factor);
+                    }
+                    else
+                    {
+                        factor.Unsubscribe(this);
+                        return false;
+                    }
                 }
             }
+            else if (subscriber == null)
+            {
+                if (EnsureReferenceIsStillValid())
+                {
+                    interactionCount++;
+                }
+                
+                return false;
+            }
+            else
+            {
+                factor.Unsubscribe(this);
+                return false;
+            }
+
         }
 
         #endregion

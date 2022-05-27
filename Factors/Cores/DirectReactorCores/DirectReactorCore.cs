@@ -24,26 +24,26 @@ namespace Factors.Cores.DirectReactorCores
 
         protected void SubscribeToInputs()
         {
-            if (NumberOfTimesReacted == 0)
+            if (VersionNumber == 0)
             {
                 foreach (var input in Triggers)
                 {
-                    input.Subscribe(this, IsNecessary);
+                    AddTrigger(input, IsNecessary);
                 }
             }
         }
         
         protected override void InvalidateOutcome(IFactor changedParentState) { }
         
-        public void NotifyInvolved() => Observer.NotifyInvolved(this);
-        public void NotifyChanged()  => Observer.NotifyChanged(this);
+        public void NotifyInvolved() => Observer.NotifyInvolved(Owner);
+        public void NotifyChanged()  => Observer.NotifyChanged(Owner);
         
         #endregion
         
 
         #region Constructors
 
-        protected DirectReactorCore(string name) : base(name)
+        protected DirectReactorCore() : base()
         {
             
         }

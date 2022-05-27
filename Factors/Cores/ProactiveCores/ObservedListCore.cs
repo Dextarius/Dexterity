@@ -187,23 +187,23 @@ namespace Factors.Cores.ProactiveCores
         
         #region Constructors
 
-        public ObservedListCore(
-            ICollection<T> collectionToCopy, IEqualityComparer<T> comparerForItems = null, string name = null) : 
-                base(new List<T>(collectionToCopy), name ?? NameOf<ObservedListCore<T>>())
+        protected ObservedListCore(List<T> list, IEqualityComparer<T> comparerForItems) : 
+                base(list)
         {
             itemComparer = comparerForItems ?? EqualityComparer<T>.Default;
+        }        
+        public ObservedListCore(
+            IEnumerable<T> collectionToCopy, IEqualityComparer<T> comparerForItems = null) : 
+                this(new List<T>(collectionToCopy), comparerForItems)
+        {
         }
-        public ObservedListCore([NotNull] IEqualityComparer<T> itemComparer, string name = null) : 
-            this(null, itemComparer, name)
+        
+        public ObservedListCore(IEqualityComparer<T> itemComparer) : 
+            this(new List<T>(), itemComparer)
         {
         }
 
-        public ObservedListCore(string name) : this(null, null, name)
-        {
-        }
-
-        public ObservedListCore(ICollection<T> collectionToCopy, string name = null) : 
-            this(collectionToCopy, null, name)
+        public ObservedListCore() : this(new List<T>(), null)
         {
         }
 

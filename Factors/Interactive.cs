@@ -1,11 +1,10 @@
-﻿using System;
-using Core.Factors;
+﻿using Core.Factors;
 using Core.States;
 using Factors.Cores;
 
 namespace Factors
 {
-    public class Interactive<T> : Reactor<ValueModifier<T>>, IInteractive<T>
+    public class Interactive<T> : Reactor<IInteractive<T>>, IInteractive<T>
     {
         #region Properties
         
@@ -22,20 +21,17 @@ namespace Factors
         
         #region Instance Methods
 
-        public void AddModifier(T modifierToAdd)
-        {
-            
-        }
+        public bool ContainsModifier(IFactorModifier<T> modifierToFind) => core.ContainsModifier(modifierToFind);
+        public void AddModifier(IFactorModifier<T> modifierToAdd)       => core.AddModifier(modifierToAdd);
+        public void RemoveModifier(IFactorModifier<T> modifierToRemove) => core.RemoveModifier(modifierToRemove);
+
+        public string PrintBaseValueAndModifiers() => core.PrintBaseValueAndModifiers();
+
+        #endregion
         
-        public void RemoveModifier(T modifierToRemove)
-        {
-            
-        }
-        
-        public bool ContainsModifier(T modifierToFind)
-        {
-            
-        }
+        #region Operators
+
+        public static implicit operator T(Interactive<T> interactive) => interactive.Value;
 
         #endregion
         
@@ -48,33 +44,17 @@ namespace Factors
         
         #region Constructors
 
-        protected Interactive(IResult<T> reactorCore, string nameToGive) : base(reactorCore, nameToGive)
-        {
-        }
-
-        #endregion
-
-
-        public T Peek()
+        public Interactive(IInteractive<T> coreToUse, string nameToGive) : base(coreToUse, nameToGive)
         {
             
         }
-    }
-
-    public interface IInteractive<T> : IReactor<T>
-    {
-        void AddModifier(T modifierToAdd);
-        void RemoveModifier(T modifierToRemove);
-        bool ContainsModifier(T modifierToFind);
-    }
-
-    public interface IFactorModifier<T>
-    {
-        IXXX    ModifierChanged { get; }
-        int         Priority        { get; }
         
-        T Modify(T valueToModify);
+        public Interactive(T initialBaseValue, string nameToGive = null) : 
+            base(new InteractiveCore<T>(initialBaseValue), nameToGive)
+        {
+            
+        }
+
+        #endregion
     }
-
-
 }

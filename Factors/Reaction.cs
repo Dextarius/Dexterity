@@ -8,11 +8,11 @@ using static Core.Tools.Delegates;
 
 namespace Factors
 {
-    public class Reaction : Reactor<IReactor>
+    public class Reaction : Reactor<IReactorCore>
     {
         #region Constructors
         
-        public Reaction(IReactor reactionCore, string name = null) : 
+        public Reaction(IReactorCore reactionCore, string name = null) : 
             base(reactionCore, name?? nameof(Reaction))
         {
 

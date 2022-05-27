@@ -10,13 +10,15 @@ namespace Core.Factors
         bool HasTriggers      { get; }
         int  NumberOfTriggers { get; }
         bool HasReacted       { get; }
-        uint VersionNumber    { get; }
         bool IsReflexive      { get; set; }
 
 
         bool AttemptReaction();
         bool ForceReaction();
+        
     }
+    
+    //- TODO : Come back and separate IReactorCoreOwner to something else.  Only the core should need that interface.
 
     public interface IReactor<out T> : IReactor, IValue<T>
     {

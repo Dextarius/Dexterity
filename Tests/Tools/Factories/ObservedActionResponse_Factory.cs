@@ -5,7 +5,7 @@ namespace Tests.Tools.Factories
 {
     public class ObservedActionResponse_Factory : IFactory<ObservedActionResponse>
     {
-        public ObservedActionResponse CreateInstance() => new ObservedActionResponse(Tools.DoNothing);
+        public ObservedActionResponse CreateInstance() => new ObservedActionResponse(Tools.DoNothing, TODO);
 
         public ObservedActionResponse CreateStableInstance()
         {

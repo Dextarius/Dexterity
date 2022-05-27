@@ -5,6 +5,8 @@ using Core.Redirection;
 using Core.States;
 using Core.Tools;
 using Factors.Collections;
+using static Dextarius.Collections.ExtensionMethods;
+
 
 namespace Factors.Cores.ObservedReactorCores.CollectionResults
 {
@@ -59,10 +61,8 @@ namespace Factors.Cores.ObservedReactorCores.CollectionResults
 
         #region Constructors
 
-        protected ObservedDictionaryResult(string name,
-                                           IEqualityComparer<TKey>   comparerForKeys   = null, 
-                                           IEqualityComparer<TValue> comparerForValues = null) : 
-            base(name)
+        protected ObservedDictionaryResult(IEqualityComparer<TKey>   comparerForKeys   = null, 
+                                           IEqualityComparer<TValue> comparerForValues = null)
         {
             currentCollection = new Dictionary<TKey, TValue>();
             valueComparer     = comparerForValues ?? EqualityComparer<TValue>.Default;
@@ -70,8 +70,8 @@ namespace Factors.Cores.ObservedReactorCores.CollectionResults
             //- If keyComparer is null, the dictionary will use the standard comparer for the Dictionary type.
         }
 
-        protected ObservedDictionaryResult(string name, IEqualityComparer<TValue> comparerForValues) : 
-            this(name, EqualityComparer<TKey>.Default, comparerForValues)
+        protected ObservedDictionaryResult(IEqualityComparer<TValue> comparerForValues) : 
+            this(EqualityComparer<TKey>.Default, comparerForValues)
         {
         }
 

@@ -34,6 +34,15 @@ namespace Factors.Cores.DirectReactorCores
         }
 
         #endregion
+
+        
+        #region Static Methods
+
+        protected static string CreateNameFrom(
+            Func<TInput1, TInput2, TOutput> valueDelegate, IFactor<TInput1> input1, IFactor<TInput2> input2) => 
+                Delegates.CreateStringShowingArgumentBeingPassedToDelegate(input1, input2, valueDelegate);
+
+        #endregion
         
         
         #region Instance Methods
@@ -48,32 +57,25 @@ namespace Factors.Cores.DirectReactorCores
             
             return result;
         }
-
+        
+        public override string ToString() => CreateNameFrom(valueFunction, inputSource1, inputSource2);
+        
         #endregion
         
         
         #region Constructors
 
-        public DirectFunctionResult(Func<TInput1, TInput2, TOutput> functionThatDeterminesValue, 
-                                    IFactor<TInput1>                firstInput, 
+        public DirectFunctionResult(Func<TInput1, TInput2, TOutput> functionThatDeterminesValue,
+                                    IFactor<TInput1>                firstInput,
                                     IFactor<TInput2>                secondInput,
-                                    IEqualityComparer<TOutput>      comparer = null,
-                                    string                          name     = null)
-            : base(name ?? Delegates.GetClassAndMethodName(functionThatDeterminesValue), comparer)
+                                    IEqualityComparer<TOutput>      comparer = null)
+            : base(comparer)
         {
             valueFunction = functionThatDeterminesValue??  
                             throw new ArgumentNullException(nameof(functionThatDeterminesValue));
 
             inputSource1 = firstInput;
             inputSource2 = secondInput;
-        }
-        
-        public DirectFunctionResult(Func<TInput1, TInput2, TOutput> functionThatDeterminesValue, 
-                                    IFactor<TInput1>                firstInput, 
-                                    IFactor<TInput2>                secondInput,
-                                    string                          name)
-            : this(functionThatDeterminesValue,firstInput, secondInput, null, name)
-        {
         }
 
         #endregion

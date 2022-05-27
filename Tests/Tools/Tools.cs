@@ -151,7 +151,7 @@ namespace Tests.Tools
         public static IProcess CreateProcessThatRetrievesValueOf<T>(IFactor<T> factorToInvolve) => 
             new RetrieveValueProcess<T>(factorToInvolve);
 
-        public static IProcess CreateProcessThatPeeksAtTheValueOf<T>(IFactor<T> factorToInvolve) => 
+        public static IProcess CreateProcessThatPeeksAtTheValueOf<T>(IObservedFactor<T> factorToInvolve) => 
             new PeekValueProcess<T>(factorToInvolve);
 
         public static void WriteExpectedAndActualValuesToTestContext<T>(T expected, T actual) =>

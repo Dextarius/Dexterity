@@ -12,21 +12,25 @@ namespace Factors.Cores.DirectReactorCores
         protected          TValue                    currentValue;
 
         #endregion
+
         
+        #region Properties
+
         public TValue Value
         {
             get
             {
-                AttemptReaction();
                 NotifyInvolved();
                 return currentValue;
             }
         }
 
+        #endregion
+
 
         #region Instance Methods
 
-        protected override bool GenerateOutcome()
+        protected override bool CreateOutcome()
         {
             TValue oldValue = currentValue;
             TValue newValue = GenerateValue();
@@ -45,6 +49,8 @@ namespace Factors.Cores.DirectReactorCores
             }
         }
         
+        public bool ValueEquals(TValue valueToCompare) => valueComparer.Equals(currentValue, valueToCompare);
+        
         public TValue Peek() => currentValue;
         
         protected abstract TValue GenerateValue();
@@ -54,11 +60,12 @@ namespace Factors.Cores.DirectReactorCores
 
         #region Constructors
         
-        protected DirectResult(string name, IEqualityComparer<TValue> comparer = null) : base(name)
+        protected DirectResult(IEqualityComparer<TValue> comparer = null) 
         {
             valueComparer = comparer ?? EqualityComparer<TValue>.Default;
         }
 
         #endregion
+        
     }
 }

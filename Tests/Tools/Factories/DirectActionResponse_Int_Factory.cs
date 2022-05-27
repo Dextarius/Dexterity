@@ -9,7 +9,7 @@ namespace Tests.Tools.Factories
     {
         public DirectActionResponse<int> CreateInstance()
         {
-            var         valueSource = new DirectStateCore<int>(1);
+            var         valueSource = new DirectProactiveCore<int>(1);
             Action<int> response    = (int input) => Tools.DoNothing();
 
             return new DirectActionResponse<int>(response, valueSource);

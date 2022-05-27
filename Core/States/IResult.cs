@@ -1,8 +1,9 @@
 ﻿using Core.Factors;
+using Core.Redirection;
 
 namespace Core.States
 {
-    public interface IResult<out T> : IReactive<T>
+    public interface IResult<T> : IReactorCore, IValueCore<T>
     {
 
     }

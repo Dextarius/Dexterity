@@ -1,33 +1,37 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Core.Factors;
+using Core.States;
+using Factors.Cores.DirectReactorCores;
+using Factors.Observer;
 
 namespace Factors.Cores
 {
-    public class ValueModifier<T> : ReactorCore
+    public class InteractiveCore<T> : DirectReactorCore, IInteractiveCore<T>
     {
+        #region Constants
+
+        private const string DefaultName = "Interactive";
+
+        #endregion
+        
+        
         #region Instance Fields
 
-        protected readonly List<IFactorModifier<T>> modifiers;
+        protected readonly List<IFactorModifier<T>> modifiers = new List<IFactorModifier<T>>();
         protected readonly IEqualityComparer<T>     valueComparer;
         protected          T                        modifiedValue;
         protected          T                        baseValue;
-        private            int                      priority;
-
-
-        #endregion
-        
-        #region Static Properties
-
-        protected static CausalObserver Observer => CausalObserver.ForThread;
+        private            int                      updatePriority;
 
         #endregion
+
 
         #region Instance Properties
 
-        public    override int  Priority         { get; }
-        public    override bool HasTriggers      { get; }
-        public    override int  NumberOfTriggers { get; }
-        
+        public override int  UpdatePriority   => updatePriority;
+        public override bool HasTriggers      => modifiers.Count > 0;
+        public override int  NumberOfTriggers => modifiers.Count;
 
         public T Value
         {
@@ -45,60 +49,77 @@ namespace Factors.Cores
             get => baseValue;
             set
             {
-                baseValue = value;
-                GenerateModifiedValue(value);
-            }
-        }
-
-        protected override IEnumerable<IXXX> Triggers
-        {
-            get
-            {
-                foreach (var factorModifier in modifiers)
+                bool baseValueIsDifferent = valueComparer.Equals(value, baseValue) is false;
+                
+                if (baseValueIsDifferent)
                 {
-                    yield return factorModifier.ModifierChanged;
+                    baseValue = value;
+                    Trigger();
                 }
             }
         }
+
+        protected override IEnumerable<IFactor> Triggers => modifiers;
 
         #endregion
 
 
         #region Instance Methods
 
-        void AddModifier(IFactorModifier<T> modifierToAdd)
+        public void AddModifier(IFactorModifier<T> modifierToAdd)
         {
-            int modifierIndex          = ___; // Find correct index for Priority
-            var modifierChangedTrigger = modifierToAdd.ModifierChanged;
-            
-            modifiers.Insert(modifierIndex, modifierToAdd);
-            modifierToAdd.ModifierChanged.Subscribe(this, IsNecessary); //- Should we use IsNecessary?
-        }
+            if (modifierToAdd is null) { throw new ArgumentNullException(); }
 
-        void RemoveModifier(IFactorModifier<T> modifierToRemove)
-        {
-            if (modifiers.Remove(modifierToRemove))
+            if (modifiers.Count == 0)
             {
-                modifierToRemove.ModifierChanged?.Unsubscribe(this); //- Should we use IsNecessary?
+                modifiers.Add(modifierToAdd);
+            }
+            else
+            {
+                int indexOfElementWithSamePriority = modifiers.BinarySearch(modifierToAdd); // Find correct index for UpdatePriority
+
+                if (indexOfElementWithSamePriority > -1)
+                {
+                    modifiers.Insert(indexOfElementWithSamePriority + 1, modifierToAdd);
+                }
+                else
+                {
+                    int indexOfElementWithLowerPriority = ~indexOfElementWithSamePriority;
+                    
+                    modifiers.Insert(indexOfElementWithLowerPriority, modifierToAdd);
+                }
+                
+                //- TODO : Make sure you got the index math right, we were tired.
+
+                AddTrigger(modifierToAdd, IsNecessary); //- Should we use IsNecessary?
+                Trigger();
             }
         }
 
-        bool ContainsModifier(IFactorModifier<T> modifierToFind)
+        public void RemoveModifier(IFactorModifier<T> modifierToRemove)
         {
-            
+            if (modifierToRemove != null &&
+                modifiers.Remove(modifierToRemove))
+            {
+                RemoveTrigger(modifierToRemove);
+                Trigger();  
+            }
         }
 
-        protected override bool GenerateOutcome()
+        public bool ContainsModifier(IFactorModifier<T> modifierToFind)
+        {
+            return modifiers.Contains(modifierToFind);
+        }
+
+        protected override bool CreateOutcome()
         {
             T    oldModifiedValue    = modifiedValue;
-            T    newModifiedValue    = ApplyModifiers(newBaseValue);
+            T    newModifiedValue    = ApplyModifiers(baseValue);
             bool newValueIsDifferent = valueComparer.Equals(oldModifiedValue, newModifiedValue) is false;
 
             if (newValueIsDifferent)
             {
-                TriggerSubscribers();
                 modifiedValue = newModifiedValue;
-
                 return true;
             }
             else return false;
@@ -112,31 +133,39 @@ namespace Factors.Cores
             {
                 newModifiedValue = modifier.Modify(newModifiedValue);
 
-                if (modifier.Priority >= priority)
+                if (modifier.UpdatePriority >= updatePriority)
                 {
-                    priority = modifier.Priority + 1;
+                    updatePriority = modifier.UpdatePriority + 1;
                 }
             }
 
             return newModifiedValue;
         }
 
+        public string PrintBaseValueAndModifiers()
+        {
+            string result = $"Base Value = {baseValue}";
 
-        protected override void InvalidateOutcome(IFactor changedParentState) { }
-        
-        public void NotifyInvolved() => Observer.NotifyInvolved(this);
+            foreach (var modifier in modifiers)
+            {
+                result += $" | {modifier.Description} |";
+            }
 
-        //- TODO : Do we want NotifyChanged?
-        
+            return result;
+        }
+
+
         #endregion
 
 
         #region Constructors
-
-        public ValueModifier(string name) : base(name)
+        
+        public InteractiveCore(T initialBaseValue , IEqualityComparer<T> equalityComparer = null) 
         {
-            
+            valueComparer = equalityComparer ?? EqualityComparer<T>.Default;
+            baseValue     = initialBaseValue;
         }
+
 
         #endregion
     }

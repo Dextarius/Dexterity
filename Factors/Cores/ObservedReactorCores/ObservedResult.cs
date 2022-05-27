@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Core.Causality;
+using Core.Factors;
 using Core.States;
 
 namespace Factors.Cores.ObservedReactorCores
@@ -20,7 +21,6 @@ namespace Factors.Cores.ObservedReactorCores
         {
             get
             {
-                AttemptReaction();
                 NotifyInvolved();
                 return currentValue;
             }
@@ -31,13 +31,15 @@ namespace Factors.Cores.ObservedReactorCores
         
         #region Instance Methods
 
-        protected override bool GenerateOutcome()
+        protected override bool CreateOutcome()
         {
             T oldValue = currentValue;
             T newValue = Observer.ObserveInteractions<ObservedResult<T>, T>(this);
             
             using (Observer.PauseObservation()) //- Prevents us from adding dependencies to any other observations this
             {                                   //  one might be nested inside of.     
+                RemoveUnusedTriggers();
+
                 if (valueComparer.Equals(oldValue, newValue))
                 {
                     return false;
@@ -50,6 +52,8 @@ namespace Factors.Cores.ObservedReactorCores
             }
         }
         
+        public bool ValueEquals(T valueToCompare) => valueComparer.Equals(currentValue, valueToCompare);
+
         public T Peek() => currentValue;
 
         protected abstract T GenerateValue();
@@ -63,7 +67,7 @@ namespace Factors.Cores.ObservedReactorCores
 
         #region Constructors
 
-        protected ObservedResult(string name, IEqualityComparer<T> comparer = null) : base(name)
+        protected ObservedResult(IEqualityComparer<T> comparer = null) : base()
         {
             valueComparer = comparer ?? EqualityComparer<T>.Default;
         }

@@ -7,7 +7,7 @@ using Tests.Tools.Interfaces;
 
 namespace Tests.Shared
 {
-    [TestFixture(typeof(DirectStateCore<int>), typeof(DirectStateCores), typeof(int))]
+    [TestFixture(typeof(DirectProactiveCore<int>), typeof(DirectStateCores), typeof(int))]
     public class ConstructorTester_Value<TTested, TTestClass, TValue>
         where TTested    : IValue<TValue> 
         where TTestClass : ITestableConstructor_Value<TTested, TValue> , new()

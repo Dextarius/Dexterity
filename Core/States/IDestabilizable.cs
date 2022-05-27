@@ -1,7 +1,9 @@
-﻿namespace Core.States
+﻿using Core.Factors;
+
+namespace Core.States
 {
     public interface IDestabilizable
     {
-        bool Destabilize();
+        bool Destabilize(IFactor factor);
     }
 }

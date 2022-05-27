@@ -1,4 +1,5 @@
 ﻿using System;
+using Core.Factors;
 using Core.Tools;
 using JetBrains.Annotations;
 
@@ -25,15 +26,16 @@ namespace Factors.Cores.ObservedReactorCores
 
         protected override void ExecuteResponse() => actionToTake();
 
+        public override string ToString() => Delegates.GetClassAndMethodName(actionToTake);
+        
         #endregion
 
         
         #region Constructors
 
-        public ObservedActionResponse(Action actionToExecute, string name = null) : 
-            base(name ?? Delegates.GetClassAndMethodName(actionToExecute))
+        public ObservedActionResponse(Action actionToExecute) : base()
         {
-            actionToTake = actionToExecute??  throw new ArgumentNullException(nameof(actionToExecute));
+            actionToTake = actionToExecute ??  throw new ArgumentNullException(nameof(actionToExecute));
         }
 
         #endregion

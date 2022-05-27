@@ -30,7 +30,6 @@ namespace Factors.Cores.ObservedReactorCores.CollectionResults
         {
             get
             {
-                AttemptReaction();
                 NotifyInvolved();
                 return currentCollection;
             }
@@ -41,7 +40,7 @@ namespace Factors.Cores.ObservedReactorCores.CollectionResults
 
         #region Instance Methods
 
-        protected override bool GenerateOutcome()
+        protected override bool CreateOutcome()
         {
             TCollection         oldCollection = currentCollection;
             IEnumerable<TValue> newElements   = 
@@ -55,6 +54,8 @@ namespace Factors.Cores.ObservedReactorCores.CollectionResults
                 // }
 
                 TCollection newCollection = CreateCollectionFromElements(newElements);
+
+                RemoveUnusedTriggers();
 
                 if (AreCollectionsEqual(newCollection, oldCollection) is false)
                 {
@@ -93,7 +94,7 @@ namespace Factors.Cores.ObservedReactorCores.CollectionResults
         
         #region Constructors
 
-        protected ObservedCollectionResult(string name) : base(name)
+        protected ObservedCollectionResult() : base()
         {
             
         }

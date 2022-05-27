@@ -10,10 +10,10 @@ namespace Tests.Tools.Factories
     {
         public ObservedFunctionResult<int> CreateInstance()
         {
-            var       valueSource   = new ObservedStateCore<int>(Tools.GenerateRandomInt());
+            var       valueSource   = new ObservedProactiveCore<int>(Tools.GenerateRandomInt());
             Func<int> valueFunction = () => valueSource.Value + Tools.GenerateRandomInt();
             
-            return new ObservedFunctionResult<int>(valueFunction);
+            return new ObservedFunctionResult<int>(valueFunction, TODO);
         }
 
         public ObservedFunctionResult<int> CreateStableInstance()

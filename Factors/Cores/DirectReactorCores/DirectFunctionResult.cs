@@ -37,7 +37,6 @@ namespace Factors.Cores.DirectReactorCores
 
         protected static string CreateNameFrom(Func<TInput, TOutput> valueDelegate, IFactor<TInput> inputSource) => 
             Delegates.CreateStringShowingArgumentBeingPassedToDelegate(inputSource, valueDelegate);
-        //- TODO : Decide if we want to make one of these for each of the Direct FunctionResult classes.
 
         #endregion
         
@@ -45,28 +44,22 @@ namespace Factors.Cores.DirectReactorCores
         #region Instance Methods
 
         protected override TOutput GenerateValue() => valueFunction(inputSource.Value);
+        public    override string  ToString()      => CreateNameFrom(valueFunction, inputSource);
+
         
         #endregion
         
         
         #region Constructors
 
-        public DirectFunctionResult(Func<TInput, TOutput>      functionThatDeterminesValue, 
+        public DirectFunctionResult(Func<TInput, TOutput>      functionThatDeterminesValue,
                                     IFactor<TInput>            factorToUseAsInput,
-                                    string                     name     = null,
                                     IEqualityComparer<TOutput> comparer = null)
-            : base(name ?? CreateNameFrom(functionThatDeterminesValue, factorToUseAsInput), comparer)
+            : base(comparer)
         {
             valueFunction = functionThatDeterminesValue?? throw new ArgumentNullException(nameof(functionThatDeterminesValue));
             inputSource   = factorToUseAsInput         ?? throw new ArgumentNullException(nameof(factorToUseAsInput));
 
-        }
-        
-        public DirectFunctionResult(Func<TInput, TOutput>      functionThatDeterminesValue, 
-                                    IFactor<TInput>            inputSource,
-                                    IEqualityComparer<TOutput> comparer)
-            : this(functionThatDeterminesValue,inputSource, null, comparer)
-        {
         }
 
         #endregion
