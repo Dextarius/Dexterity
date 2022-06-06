@@ -10,7 +10,7 @@ namespace Tests.ObservedObjects
 {
     public class ObservedStates<TState, TFactory, TValue>  
         where TState   : IState<TValue>, IInvolved
-        where TFactory : IState_T_Factory<TState, TValue>, new()
+        where TFactory : IFactor_T_Factory<TState, TValue>, new()
     {
         #region Instance Fields
 

@@ -1,11 +1,9 @@
 ﻿using System;
+using Core.States;
 
 namespace Core.Factors
 {
-    public interface IFactorCore : IDisposable
+    public interface IFactorCore : IDisposable, IVersioned, IPrioritizedUpdate
     {
-        int  UpdatePriority { get; }
-        uint VersionNumber  { get; }
-
     }
 }

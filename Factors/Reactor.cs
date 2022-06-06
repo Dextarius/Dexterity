@@ -27,8 +27,8 @@ namespace Factors
         public    bool IsReacting       => core.IsReacting;
         public    bool IsStabilizing    => core.IsStabilizing;
         public    bool HasBeenTriggered => core.HasBeenTriggered;
-        public    bool HasReacted       => core.HasReacted; 
         protected bool IsQueued         { get; set; }
+     // public    bool HasReacted       => core.HasReacted;
 
 
         public bool IsReflexive
@@ -149,6 +149,8 @@ namespace Factors
 
                 //- TODO : We specifically tried to avoid using foreach before when triggering subscribers because they might
                 //         choose to remove themselves, so consider if we really want to use it here.  
+                //-        Well we don't really want to use the RemoveWhere() method like we did in TriggerSubscribers()
+                //         because we want to0 end this method as soon as we find a necessary subscriber.
             }
             return false;
         }
@@ -179,8 +181,6 @@ namespace Factors
                 HasBeenTriggered || IsUnstable)
             {
                 subscriberToAdd.Destabilize(this);
-                //- TODO : Doesn't this break the rule that Destabilize is supposed to request the caller to update 
-                //         if the dependent returns true?
             }
 
             return successfullySubscribed;
@@ -216,15 +216,15 @@ namespace Factors
         
         protected virtual void OnNecessary()
         {
+            core.OnNecessary();
+
             if (HasBeenTriggered || IsUnstable)
             {
                 AttemptReaction();
                 //- TODO : This seems like it could lead to some weird behavior when combined with the fact that Reactives
                 //         already update before returning a value. Think about it for a bit when you get a chance.
             }
-
-            core.OnNecessary();
-
+            
             //- TODO : Should we check if we're already reacting, or if we're queued?
         }
 
@@ -265,7 +265,7 @@ namespace Factors
         //- TODO : We shouldn't need to give the core a name and ourselves a name as well.
         protected Reactor(TCore reactorCore, string nameToGive) : base(reactorCore, nameToGive)
         {
-
+            core.SetOwner(this);
         }
 
         #endregion
@@ -280,5 +280,7 @@ namespace Factors
         }
 
         #endregion
+        
+        
     }
 }

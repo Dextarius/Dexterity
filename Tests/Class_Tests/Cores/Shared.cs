@@ -6,7 +6,7 @@ namespace Tests.Class_Tests.Cores
     internal static class Shared
     {
         public static void AssertThatFactorHasValue<TFactor, TValue>(TFactor factorBeingTested, TValue expectedValue)
-            where TFactor : IFactor<TValue>
+            where TFactor : IValue<TValue>
         {
             TValue actualValue = factorBeingTested.Value;
             

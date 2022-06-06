@@ -6,7 +6,6 @@ using Dextarius.Collections;
 using Factors.Observer;
 using JetBrains.Annotations;
 
-
 namespace Factors.Cores.ObservedReactorCores
 {
     public abstract class ObservedReactorCore : ReactorCore, IObserved, IInvolved
@@ -93,27 +92,12 @@ namespace Factors.Cores.ObservedReactorCores
 
             if (HasBeenTriggered is false)
             {
-                if (AddTrigger(influentialFactor, IsNecessary))
-                {
-                    //- If an Observed Reactor is necessary, but not Reflexive, it won't mark themselves as necessary
-                    //  when it subscribes here.  This is because if we're subscribing through this method then
-                    //  we're in the process of reacting, and as soon as we finish we're likely to trigger
-                    //  our own subscribers.  If the subscribers that made us necessary are all Observed Reactors
-                    //  like this one is, then they'll end up unsubscribing anyways when we trigger them, causing us
-                    //  to no longer be necessary and we'll have to go back and notify all of the triggers that we just
-                    //  told we were necessary, to mark us as not necessary. If we react and don't end up triggering our
-                    //  subscribers because the outcome doesn't change, our triggers will just find out we're necessary
-                    //  when they destabilize us anyways.
+                AddTrigger(influentialFactor, IsNecessary);
+                triggersByInUse[influentialFactor] = true;
 
-                    //- Factors are expected to only add us as a dependent if they didn't already have us as a dependent, so
-                    //  so if we're here we should be good to assume we haven't added them as a trigger yet. 
-                    
-                    triggersByInUse[influentialFactor] = true;
-                    
-                    if (influentialFactor.UpdatePriority >= this.UpdatePriority)
-                    {
-                        this.priority = influentialFactor.UpdatePriority + 1;
-                    }
+                if (influentialFactor.UpdatePriority >= this.UpdatePriority)
+                {
+                    this.priority = influentialFactor.UpdatePriority + 1;
                 }
             }
             

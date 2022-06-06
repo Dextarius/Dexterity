@@ -1,11 +1,12 @@
 ﻿using Core.Factors;
+using Core.States;
 using Tests.Tools.Interfaces;
 
 namespace Tests.Tools.Factories.Controllers
 {
-    public abstract class DirectFunctionResult_ControllerBase<TReactive, TValue> : 
-        FunctionBasedReactive_Controller<TReactive, TValue> 
-        where TReactive : IReactive<TValue>
+    public abstract class DirectFunctionResult_ControllerBase<TCore, TValue> : 
+        FunctionBasedReactive_Controller<TCore, TValue> 
+        where TCore : IResult<TValue>
     {
         protected readonly IFactor_T_Controller<int>[] inputControllers;
         //^ The controllers for each of the Factors used in the Reactive's function
@@ -25,7 +26,8 @@ namespace Tests.Tools.Factories.Controllers
             }
         }
         
-        protected DirectFunctionResult_ControllerBase(IFactor_T_Controller<int>[] controllersForInputs)
+        protected DirectFunctionResult_ControllerBase(IFactor_T_Controller<int>[] controllersForInputs, TCore core) : 
+            base(core)
         {
             inputControllers = controllersForInputs;
         }

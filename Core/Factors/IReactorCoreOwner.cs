@@ -5,9 +5,4 @@
         bool CoreDestabilized();
         void CoreTriggered();
     }
-    
-    public interface ICollectionCoreOwner<TValue>: IFactor
-    {
-        void CollectionChanged();
-    }
 }

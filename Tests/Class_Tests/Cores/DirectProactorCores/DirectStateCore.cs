@@ -8,16 +8,8 @@ using static Tests.Tools.Tools;
 
 namespace Tests.Class_Tests.Cores.DirectProactorCores
 {
-    public class DirectStateCores : ITestableConstructor_Name<DirectProactiveCore<int>>,
-                                    ITestableConstructor_Value<DirectProactiveCore<int>,  int> 
+    public class DirectStateCores : ITestableConstructor_Value<DirectProactiveCore<int>,  int> 
     {
-        public DirectProactiveCore<int>[] CallAllConstructors_AndPassName(string nameToUse)
-        {
-            return new[]
-            {
-                new DirectProactiveCore<int>(0, nameToUse)
-            };
-        }
         public DirectProactiveCore<int>[] CallAllConstructors_AndPassValue(int valueToUse)
         {
             return new[]

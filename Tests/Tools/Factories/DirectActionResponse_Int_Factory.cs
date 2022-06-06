@@ -1,24 +1,26 @@
 ﻿using System;
+using Factors;
 using Factors.Cores.DirectReactorCores;
 using Factors.Cores.ProactiveCores;
 using Tests.Tools.Interfaces;
 
 namespace Tests.Tools.Factories
 {
-    public class DirectActionResponse_Int_Factory : IFactory<DirectActionResponse<int>>
+    public class DirectActionResponse_Int_Factory : IFactory<Reaction>
     {
-        public DirectActionResponse<int> CreateInstance()
+        public Reaction CreateInstance()
         {
-            var         valueSource = new DirectProactiveCore<int>(1);
-            Action<int> response    = (int input) => Tools.DoNothing();
+            var valueSource = new Proactive<int>(1);
+            var core        = new DirectActionResponse<int>(Response, valueSource);
 
-            return new DirectActionResponse<int>(response, valueSource);
+            return new Reaction(core);
         }
+        
+        private void Response(int input) => Tools.DoNothing();
 
-        public DirectActionResponse<int> CreateStableInstance()
+        public Reaction CreateStableInstance()
         {
             var createdInstance = CreateInstance();
-
             createdInstance.ForceReaction();
 
             return createdInstance;

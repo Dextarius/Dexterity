@@ -1,12 +1,13 @@
 ﻿using System.Diagnostics;
 using Core.Factors;
+using Core.States;
 using Tests.Tools.Interfaces;
 
 namespace Tests.Tools.Factories.Controllers
 {
-    public abstract class FunctionBasedReactive_Controller<TReactive, TValue> : 
-        Reactive_Controller<TReactive, TValue>
-        where TReactive : IReactive<TValue>
+    public abstract class FunctionBasedReactive_Controller<TCore, TValue> : 
+        Reactive_Controller<TCore, TValue>
+        where TCore : IResult<TValue>
     {
         public override TValue ExpectedValue => CallValueFunction();
 
@@ -28,6 +29,11 @@ namespace Tests.Tools.Factories.Controllers
             ControlledInstance.ForceReaction();
             
             return ControlledInstance.Value;
+        }
+        
+        protected FunctionBasedReactive_Controller(TCore core) : base(core)
+        {
+            
         }
     }
 }

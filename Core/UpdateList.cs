@@ -75,7 +75,7 @@ namespace Core
             }
         }
         
-        public void Update<TUpdate>(TUpdate updateable)  where TUpdate : IUpdateable, IPrioritizable
+        public void Update<TUpdate>(TUpdate updateable)  where TUpdate : IUpdateable, IPrioritizedUpdate
         {
             Update(updateable, updateable.UpdatePriority);
         }
@@ -165,6 +165,9 @@ namespace Core
             {
                 throw new InvalidOperationException("UpdatePriority already exists. ");
             }
+            
+            //- TODO : Consider only making the specific priority requested, not making the priorities between
+            //         it and whatever the lowestCreatedPriority is.
 
             for (int i = lowestCreatedPriority + 1; i <= priority; ++i)
             {

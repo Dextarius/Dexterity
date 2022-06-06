@@ -51,7 +51,7 @@ namespace Factors
         }
 
         public Proactive(T initialValue, IEqualityComparer<T> comparer = null, string name = null) : 
-            this(new ObservedProactiveCore<T>(initialValue, comparer), name?? NameOf<Proactive<T>>())
+            this(new DirectProactiveCore<T>(initialValue, comparer), name?? NameOf<Proactive<T>>())
         {
         }
         

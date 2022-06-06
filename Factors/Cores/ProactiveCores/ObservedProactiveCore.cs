@@ -41,6 +41,8 @@ namespace Factors.Cores.ProactiveCores
             else return false;
         }
 
+        //- TODO : Come up with something better than this, it's awkward as heck having to create the core,
+        //         then create the Proactive using the core, then use the core to set the Proactive as it's owner.
         public void SetOwner(IFactor factor)
         {
             if (factor is null) { throw new ArgumentNullException(nameof(factor)); }

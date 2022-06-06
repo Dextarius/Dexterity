@@ -1,30 +1,39 @@
 ﻿using System;
 using Core.Factors;
+using Core.States;
+using Factors;
 using Factors.Cores.DirectReactorCores;
 using Factors.Cores.ProactiveCores;
 using Tests.Tools.Interfaces;
 
 namespace Tests.Tools.Factories
 {
-    public class DirectFunctionResult_Int_Factory : IFactory<DirectFunctionResult<int, int>>
+    public class DirectFunctionResult_Int_Factory : Reactive_Int_Factory<DirectFunctionResult<int, int>>
     {
-        public DirectFunctionResult<int, int> CreateInstance(IFactor<int> valueSource)
-        {
-            Func<int, int> valueFunction = (number) => number;
-            
-            return new DirectFunctionResult<int, int>(valueFunction, valueSource);
-        }
-
-        public DirectFunctionResult<int, int> CreateInstance()
+        public override DirectFunctionResult<int, int> CreateCore()
         {
             int            randomNumber  = Tools.GenerateRandomInt();
-            var            valueSource   = new DirectProactiveCore<int>(randomNumber);
+            var            valueSource   = new Proactive<int>(randomNumber);
             Func<int, int> valueFunction = (number) => number + Tools.GenerateRandomInt();
 
             return new DirectFunctionResult<int, int>(valueFunction, valueSource);
         }
+    }
+    
+    public abstract class Reactive_Int_Factory<TCore> : IFactory<Reactive<int>>
+        where TCore : IResult<int>
+    {
+        public abstract TCore CreateCore();
+
+        public Reactive<int> CreateInstance()
+        {
+            var createdCore     = CreateCore();
+            var createdInstance = new Reactive<int>(createdCore);
+
+            return createdInstance;
+        }
         
-        public DirectFunctionResult<int, int> CreateStableInstance()
+        public Reactive<int> CreateStableInstance()
         {
             var createdInstance = CreateInstance();
 

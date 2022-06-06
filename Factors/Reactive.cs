@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Core.Causality;
 using Core.Factors;
 using Core.States;
+using Factors.Cores.DirectReactorCores;
 using Factors.Cores.ObservedReactorCores;
 using JetBrains.Annotations;
 
@@ -80,6 +81,13 @@ namespace Factors
             this(functionToDetermineValue, null, name)
         {
         }
+        
+        public Reactive(IFactor<T> factorToGetValueOf, string name = null) : 
+            this(new DirectRelayCore<T>(factorToGetValueOf), name)
+        {
+            
+        }
+        
 
         #endregion
     }

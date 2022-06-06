@@ -1,22 +1,27 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using Factors;
 using Factors.Cores.ObservedReactorCores;
 using Factors.Cores.ProactiveCores;
 using Tests.Tools.Interfaces;
 
 namespace Tests.Tools.Factories
 {
-    public class ObservedFunctionResult_Int_Factory : IFactory<ObservedFunctionResult<int>>
+    public class ObservedFunctionResult_Int_Factory : IFactory<Reactive<int>>
     {
-        public ObservedFunctionResult<int> CreateInstance()
+        public Reactive<int> CreateInstance()
         {
-            var       valueSource   = new ObservedProactiveCore<int>(Tools.GenerateRandomInt());
+            var       sourceCore    = new ObservedProactiveCore<int>(Tools.GenerateRandomInt());
+            var       valueSource   = new Proactive<int>(sourceCore);
             Func<int> valueFunction = () => valueSource.Value + Tools.GenerateRandomInt();
-            
-            return new ObservedFunctionResult<int>(valueFunction, TODO);
+            var       resultCore    = new ObservedFunctionResult<int>(valueFunction);
+
+            sourceCore.SetOwner(valueSource);
+
+            return new Reactive<int>(resultCore);
         }
 
-        public ObservedFunctionResult<int> CreateStableInstance()
+        public Reactive<int> CreateStableInstance()
         {
             var createdInstance = CreateInstance();
 

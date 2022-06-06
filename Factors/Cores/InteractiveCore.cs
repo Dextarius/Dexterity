@@ -37,9 +37,7 @@ namespace Factors.Cores
         {
             get
             {
-                AttemptReaction();
                 NotifyInvolved();
-                
                 return modifiedValue;
             }
         }
@@ -153,6 +151,8 @@ namespace Factors.Cores
 
             return result;
         }
+        
+        public bool ValueEquals(T valueToCompare) => valueComparer.Equals(Value, valueToCompare);
 
 
         #endregion
@@ -168,5 +168,6 @@ namespace Factors.Cores
 
 
         #endregion
+
     }
 }

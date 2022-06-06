@@ -4,7 +4,7 @@ using Factors.Cores;
 
 namespace Factors.Modifiers
 {
-    public abstract class FactorModifier<T> : FactorCore, IFactorModifier<T>
+    public abstract class FactorModifier<T> : Factor<IFactorCore>, IFactorModifier<T>
     {
         private bool isEnabled;
 
@@ -48,7 +48,11 @@ namespace Factors.Modifiers
         
         public abstract T ModifyValue(T valueToModify);
 
-        
+
+        protected FactorModifier(IFactorCore factorCore, string factorsName = nameof(FactorModifier<T>)) : 
+            base(factorCore, factorsName)
+        {
+        }
     }
 
     public static class FactorModifier

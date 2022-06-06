@@ -4,16 +4,27 @@ using Factors.Cores;
 
 namespace Factors
 {
-    public class Interactive<T> : Reactor<IInteractive<T>>, IInteractive<T>
+    public class Interactive<T> : Reactor<IInteractiveCore<T>>, IInteractive<T>
     {
         #region Properties
         
-        public T Value => core.Value;
+        public T Value
+        {
+            get
+            {
+                AttemptReaction();
+                return core.Value;
+            }
+        }
 
         public T BaseValue
         {
             get => core.BaseValue;
-            set => core.BaseValue = value;
+            set
+            {
+                core.BaseValue = value;
+                AttemptReaction();
+            }
         }
 
         #endregion
@@ -44,7 +55,7 @@ namespace Factors
         
         #region Constructors
 
-        public Interactive(IInteractive<T> coreToUse, string nameToGive) : base(coreToUse, nameToGive)
+        public Interactive(IInteractiveCore<T> coreToUse, string nameToGive) : base(coreToUse, nameToGive)
         {
             
         }

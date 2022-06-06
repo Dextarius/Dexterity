@@ -1,8 +1,12 @@
 ﻿namespace Core.States
 {
-    public interface ITriggeredState
+    public interface ITriggeredState : IFactorSubscriber
     {
-        bool HasBeenTriggered { get; }
         bool IsUnstable       { get; }
+        bool IsReacting       { get; }
+        bool IsStabilizing    { get; }
+        bool HasTriggers      { get; }
+        bool HasBeenTriggered { get; }
+        int  NumberOfTriggers { get; }
     }
 }

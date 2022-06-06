@@ -18,11 +18,11 @@ namespace Tests.Tools.Factories.Controllers
             Tools.GenerateRandomIntNotEqualTo(valueToAvoid);
 
 
-        public ObservedFunctionResult_Controller(IFactor_T_Controller<int> inputSourceController)
+        public ObservedFunctionResult_Controller(IFactor_T_Controller<int> inputSourceController) : 
+            base(new ObservedFunctionResult<int>(() => inputSourceController.ControlledInstance.Value))
         {
-            inputController    = inputSourceController;
-            valueFunction      = () => inputSourceController.ControlledInstance.Value;
-            ControlledInstance = new ObservedFunctionResult<int>(valueFunction, TODO);
+            inputController = inputSourceController;
+            valueFunction   = () => inputSourceController.ControlledInstance.Value;
         }
 
         public ObservedFunctionResult_Controller() : this(new ObservedState_Controller())

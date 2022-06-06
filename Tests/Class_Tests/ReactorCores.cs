@@ -70,27 +70,70 @@ namespace Tests.Class_Tests
         }
 
         [Test]
-        public void WhenCreated_IsReflexive_IsFalse()
+        public void IfInvalidatedWhenNotReflexive_DoesNotUpdateValue()
         {
-            TCore[] coresToTest = factory.CallAllConstructors();
+            int            numberOfExecutions = 0;
+            Proactive<int> proactive          = new Proactive<int>(42);
+            Reactive<int>  reactiveToTest     = new Reactive<int>(IncrementNumExecutionsAndReturn);
+
+            Assert.That(numberOfExecutions, Is.Zero);
+            Assert.That(reactiveToTest.IsReflexive, Is.False, 
+                $"The value of {nameof(reactiveToTest.IsReflexive)} was {reactiveToTest.IsReflexive}");
+
+            int triggerProcess = reactiveToTest.Value;
+            TestContext.WriteLine("Initial value calculated.");
+
+            Assert.That(numberOfExecutions, Is.EqualTo(1));
+
+            proactive.Value = 13;
+            TestContext.WriteLine("Proactive value updated.");
             
-            foreach (var core in coresToTest)
+            Assert.That(numberOfExecutions, Is.EqualTo(1));
+            
+            triggerProcess = reactiveToTest.Value;
+            TestContext.WriteLine("Reactive value updated.");
+
+            Assert.That(numberOfExecutions, Is.EqualTo(2));
+
+
+            int IncrementNumExecutionsAndReturn()
             {
-                Assert.That(core.IsReflexive, Is.False);
+                numberOfExecutions++;
+                TestContext.WriteLine("The process was executed.");
+
+                return proactive.Value;
             }
         }
         
-        [Test]
-        public void WhenCreated_WeakReference_ReturnsAReferenceToTheReactorCore()
+        // [Test]
+        public void WhenUpdateStarts_IsNotUnstable()
         {
-            TCore[] coresToTest = factory.CallAllConstructors();
             
-            foreach (var core in coresToTest)
-            {
-                core.WeakReference.TryGetTarget(out var referenceTarget);
-                Assert.That(referenceTarget, Is.SameAs(core));
-            }
         }
+        
+        // [Test]
+        public void WhenUpdateStarts_IsNotStabilizing()
+        {
+            
+        }
+        
+        // [Test]
+        public void WhenTriggeringDependent_IfAllNecessaryDependentsRemoveThemselves_NotifiesTriggersItIsNotNecessary()
+        {
+            
+        }
+        
+        // [Test]
+        // public void WhenCreated_WeakReference_ReturnsAReferenceToTheReactorCore()
+        // {
+        //     TCore[] coresToTest = factory.CallAllConstructors();
+        //     
+        //     foreach (var core in coresToTest)
+        //     {
+        //         core.WeakReference.TryGetTarget(out var referenceTarget);
+        //         Assert.That(referenceTarget, Is.SameAs(core));
+        //     }
+        // }
         
         // [Test]
         // public void WhenCreated_DoesNotReactDuringConstruction()
@@ -220,43 +263,7 @@ namespace Tests.Class_Tests
         //     
         //     Assert.That(process.NumberOfTimesExecuted, Is.EqualTo(1));
         // }
-        
-        [Test]
-        public void IfInvalidatedWhenNotReflexive_DoesNotUpdateValue()
-        {
-            int            numberOfExecutions = 0;
-            Proactive<int> proactive          = new Proactive<int>(42);
-            Reactive<int>  reactiveToTest     = new Reactive<int>(IncrementNumExecutionsAndReturn);
 
-            Assert.That(numberOfExecutions, Is.Zero);
-            Assert.That(reactiveToTest.IsReflexive, Is.False, 
-                $"The value of {nameof(reactiveToTest.IsReflexive)} was {reactiveToTest.IsReflexive}");
-
-            int triggerProcess = reactiveToTest.Value;
-            TestContext.WriteLine("Initial value calculated.");
-
-            Assert.That(numberOfExecutions, Is.EqualTo(1));
-
-            proactive.Value = 13;
-            TestContext.WriteLine("Proactive value updated.");
-            
-            Assert.That(numberOfExecutions, Is.EqualTo(1));
-            
-            triggerProcess = reactiveToTest.Value;
-            TestContext.WriteLine("Reactive value updated.");
-
-            Assert.That(numberOfExecutions, Is.EqualTo(2));
-
-
-            int IncrementNumExecutionsAndReturn()
-            {
-                numberOfExecutions++;
-                TestContext.WriteLine("The process was executed.");
-
-                return proactive.Value;
-            }
-        }
-        
         
         // [Test] //- This one is mostly to make sure that when we queue updates, those updates are actually run.
         // public void WhenFactorInvalidatesDependents_DoesNotPreventUpdatesFromExecuting()
@@ -288,27 +295,9 @@ namespace Tests.Class_Tests
      //            TestContext.WriteLine($"{nameof(Reactive<int>.IsValid)} was {manipulator.Reactive.IsValid}. ");
      //        }
      //    } 
-        
-     // [Test]
-        public void WhenUpdateStarts_IsNotUnstable()
-        {
-            
-        }
-        
-     // [Test]
-        public void WhenUpdateStarts_IsNotStabilizing()
-        {
-            
-        }
-        
-        // [Test]
-        public void WhenTriggeringDependent_IfAllNecessaryDependentsRemoveThemselves_NotifiesTriggersItIsNotNecessary()
-        {
-            
-        }
-        
-        
-        #region Outdated Tests
+
+
+     #region Outdated Tests
 
         //- There isn't much point in this, the current version of Result is designed to throw if invalidated
         //  during an update.

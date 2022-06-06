@@ -11,14 +11,15 @@ namespace Tests.Class_Tests.Cores.ObservedReactorCores.CollectionResults
         public void WhenGivenAProcessThatReturnsACollection_ContainsAllOfThoseElements()
         {
             int[] numbers         = Tools.Tools.CreateRandomSizedArrayOfRandomNumbers();
-            var   listBeingTested = new ObservedListFunctionResult<int>(() => numbers);
+            var   coreBeingTested = new ObservedListFunctionResult<int>(() => numbers);
+            var   list            = new ReactiveList<int>(coreBeingTested);
 
-            Assert.That(numbers.Length == listBeingTested.Count);
+            Assert.That(numbers.Length == list.Count);
 
             for (int i = 0; i < numbers.Length; i++)
             {
                 int originalValue = numbers[i];
-                int actualValue   = listBeingTested[i];
+                int actualValue   = list[i];
 
                 TestContext.WriteLine($"Original Value => {originalValue,13}");
                 TestContext.WriteLine($"Actual Value   => {actualValue,13}");

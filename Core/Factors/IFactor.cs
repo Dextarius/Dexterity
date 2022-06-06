@@ -3,9 +3,8 @@ using Core.States;
 
 namespace Core.Factors
 {
-    public interface IFactor : INameable, IPrioritizable
+    public interface IFactor : INameable, IPrioritizedUpdate, IVersioned
     {
-        uint VersionNumber { get; }
 
         bool Subscribe(IFactorSubscriber subscriberToAdd, bool isNecessary);
         void Unsubscribe(IFactorSubscriber subscriberToRemove);

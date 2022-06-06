@@ -1,5 +1,6 @@
 ﻿using Core.Factors;
 using Core.States;
+using Factors;
 using Factors.Cores.DirectReactorCores;
 using Factors.Cores.ObservedReactorCores;
 using Factors.Cores.ProactiveCores;
@@ -12,12 +13,12 @@ using static Tests.Tools.Tools;
 
 namespace Tests.Interface_Tests
 {
-    [TestFixture(typeof(ObservedFunctionResult<int>),              typeof(int), typeof(ObservedFunctionResult_Controller))]
-    [TestFixture(typeof(DirectFunctionResult<int, int>),           typeof(int), typeof(DirectFunctionResult_Controller))]
-    [TestFixture(typeof(DirectFunctionResult<int, int, int>),      typeof(int), typeof(DirectFunctionResult2_Controller))]
-    [TestFixture(typeof(DirectFunctionResult<int, int, int, int>), typeof(int), typeof(DirectFunctionResult3_Controller))]
-    [TestFixture(typeof(ObservedProactiveCore<int>),                   typeof(int), typeof(ObservedState_Controller))]
-    [TestFixture(typeof(DirectProactiveCore<int>),                     typeof(int), typeof(DirectState_Controller))]
+    [TestFixture(typeof(Reactive<int>),  typeof(int), typeof(ObservedFunctionResult_Controller))]
+    [TestFixture(typeof(Reactive<int>),  typeof(int), typeof(DirectFunctionResult_Controller))]
+    [TestFixture(typeof(Reactive<int>),  typeof(int), typeof(DirectFunctionResult2_Controller))]
+    [TestFixture(typeof(Reactive<int>),  typeof(int), typeof(DirectFunctionResult3_Controller))]
+    [TestFixture(typeof(Proactive<int>), typeof(int), typeof(ObservedState_Controller))]
+    [TestFixture(typeof(Proactive<int>), typeof(int), typeof(DirectProactiveCore_Controller))]
     public class IFactor_Ts<TFactor, TValue, TController>
         where TFactor            : IFactor<TValue>, IDeterminant  //- TODO : Try to separate the IDeterminant related parts
         where TController        : IFactor_T_Controller<TFactor, TValue>, new()

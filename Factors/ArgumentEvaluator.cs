@@ -1,7 +1,7 @@
 ﻿using System;
 using Core.Factors;
 
-namespace Factors.Cores
+namespace Factors
 {
     public class ArgumentEvaluator<TParam, TReturn> : IArgumentEvaluator<TParam, TReturn>
     {

@@ -15,15 +15,16 @@ namespace Tests.Class_Tests.Cores.ObservedReactorCores.CollectionResults
             int[]                                       valueNumbers       = Tools.Tools.CreateArrayOfRandomNumbers(keyNumbers.Length);
             Func< IEnumerable< KeyValuePair<int, int>>> collectionFunction = CreateKeyValuePairs;
             var                                         dictionaryCore     = new ObservedDictionaryFunctionResult<int, int>(collectionFunction);
+            var                                         dictionary         = new ReactiveDictionary<int, int>(dictionaryCore);
             
-            Assert.That(valueNumbers.Length  == keyNumbers.Length);
-            Assert.That(dictionaryCore.Count == keyNumbers.Length);
+            Assert.That(valueNumbers.Length == keyNumbers.Length);
+            Assert.That(dictionary.Count    == keyNumbers.Length);
             
             for (int i = 0; i < keyNumbers.Length; i++)
             {
                 int key           = keyNumbers[i];
                 int originalValue = valueNumbers[i];
-                int actualValue   = dictionaryCore[key];
+                int actualValue   = dictionary[key];
                 
                 TestContext.WriteLine(
                     $"Key => {key, 13}, Original Value => {originalValue, 13}, Actual Value {actualValue, 13}");

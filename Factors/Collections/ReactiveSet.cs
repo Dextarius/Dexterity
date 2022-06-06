@@ -19,14 +19,14 @@ namespace Factors.Collections
         
         #region Instance Methods
         
-        public HashSet<T> AsNormalSet() => core.AsNormalSet();
+        public HashSet<T> AsNormalSet() => Collection.AsNormalSet();
 
-        public bool IsProperSupersetOf(IEnumerable<T> other) => core.IsProperSupersetOf(other);
-        public bool   IsProperSubsetOf(IEnumerable<T> other) => core.IsProperSubsetOf(other);
-        public bool       IsSupersetOf(IEnumerable<T> other) => core.IsSupersetOf(other);
-        public bool         IsSubsetOf(IEnumerable<T> other) => core.IsSubsetOf(other);
-        public bool          SetEquals(IEnumerable<T> other) => core.SetEquals(other);
-        public bool           Overlaps(IEnumerable<T> other) => core.Overlaps(other);
+        public bool IsProperSupersetOf(IEnumerable<T> other) => Collection.IsProperSupersetOf(other);
+        public bool   IsProperSubsetOf(IEnumerable<T> other) => Collection.IsProperSubsetOf(other);
+        public bool       IsSupersetOf(IEnumerable<T> other) => Collection.IsSupersetOf(other);
+        public bool         IsSubsetOf(IEnumerable<T> other) => Collection.IsSubsetOf(other);
+        public bool          SetEquals(IEnumerable<T> other) => Collection.SetEquals(other);
+        public bool           Overlaps(IEnumerable<T> other) => Collection.Overlaps(other);
         
         #endregion
 

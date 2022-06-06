@@ -9,7 +9,7 @@ using static Tests.Tools.Tools;
 
 namespace Tests.Class_Tests.Cores.DirectReactorCores
 {
-    [TestFixture(typeof(InteractiveCore<int>), typeof(int), typeof(Interactive_Controller))]
+   // [TestFixture(typeof(InteractiveCore<int>), typeof(int), typeof(Interactive_Controller))]
     public class InteractiveCores<TFactor, TValue, TController>
         where TFactor     : IInteractive<TValue> //- TODO : Try to separate the IDeterminant related parts
         where TController : IFactor_T_Controller<TFactor, TValue>, new()

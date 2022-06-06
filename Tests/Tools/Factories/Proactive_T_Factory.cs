@@ -5,7 +5,7 @@ using Tests.Tools.Interfaces;
 
 namespace Tests.Tools.Factories
 {
-    public abstract class Proactive_T_Factory<TValue> :  IState_T_Factory<Proactive<TValue>, TValue>
+    public abstract class Proactive_T_Factory<TValue> :  IFactor_T_Factory<Proactive<TValue>, TValue>
     {
         public Proactive<TValue> CreateInstance_WithValue(TValue value) => new Proactive<TValue>(value);
         

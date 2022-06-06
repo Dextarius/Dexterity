@@ -8,7 +8,7 @@ using static Core.Settings;
 
 namespace Factors.Cores
 {
-    public abstract class ReactorCore : FactorCore, IFactorSubscriber, IReactorCore
+    public abstract class ReactorCore : FactorCore, IReactorCore
     {
         #region Instance Fields
 
@@ -75,7 +75,16 @@ namespace Factors.Cores
                 VersionNumber++;
                 return true;
             }
-            else return false;
+            else
+            {
+                if (HasReacted is false)
+                {
+                    VersionNumber++;
+                    //- This way HasReacted will be correct even if our first reaction
+                    //  didnt count as a change because it returned the type's default value.  
+                }
+                return false;
+            } 
         }
 
         protected abstract void InvalidateOutcome(IFactor changedParentState);
@@ -139,7 +148,7 @@ namespace Factors.Cores
             return false;
         }
         
-        public bool Destabilize(IFactor factor)
+        public virtual bool Destabilize(IFactor factor)
         {
             if (IsStabilizing)
             {
@@ -215,7 +224,7 @@ namespace Factors.Cores
             Owner = reactor ?? throw new ArgumentNullException(nameof(reactor));
         }
         
-        public virtual void Dispose()
+        public override void Dispose()
         {
             Owner = null;
 
@@ -232,7 +241,8 @@ namespace Factors.Cores
 
         protected ReactorCore()
         {
-            weakSubscriber = new WeakSubscriber(this);
+            weakSubscriber   = new WeakSubscriber(this);
+            HasBeenTriggered = true;
         }
 
         #endregion

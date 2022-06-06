@@ -15,7 +15,17 @@ namespace Factors.Collections
     {
         #region Properties
 
-        public int Count => core.Count;
+        public int Count => Collection.Count;
+        
+        protected TCore Collection
+        {
+            get
+            {
+                AttemptReaction();
+                return core;
+            }
+        }
+        
         
         //- TODO : public bool UsesRecycling { get; set; } 
 
@@ -23,9 +33,12 @@ namespace Factors.Collections
 
 
         #region Instance Methods
-        public void                CopyTo(TValue[] array, int arrayIndex) => core.CopyTo(array, arrayIndex);
-        public bool                Contains(TValue item)                  => core.Contains(item);
-        public IEnumerator<TValue> GetEnumerator()                        => core.GetEnumerator();
+
+        public void CopyTo(TValue[] array, int arrayIndex) => Collection.CopyTo(array, arrayIndex);
+
+        public bool Contains(TValue item) => Collection.Contains(item);
+
+        public IEnumerator<TValue> GetEnumerator() => Collection.GetEnumerator();
 
         #endregion
 
@@ -51,11 +64,11 @@ namespace Factors.Collections
         //  We can't guarantee it'll be the same object every time.  
         //- TODO : Come back to this later and decide if it's worthwhile/possible to implement SyncRoot.
         
-        void        ICollection.CopyTo(Array array, int index) => core.CopyTo(array, index);
-        void        ICollection<TValue>.Add(TValue item)        => throw new CannotModifyReactiveValueException();
-        bool        ICollection<TValue>.Remove(TValue item)     => throw new CannotModifyReactiveValueException();
-        void        ICollection<TValue>.Clear()                 => throw new CannotModifyReactiveValueException();
-        IEnumerator IEnumerable.GetEnumerator()                 => GetEnumerator();
+        void        ICollection.        CopyTo(Array array, int index) => Collection.CopyTo(array, index);
+        void        ICollection<TValue>.Add(TValue item)               => throw new CannotModifyReactiveValueException();
+        bool        ICollection<TValue>.Remove(TValue item)            => throw new CannotModifyReactiveValueException();
+        void        ICollection<TValue>.Clear()                        => throw new CannotModifyReactiveValueException();
+        IEnumerator IEnumerable.GetEnumerator()                        => GetEnumerator();
 
 
         #endregion

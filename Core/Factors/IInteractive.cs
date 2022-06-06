@@ -2,8 +2,8 @@
 
 namespace Core.Factors
 {
-    public interface IInteractive<T> : IResult<T>, IModifiable<T>
+    public interface IInteractive<T> : IReactive<T>, IModifiable<T>, IBaseValue<T>
     {
-        T BaseValue { get; set; }
+        
     }
 }

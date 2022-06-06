@@ -1,4 +1,5 @@
 ﻿using System;
+using Factors;
 using Factors.Cores.ObservedReactorCores;
 using NUnit.Framework;
 
@@ -13,8 +14,8 @@ namespace Tests.Class_Tests.Cores.ObservedReactorCores
             Func<int> functionToTest = () => valueToTest;
             var       objectsToTest  = new[]
             {
-                new ObservedFunctionResult<int>(functionToTest, TODO),
-                new ObservedFunctionResult<int>(functionToTest, "Name", TODO)
+               new Reactive<int>(new ObservedFunctionResult<int>(functionToTest)),
+               new Reactive<int>(new ObservedFunctionResult<int>(functionToTest))
             };
             
             foreach (var objectBeingTested in objectsToTest)

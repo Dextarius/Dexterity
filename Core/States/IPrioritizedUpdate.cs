@@ -1,6 +1,6 @@
 ﻿namespace Core.States
 {
-    public interface IPrioritizable
+    public interface IPrioritizedUpdate
     {
         int UpdatePriority { get; }
     }

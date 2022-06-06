@@ -31,112 +31,101 @@ namespace Factors.Cores
 
         public bool Trigger(IFactor triggeringFactor, out bool removeSubscription)
         {
-            if (HasBeenTriggered is false)
+            if (HasBeenTriggered)
             {
-                if (subscriber != null)
+                if (subscriber == null)
                 {
-                    return subscriber.Trigger(triggeringFactor, out removeSubscription);
+                    EnsureReferenceIsStillValid(out removeSubscription);
                 }
                 else
                 {
-                    if (weakReferenceToSubscriber.TryGetTarget(out var weakSubscriber))
-                    {
-                        return weakSubscriber.Trigger(triggeringFactor, out removeSubscription);
-                    }
-                    else
-                    {
-                        removeSubscription = true;
-                        return false;
-                    }
-                }
-            }
-            else if (subscriber == null)
-            {
-                if (EnsureReferenceIsStillValid())
-                {
-                    interactionCount++;
                     removeSubscription = false;
                 }
-                else
-                {
-                    removeSubscription = true;
-                }
-                
+
                 return false;
+            }
+            else if (subscriber != null)
+            {
+                return subscriber.Trigger(triggeringFactor, out removeSubscription);
+            }
+            else if (weakReferenceToSubscriber.TryGetTarget(out var weakSubscriber))
+            {
+                return weakSubscriber.Trigger(triggeringFactor, out removeSubscription);
             }
             else
             {
-                removeSubscription = false;
+                removeSubscription = true;
                 return false;
             }
+
         }
 
-        private bool EnsureReferenceIsStillValid()
+        private bool EnsureReferenceIsStillValid( out bool removeSubscription)
         {
+            if (subscriber != null)
+            {
+                removeSubscription = false;
+                return true;
+            }
             if (interactionCount >= 10)
             {
                 if (weakReferenceToSubscriber.TryGetTarget(out var target))
                 {
                     interactionCount = 0;
+                    removeSubscription = false;
                     return true;
-                }
-                else return false;
-            }
-            else return true;
-        }
-
-        public bool Destabilize(IFactor factor)
-        {
-            if (IsUnstable is false)
-            {
-                if (IsNecessary)
-                {
-                    if (subscriber != null) return true;
-                    
-                    if (EnsureReferenceIsStillValid())
-                    {
-                        interactionCount++;
-                    }
-                    else
-                    {
-                        factor.Unsubscribe(this);
-                        return false;
-                    }
-
-                    return true;
-                }
-                else if (subscriber != null)
-                {
-                    return subscriber.Destabilize(factor);
                 }
                 else
                 {
-                    if (weakReferenceToSubscriber.TryGetTarget(out var weakSubscriber))
-                    {
-                        return weakSubscriber.Destabilize(factor);
-                    }
-                    else
-                    {
-                        factor.Unsubscribe(this);
-                        return false;
-                    }
+                    removeSubscription = true;
+                    return false;
                 }
             }
-            else if (subscriber == null)
+            else
             {
-                if (EnsureReferenceIsStillValid())
-                {
-                    interactionCount++;
-                }
-                
+                removeSubscription = false;
+                interactionCount++;
+                return true;
+            }
+        }
+        
+        public bool Destabilize(IFactor factor)
+        {
+            if (IsNecessary)
+            {
+                return EnsureReferenceIsStillValid(out bool _);
+            }
+            else if (IsUnstable)
+            {
+                EnsureReferenceIsStillValid(out bool _);
                 return false;
             }
             else
             {
-                factor.Unsubscribe(this);
-                return false;
+                return ForwardDestabilizeToOwner(factor);
             }
-
+            
+            //- Since we can't unsubscribe during this method, if we find out the WeakReference
+            //  is no longer active should we mark that in a field?
+        }
+        
+        protected bool ForwardDestabilizeToOwner(IFactor factor)
+        {
+            if (subscriber != null)
+            {
+                return subscriber.Destabilize(factor);
+            }
+            else
+            {
+                if (weakReferenceToSubscriber.TryGetTarget(out var weakSubscriber))
+                {
+                    return weakSubscriber.Destabilize(factor);
+                }
+                else
+                {
+                    return false;
+                }
+            }
         }
 
         #endregion

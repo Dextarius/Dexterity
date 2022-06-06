@@ -19,11 +19,21 @@ namespace Tests.Tools
         
         public static int Return42() => 42;
 
-        public static Reactive<T> CreateReactiveThatGetsValueOf<T>(Proactive<T> proactiveSourceValue) => 
-            new Reactive<T>(() => proactiveSourceValue.Value);
+        public static T ReturnArgumentValue<T>(T input) => input;
+
+
+        public static int AddValues(int input1, int input2) => input1 + input2;
         
-        public static Reactive<T> CreateReactiveThatGetsValueOf<T>(Reactive<T>  reactiveSourceValue)  => 
-            new Reactive<T>(() => reactiveSourceValue.Value);
+        public static int AddValues(int input1, int input2, int input3) => input1 + input2 + input3;
+
+
+
+
+        public static Reactive<T> CreateReactiveThatGetsValueOf<T>(Proactive<T> proactiveSourceValue) =>
+            new Reactive<T>(proactiveSourceValue);
+
+        public static Reactive<T> CreateReactiveThatGetsValueOf<T>(Reactive<T> reactiveSourceValue) =>
+            new Reactive<T>(reactiveSourceValue);
 
         public static int[] CreateArrayOfRandomNumbers(int arraySize) 
         {

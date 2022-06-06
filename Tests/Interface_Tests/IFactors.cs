@@ -9,8 +9,6 @@ using Tests.Tools.Mocks;
 
 namespace Tests.Interface_Tests
 {
-namespace Tests.Interface_Tests
-{
     [TestFixture(typeof(ObservedStateCore_Int_Factory),      typeof(ObservedFunctionResult_Controller))]
     [TestFixture(typeof(DirectStateCore_Int_Factory),        typeof(DirectFunctionResult_Controller))]
     [TestFixture(typeof(ObservedFunctionResult_Int_Factory), typeof(ObservedFunctionResult_Controller))]
@@ -364,5 +362,4 @@ namespace Tests.Interface_Tests
     //
     //     #endregion
     // }
-}
 }

@@ -33,7 +33,7 @@ namespace Tests.Tools.Mocks
             }
         }
         
-        public bool Destabilize()
+        public bool Destabilize(IFactor factor)
         {
             if (IsUnstable is false)
             {

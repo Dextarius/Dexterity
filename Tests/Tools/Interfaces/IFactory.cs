@@ -1,4 +1,6 @@
-﻿namespace Tests.Tools.Interfaces
+﻿using Factors;
+
+namespace Tests.Tools.Interfaces
 {
     public interface IFactory<out TClass>
     {

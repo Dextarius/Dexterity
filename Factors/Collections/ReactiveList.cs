@@ -25,33 +25,33 @@ namespace Factors.Collections
         
         #region Instance Methods
 
-        public List<T>       AsNormalList()                                       => core.AsNormalList();
-        public List<TOutput> ConvertAll<TOutput>(Converter<T, TOutput> converter) => core.ConvertAll(converter);
-        public bool          Exists(Predicate<T> predicate)                       => core.Exists(predicate);
-        public T             Find(Predicate<T> predicate)                         => core.Find(predicate);
-        public List<T>       FindAll(Predicate<T> predicate)                      => core.FindAll(predicate);
-        public T             FindLast(Predicate<T> predicate)                     => core.FindLast(predicate);
-        public void          ForEach(Action<T>    action)                         => core.ForEach(action);
-        public List<T>       GetRange(int startIndex, int count)                  => core.GetRange(startIndex, count);
-        public int           IndexOf(T item)                                      => core.IndexOf(item);
-        public T[]           ToArray()                                            => core.ToArray();
-        public bool          TrueForAll(Predicate<T> predicate)                   => core.TrueForAll(predicate);
+        public List<T>       AsNormalList()                                       => Collection.AsNormalList();
+        public List<TOutput> ConvertAll<TOutput>(Converter<T, TOutput> converter) => Collection.ConvertAll(converter);
+        public bool          Exists(Predicate<T> predicate)                       => Collection.Exists(predicate);
+        public T             Find(Predicate<T> predicate)                         => Collection.Find(predicate);
+        public List<T>       FindAll(Predicate<T> predicate)                      => Collection.FindAll(predicate);
+        public T             FindLast(Predicate<T> predicate)                     => Collection.FindLast(predicate);
+        public void          ForEach(Action<T>    action)                         => Collection.ForEach(action);
+        public List<T>       GetRange(int startIndex, int count)                  => Collection.GetRange(startIndex, count);
+        public int           IndexOf(T item)                                      => Collection.IndexOf(item);
+        public T[]           ToArray()                                            => Collection.ToArray();
+        public bool          TrueForAll(Predicate<T> predicate)                   => Collection.TrueForAll(predicate);
 
-        public int LastIndexOf(T item, int startIndex, int count) => core.LastIndexOf(item, startIndex, count);
-        public int LastIndexOf(T item, int startIndex)            => core.LastIndexOf(item, startIndex);
-        public int LastIndexOf(T item)                            => core.LastIndexOf(item);
+        public int LastIndexOf(T item, int startIndex, int count) => Collection.LastIndexOf(item, startIndex, count);
+        public int LastIndexOf(T item, int startIndex)            => Collection.LastIndexOf(item, startIndex);
+        public int LastIndexOf(T item)                            => Collection.LastIndexOf(item);
         
-        public int FindIndex(Predicate<T> predicate, int startIndex, int count) => core.FindIndex(predicate, startIndex, count);
-        public int FindIndex(Predicate<T> predicate, int startIndex)            => core.FindIndex(predicate, startIndex);
-        public int FindIndex(Predicate<T> predicate)                            => core.FindIndex(predicate);
+        public int FindIndex(Predicate<T> predicate, int startIndex, int count) => Collection.FindIndex(predicate, startIndex, count);
+        public int FindIndex(Predicate<T> predicate, int startIndex)            => Collection.FindIndex(predicate, startIndex);
+        public int FindIndex(Predicate<T> predicate)                            => Collection.FindIndex(predicate);
         
-        public int FindLastIndex(Predicate<T> predicate, int startIndex, int count) => core.FindLastIndex(predicate, startIndex, count);
-        public int FindLastIndex(Predicate<T> predicate, int startIndex)            => core.FindLastIndex(predicate, startIndex);
-        public int FindLastIndex(Predicate<T> predicate)                            => core.FindLastIndex(predicate);
+        public int FindLastIndex(Predicate<T> predicate, int startIndex, int count) => Collection.FindLastIndex(predicate, startIndex, count);
+        public int FindLastIndex(Predicate<T> predicate, int startIndex)            => Collection.FindLastIndex(predicate, startIndex);
+        public int FindLastIndex(Predicate<T> predicate)                            => Collection.FindLastIndex(predicate);
         
-        public int BinarySearch(T item, IComparer<T> comparer, int startIndex, int count) => core.BinarySearch(item, comparer, startIndex, count);
-        public int BinarySearch(T item, IComparer<T> comparer)                            => core.BinarySearch(item, comparer);
-        public int BinarySearch(T item)                                                   => core.BinarySearch(item);
+        public int BinarySearch(T item, IComparer<T> comparer, int startIndex, int count) => Collection.BinarySearch(item, comparer, startIndex, count);
+        public int BinarySearch(T item, IComparer<T> comparer)                            => Collection.BinarySearch(item, comparer);
+        public int BinarySearch(T item)                                                   => Collection.BinarySearch(item);
         
         #endregion
         

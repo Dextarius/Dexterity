@@ -117,7 +117,7 @@ namespace Factors.Observer
 
         public T ObserveInteractions<T>(IProcess<T> processToObserve, TObserved outcomeForProcess)
         {
-            if (processToObserve  == null) { throw new ArgumentNullException(nameof(processToObserve), ProvidedNullProcess); }
+            if (processToObserve  == null) { throw new ArgumentNullException(nameof(processToObserve),   ProvidedNullProcess); }
             if (outcomeForProcess == null) { throw new ArgumentNullException(nameof(outcomeForProcess),  ProvidedNullOutcome); }
             
             var  outerOutcome         = currentSubject;

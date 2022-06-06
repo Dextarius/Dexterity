@@ -1,13 +1,19 @@
-﻿using Factors.Cores.ObservedReactorCores;
+﻿using Factors;
+using Factors.Cores.ObservedReactorCores;
 using Tests.Tools.Interfaces;
 
 namespace Tests.Tools.Factories
 {
-    public class ObservedActionResponse_Factory : IFactory<ObservedActionResponse>
+    public class ObservedActionResponse_Factory : IFactory<Reaction>
     {
-        public ObservedActionResponse CreateInstance() => new ObservedActionResponse(Tools.DoNothing, TODO);
+        public Reaction CreateInstance()
+        {
+            var core = new ObservedActionResponse(Tools.DoNothing);
 
-        public ObservedActionResponse CreateStableInstance()
+            return new Reaction(core);
+        }
+
+        public Reaction CreateStableInstance()
         {
             var createdInstance = CreateInstance();
 

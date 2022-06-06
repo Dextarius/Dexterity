@@ -11,11 +11,11 @@ using static Tests.Tools.Tools;
 
 namespace Tests.Interface_Tests
 {
-    [TestFixture(typeof(DirectProactiveCore<int>),   typeof(DirectStateCore_Int_Factory),   typeof(int))]
-    [TestFixture(typeof(ObservedProactiveCore<int>), typeof(ObservedStateCore_Int_Factory), typeof(int))]
+    [TestFixture(typeof(Proactive<int>),   typeof(DirectStateCore_Int_Factory),   typeof(int))]
+    [TestFixture(typeof(Proactive<int>), typeof(ObservedStateCore_Int_Factory), typeof(int))]
     public class IStates<TState, TStateFactory, TValue> 
         where TState         : IState<TValue>
-        where TStateFactory  : IState_T_Factory<TState, TValue>, new()
+        where TStateFactory  : IFactor_T_Factory<TState, TValue>, new()
     {
         #region Instance Fields
 

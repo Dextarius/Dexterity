@@ -1,8 +1,9 @@
-﻿using Factors.Cores.ProactiveCores;
+﻿using Factors;
+using Factors.Cores.ProactiveCores;
 
 namespace Tests.Tools.Factories.Controllers
 {
-    public class DirectState_Controller : Factor_T_Controller<DirectProactiveCore<int>, int>
+    public class DirectProactiveCore_Controller : Factor_T_Controller<Proactive<int>, int>
     {
         public override int ChangeValueToANonEqualValue()
         {
@@ -22,9 +23,11 @@ namespace Tests.Tools.Factories.Controllers
             Tools.GenerateRandomIntNotEqualTo(valueToAvoid);
 
 
-        public DirectState_Controller()
+        public DirectProactiveCore_Controller()
         {
-            ControlledInstance = new DirectProactiveCore<int>(Tools.GenerateRandomInt());
+            var core = new DirectProactiveCore<int>(Tools.GenerateRandomInt());
+            
+            ControlledInstance = new Proactive<int>(core);
         }
     }
 }

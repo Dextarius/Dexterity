@@ -24,9 +24,9 @@ namespace Factors.Collections
 
         #region Instance Properties
 
-        public TValue              this[TKey key] => core[key];
-        public ICollection<TKey>   Keys           => core.Keys;
-        public ICollection<TValue> Values         => core.Values;
+        public TValue              this[TKey key] => Collection[key];
+        public ICollection<TKey>   Keys           => Collection.Keys;
+        public ICollection<TValue> Values         => Collection.Values;
         //^ The keys/value collections always represents the CURRENT dictionary keys/values (that's important to remember).
         //  This is not a static copy of what keys were present when it was called!
 
@@ -35,11 +35,11 @@ namespace Factors.Collections
 
         #region Instance Methods
 
-        public     Dictionary<TKey, TValue> AsNormalDictionary()                    => core.AsNormalDictionary();
-        public     bool                     TryGetValue(TKey key, out TValue value) => core.TryGetValue(key, out value);
-        public     bool                     ContainsKey(TKey key)                   => core.ContainsKey(key);
-        public     bool                     ContainsValue(TValue key)               => core.ContainsValue(key);
-        public new IDictionaryEnumerator    GetEnumerator()                         => core.GetEnumerator();
+        public     Dictionary<TKey, TValue> AsNormalDictionary()                    => Collection.AsNormalDictionary();
+        public     bool                     TryGetValue(TKey key, out TValue value) => Collection.TryGetValue(key, out value);
+        public     bool                     ContainsKey(TKey key)                   => Collection.ContainsKey(key);
+        public     bool                     ContainsValue(TValue key)               => Collection.ContainsValue(key);
+        public new IDictionaryEnumerator    GetEnumerator()                         => Collection.GetEnumerator();
 
         #endregion
         
@@ -58,8 +58,8 @@ namespace Factors.Collections
 
         IEnumerable<TKey>   IReadOnlyDictionary<TKey, TValue>.Keys   => Keys;
         IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values => Values;
-        ICollection         IDictionary.Keys                         => core.GetKeysAsICollection();
-        ICollection         IDictionary.Values                       => core.GetValuesAsICollection();
+        ICollection         IDictionary.Keys                         => Collection.GetKeysAsICollection();
+        ICollection         IDictionary.Values                       => Collection.GetValuesAsICollection();
         bool                IDictionary.IsReadOnly                   => true;
         bool                IDictionary.IsFixedSize                  => true;
         
@@ -75,7 +75,7 @@ namespace Factors.Collections
             {
                 if (key is TKey keyOfCorrectType)
                 {
-                    return core[keyOfCorrectType];
+                    return Collection[keyOfCorrectType];
                 }
                 else return null;
             }

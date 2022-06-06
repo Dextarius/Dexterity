@@ -7,7 +7,7 @@ namespace Tests.Class_Tests.Cores.DirectProactorCores
 {
     public class StateCore<TFactor, TCore, TFactory> : FactorCores<TFactor, TCore, TFactory> 
         where TFactor  : Factor<TCore> 
-        where TCore    : IDeterminant
+        where TCore    : IFactorCore
         where TFactory : IFactory<TFactor>, new()
     {
 

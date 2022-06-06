@@ -21,7 +21,6 @@ namespace Factors.Cores.ProactiveCores
         public virtual  T   Value          => currentValue;
         public override int UpdatePriority => 0;
 
-        
         #endregion
 
 
@@ -41,6 +40,8 @@ namespace Factors.Cores.ProactiveCores
             }
             else return false;
         }
+
+
 
         #endregion
 

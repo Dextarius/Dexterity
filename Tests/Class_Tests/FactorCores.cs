@@ -8,7 +8,7 @@ namespace Tests.Class_Tests
 {
     public abstract class FactorCores<TFactor, TCore, TFactory> 
         where TFactor  : Factor<TCore>
-        where TCore    : IDeterminant
+        where TCore    : IFactorCore
         where TFactory : IFactory<TFactor>, new()
     {
         #region Instance Fields

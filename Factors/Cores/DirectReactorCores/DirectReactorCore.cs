@@ -39,15 +39,5 @@ namespace Factors.Cores.DirectReactorCores
         public void NotifyChanged()  => Observer.NotifyChanged(Owner);
         
         #endregion
-        
-
-        #region Constructors
-
-        protected DirectReactorCore() : base()
-        {
-            
-        }
-
-        #endregion
     }
 }

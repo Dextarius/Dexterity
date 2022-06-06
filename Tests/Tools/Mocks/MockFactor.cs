@@ -3,11 +3,23 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Core.Factors;
 using Core.States;
-using Factors.Cores;
+using Factors;
 using JetBrains.Annotations;
 
 namespace Tests.Tools.Mocks
 {
+    internal class MockFactor : Factor<IFactorCore>
+    {
+        
+        
+        public MockFactor() : base(new MockFactorCore())
+        {
+            
+        }
+    }
+
+
+
     // internal class MockFactor : IFactor
     // {
     //     #region Instance Fields
@@ -108,16 +120,4 @@ namespace Tests.Tools.Mocks
     //
     //     public virtual bool Reconcile() => true;
     // }
-
-    internal class MockFactor : FactorCore
-    {
-        public override int UpdatePriority => 0;
-        
-        
-        public MockFactor() : base(nameof(MockFactor))
-        {
-            
-        }
-    }
-
 }
