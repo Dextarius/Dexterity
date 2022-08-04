@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using Core.Factors;
 
 namespace Factors.Modifiers
@@ -17,11 +18,19 @@ namespace Factors.Modifiers
                 {
                     if (value is true)
                     {
-                        
+                        if (IsNecessary)
+                        {
+                            OnNecessary();
+                        }
                     }
                     else
                     {
-                        //- not necessary?
+                        if (IsNecessary)
+                        {
+                            OnNotNecessary();
+                        }
+                        
+                        core.IsEnabled = false; //- Do we need this? 
                     }
                     
                     isEnabled = value;
@@ -30,10 +39,16 @@ namespace Factors.Modifiers
             }
         }
 
-
         public NumericModType ModType
         {
-            get => core.ModType;
+            get
+            {
+                if (IsEnabled is false)
+                {
+                     return NumericModType.Ignore;
+                }
+                else return core.ModType;
+            }
             set
             {
                 if (core.ModType != value)
@@ -57,13 +72,19 @@ namespace Factors.Modifiers
             }
         }
 
-        public double Amount => core.Amount;
+        public double Amount
+        {
+            get
+            {
+                AttemptReaction();
+                return core.Amount;
+            }
+        }
 
         public override bool IsNecessary => base.IsNecessary && IsEnabled;
 
         #endregion
         
-
 
         #region Constructors
 

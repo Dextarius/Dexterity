@@ -30,4 +30,31 @@ namespace Factors.Modifiers
 
         }
     }
+    
+    public class ModifierCore : FactorCore
+    {
+        public bool           IsEnabled   { get; set; }
+        public NumericModType ModType     { get; set; }
+        public int            ModPriority { get; set; } = 0;
+        public double         Amount      { get; protected set; }
+        
+        public bool SetAmount(double newAmount)
+        {
+            if (Numerics.DoublesAreNotEqual(Amount, newAmount))
+            {
+                Amount = newAmount;
+                VersionNumber++;
+                return true;
+            }
+            else return false;
+        }
+        
+        public void SetOwner(IFactor owner) { }
+
+        public ModifierCore(NumericModType modType)
+        {
+            ModType = modType;
+
+        }
+    }
 }

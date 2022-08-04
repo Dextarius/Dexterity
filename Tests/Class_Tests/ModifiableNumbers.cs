@@ -1,5 +1,6 @@
 ﻿using static Tests.Tools.Tools;
 using        Core.Factors;
+using        Factors.Modifiers;
 using        NUnit.Framework;
 using        Tests.Tools.Interfaces;
 
@@ -11,7 +12,7 @@ namespace Tests.Class_Tests
         where TReactiveFactory   : new()
         where TSubscriberFactory : new()
     {
-        public void WhenModifiedValueIsRetrieved_WhenFactorIsInATriggeredState_Reacts()
+        public void WhenModifiedValueIsRetrieved_WhileFactorIsInATriggeredState_Reacts()
         {
             TController controller        = new TController();
             TModifiable factorBeingTested = controller.ControlledInstance;
@@ -39,8 +40,8 @@ namespace Tests.Class_Tests
                 _ = factorBeingTested.Value;
             }
             
-            Assert.That(factorBeingTested.HasBeenTriggered, Is.False);
-            _ = factorBeingTested.Value;
+         // factorBeingTested.AddModifier(new NumericModifier());
+
             Assert.That(factorBeingTested.HasBeenTriggered, Is.False);
             Assert.That(factorBeingTested.IsUnstable,       Is.False);
         }        

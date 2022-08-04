@@ -22,7 +22,6 @@ namespace Factors.Modifiers
         {
             get
             {
-                NotifyInvolved();
                 return currentAmount;
             }
         }

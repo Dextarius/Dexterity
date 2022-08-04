@@ -8,14 +8,13 @@ namespace Factors
     {
         #region Properties
 
-        public double       BaseValue          { get => core.BaseValue; 
-                                                 set => core.BaseValue = value; }
-        public double       Value                    => core.Value;
-        public ModTypeOrder ModTypeOrder             => core.ModTypeOrder;
-        public double       FlatAmount               => core.FlatAmount;
-        public double       AdditiveMultiplier       => core.AdditiveMultiplier;
-        public double       MultiplicativeMultiplier => core.MultiplicativeMultiplier;
-        public double       SetTo                    => core.SetTo;
+        public double BaseValue          { get => core.BaseValue; 
+                                           set => core.BaseValue = value; }
+        public double Value                    => core.Value;
+        public double FlatAmount               => core.FlatAmount;
+        public double AdditiveMultiplier       => core.AdditiveMultiplier;
+        public double MultiplicativeMultiplier => core.MultiplicativeMultiplier;
+        public double ConstantValue            => core.ConstantValue;
         
         #endregion
 
@@ -37,7 +36,6 @@ namespace Factors
 
         public ModifiableNumber(string nameToGive = null) : this(new ModifiableNumberCore(), nameToGive)
         {
-            
         }
         
         public ModifiableNumber(double initialValue, string nameToGive = null) : this(new ModifiableNumberCore(), nameToGive)

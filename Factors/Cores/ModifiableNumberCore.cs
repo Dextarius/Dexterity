@@ -7,37 +7,35 @@ namespace Factors.Cores
 {
     public class ModifiableNumberCore : ReactorCore, IModifiableNumberCore
     {
-        #region Constants
+        #region Static Fields
 
+        private static readonly IModTypeOrder defaultModTypeOrder = new DefaultModTypeOrder();
 
         #endregion
-
+        
         
         #region Instance Fields
 
         private readonly List<INumericMod> modifiers = new List<INumericMod>();
-        private          ModTypeOrder      modTypeOrder;
-        private          INumericMod       highestPrioritySetToMod;
-        private          bool              modifiersChanged;
+        private readonly IModTypeOrder     modTypeOrder;
         private          double            modifiedValue;
         private          double            baseValue;
 
         #endregion
-        
+
 
         #region Properties
 
         public double FlatAmount               { get; private set; }
         public double AdditiveMultiplier       { get; private set; } = 1;
         public double MultiplicativeMultiplier { get; private set; } = 1;
-        public double SetTo                    { get; private set; } = 0;
+        public double ConstantValue            { get; private set; } = 0;
+        public bool   HasConstantValue         { get; private set; }
         
-        public             ModTypeOrder         ModTypeOrder     => modTypeOrder;
         protected override IEnumerable<IFactor> Triggers         => modifiers;
-        public override    bool                 HasTriggers      => modifiers.Count > 0;
-        public override    int                  NumberOfTriggers => modifiers.Count;
-        
-        public double Value => modifiedValue;
+        public    override bool                 HasTriggers      => modifiers.Count > 0;
+        public    override int                  NumberOfTriggers => modifiers.Count;
+        public             double               Value            => modifiedValue;
 
         public double BaseValue
         {
@@ -59,11 +57,7 @@ namespace Factors.Cores
 
         protected override bool CreateOutcome()
         {
-            if (modifiersChanged)
-            {
-                modifiersChanged = false;
-                RecalculateModifiers();
-            }
+            RecalculateModifiers();
 
             double newModifiedValue = Modify(baseValue);
 
@@ -75,62 +69,43 @@ namespace Factors.Cores
             else return false;
         }
         
-        public void AddModifier(INumericMod modifier)
+        public void AddModifier(INumericMod modifierToAdd)
         {
-            if (modifier is null) { throw new ArgumentNullException(nameof(modifier)); }
+            if (modifierToAdd is null) { throw new ArgumentNullException(nameof(modifierToAdd)); }
 
-            var modsType = modifier.ModType;
-
-            AddTrigger(modifier, IsNecessary);
-
-            if (modifiers.Count == 0)
-            {
-                modifiers.Add(modifier);   
-            }
-            else
-            {
-                int indexForMod = FindIndexForModType(modsType);
-                modifiers.Insert(indexForMod, modifier);
-            }
-
-            modifiersChanged = true;
+            AddTrigger(modifierToAdd, IsNecessary);
+            modifiers.Add(modifierToAdd);
             Trigger();
         }
         
-        protected int FindIndexForModType(NumericModType modType)
-        {
-            int priorityForModType = modTypeOrder.GetPriorityForModType(modType);
-            
-            for (int i = 0; i < modifiers.Count; i++)
-            {
-                var currentModsType     = modifiers[i].ModType;
-                int currentModsPriority = modTypeOrder.GetPriorityForModType(currentModsType);
-                
-                if (currentModsPriority > priorityForModType)
-                {
-                    return i;
-                }
-            }
-
-            return modifiers.Count;
-        }
+        // protected int FindIndexForModType(NumericModType modType)
+        // {
+        //     int priorityForModType = modTypeOrder.GetPriorityForModType(modType);
+        //     
+        //     for (int i = 0; i < modifiers.Count; i++)
+        //     {
+        //         var currentModsType     = modifiers[i].ModType;
+        //         int currentModsPriority = modTypeOrder.GetPriorityForModType(currentModsType);
+        //         
+        //         if (currentModsPriority > priorityForModType)
+        //         {
+        //             return i;
+        //         }
+        //     }
+        //
+        //     return modifiers.Count;
+        // }
         
         public void RemoveModifier(INumericMod modifierToRemove)
         {
             if (modifierToRemove != null && 
                 modifiers.Remove(modifierToRemove))
             {
-                if (modifierToRemove == highestPrioritySetToMod)
-                {
-                    highestPrioritySetToMod = null;
-                }
-
-                modifiersChanged = true;
                 RemoveTrigger(modifierToRemove);
                 Trigger();
                 // Ideally we'd be able to just check the mod's type and remove its amount from the correct 
-                // property, but it seems impossible to guarantee something won't change the mod's Amount
-                // before this gets called.
+                // property, but it seems impossible to guarantee that the mod's Amount or type hasn't changed
+                // since we last used it.
             }
         }
 
@@ -138,85 +113,96 @@ namespace Factors.Cores
 
         protected void RecalculateModifiers()
         {
-            MultiplicativeMultiplier = 1;
-            AdditiveMultiplier = 1;
-            FlatAmount = 0;
-            SetTo = 0;
-            highestPrioritySetToMod = null;
+            double      multiplicativeMultiplier = 1;
+            double      additiveMultiplier       = 1;
+            double      flatAmount               = 0;
+            INumericMod constantValueMod         = null;
             
             for (int i = 0; i < modifiers.Count; i++)
             {
                 var currentModifier = modifiers[i];
-                
-                ApplyModifier(currentModifier);
-            }
-        }
-        
-        public double Modify(double valueToModify)
-        {
-            foreach (var modType in modTypeOrder.ModTypesByPriority)
-            {
-                switch (modType)
-                {
-                    case NumericModType.Multiplicative: { valueToModify *= MultiplicativeMultiplier; break; }
-                    case NumericModType.Additive:       { valueToModify *= AdditiveMultiplier;       break; }
-                    case NumericModType.Flat:           { valueToModify += FlatAmount;               break; }
-                    case NumericModType.SetTo:
-                    {
-                        if (highestPrioritySetToMod != null)
-                        {
-                            valueToModify = SetTo;
-                        }
-                        
-                        break;
-                    }
-                    default:                            
-                    {     throw new InvalidOperationException($"Unhandled case {modType} in {nameof(ModifiableNumber)}"); }
-                }
-            }
-
-            return modifiedValue;
-        }
-
-        protected void ApplyModifier(INumericMod modifierToApply)
-        {
-            if (HasBeenTriggered is false)
-            {
-                var modType = modifierToApply.ModType;
+                var modType         = currentModifier.ModType;
 
                 switch (modType)
                 {
-                    case NumericModType.Multiplicative: { MultiplicativeMultiplier *= modifierToApply.Amount; break; }
-                    case NumericModType.Additive:       { AdditiveMultiplier       += modifierToApply.Amount; break; }
-                    case NumericModType.Flat:           { FlatAmount               += modifierToApply.Amount; break; }
-                    case NumericModType.SetTo:          
+                    case NumericModType.Ignore:         { break; }
+                    case NumericModType.Multiplicative: { multiplicativeMultiplier *= currentModifier.Amount; break; }
+                    case NumericModType.Additive:       { additiveMultiplier       += currentModifier.Amount; break; }
+                    case NumericModType.Flat:           { flatAmount               += currentModifier.Amount; break; }
+                    case NumericModType.ConstantValue:          
                     {
-                        if (highestPrioritySetToMod == null ||
-                            modifierToApply.ModPriority > highestPrioritySetToMod.ModPriority)
+                        if (constantValueMod is null ||
+                            currentModifier.ModPriority < constantValueMod.ModPriority)
                         {
-                            highestPrioritySetToMod = modifierToApply;
-                            SetTo = modifierToApply.Amount;
+                            constantValueMod = currentModifier;
                         }
                     
                         break; 
                     }
                     default:                            
-                    {     throw new InvalidOperationException($"Unhandled case {modType} in {nameof(ModifiableNumber)}"); }
+                    {     throw new InvalidOperationException($"Unhandled case {modType} in {nameof(RecalculateModifiers)}()."); }
+                    
+                    //- TODO : Decide if you're going to implement Minimum and Maximum mods.
                 }
             }
-        }
 
-        protected override void InvalidateOutcome(IFactor changedParentState) { }
+            MultiplicativeMultiplier = multiplicativeMultiplier;
+            AdditiveMultiplier = additiveMultiplier;
+            FlatAmount = flatAmount;
+
+            if (constantValueMod != null)
+            {
+                ConstantValue = constantValueMod.Amount;
+                HasConstantValue = true;
+            }
+            else
+            {
+                ConstantValue = 0;
+                HasConstantValue = false;
+            }
+        }
+        
+        public double Modify(double valueToModify)
+        {
+            double result = valueToModify;
+            
+            foreach (var modType in modTypeOrder.ModTypesByPriority)
+            {
+                switch (modType)
+                {
+                    case NumericModType.Multiplicative: { result *= MultiplicativeMultiplier; break; }
+                    case NumericModType.Additive:       { result *= AdditiveMultiplier;       break; }
+                    case NumericModType.Flat:           { result += FlatAmount;               break; }
+                    case NumericModType.ConstantValue:
+                    {
+                        if (HasConstantValue)
+                        {
+                            result = ConstantValue;
+                        }
+                        
+                        break;
+                    }
+                    default: { throw new InvalidOperationException($"Unhandled case {modType} in {nameof(Modify)}(). "); }
+                }
+            }
+
+            return result;
+        }
+        
+        protected override void InvalidateOutcome(IFactor changedFactor) { }
 
         #endregion
 
 
         #region Constructors
-
-                
-        public void ModifiableNumber(ModTypeOrder modOrder)
+        
+        public ModifiableNumberCore(IModTypeOrder modOrder)
         {
             modTypeOrder = modOrder;
+        }
+        
+        public ModifiableNumberCore() : this(defaultModTypeOrder)
+        {
         }
 
         #endregion
