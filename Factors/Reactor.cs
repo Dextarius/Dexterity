@@ -27,9 +27,8 @@ namespace Factors
         public    bool IsReacting       => core.IsReacting;
         public    bool IsStabilizing    => core.IsStabilizing;
         public    bool HasBeenTriggered => core.HasBeenTriggered;
+        public    bool HasReacted       => core.HasReacted;
         protected bool IsQueued         { get; set; }
-     // public    bool HasReacted       => core.HasReacted;
-
 
         public bool IsReflexive
         {
@@ -82,7 +81,7 @@ namespace Factors
 
 
         #region Instance Methods
-        
+
         protected bool React()
         {
             bool outcomeChanged = core.GenerateOutcome();
@@ -120,13 +119,19 @@ namespace Factors
         
         public bool ForceReaction() => React();
 
-        //- Does not imply the caller will queue this Outcome to be updated.
-        //  Only that the caller should be notified if this Outcome is Necessary
-        //  and if not that it should mark itself and its dependents as Unstable
+        //- Does not imply the caller will queue this subscriber to be updated.  Only that the subscriber
+        //  should mark itself and its dependents as Unstable, and return whether it is Necessary or not.
         public bool Destabilize(IFactor factor) => core.Destabilize(factor);
         
-        public bool CoreDestabilized()
+        public bool CoreDestabilized(IReactorCore destabilizedCore)
         {
+            if (ReferenceEquals(core, destabilizedCore) is false)
+            {
+                //- We probably swapped out the core but forgot to Dispose() of the old one or something.
+                core.Dispose();
+                return false;
+            }
+            
             bool hasNecessaryDependents = DestabilizeSubscribers();
 
             return hasNecessaryDependents;
@@ -150,17 +155,18 @@ namespace Factors
                 //- TODO : We specifically tried to avoid using foreach before when triggering subscribers because they might
                 //         choose to remove themselves, so consider if we really want to use it here.  
                 //-        Well we don't really want to use the RemoveWhere() method like we did in TriggerSubscribers()
-                //         because we want to0 end this method as soon as we find a necessary subscriber.
+                //         because we want to end this method as soon as we find a necessary subscriber.
             }
+            
             return false;
         }
         
         public bool Trigger() => core.Trigger();
-        
+
         public bool Trigger(IFactor triggeringFactor, out bool removeSubscription) =>
             core.Trigger(triggeringFactor, out removeSubscription);
         
-        public void CoreTriggered()
+        public void CoreTriggered(IReactorCore triggeredCore)
         {
             Debug.Assert(IsQueued is false);
 
@@ -176,11 +182,15 @@ namespace Factors
 
             bool successfullySubscribed = base.Subscribe(subscriberToAdd, isNecessary);
 
+            //- Should we be Reacting if the subscriber is Necessary?
             if (successfullySubscribed &&
-                isNecessary is false &&
+                isNecessary is false   &&
                 HasBeenTriggered || IsUnstable)
             {
-                subscriberToAdd.Destabilize(this);
+                if (subscriberToAdd.Destabilize(this))
+                {
+                    AddSubscriberAsNecessary(subscriberToAdd);
+                }
             }
 
             return successfullySubscribed;
@@ -188,11 +198,11 @@ namespace Factors
         
         protected override void AddSubscriberAsNecessary(IFactorSubscriber necessarySubscriber)
         {
-            bool wasAlreadyNecessary = IsNecessary;
+            bool isAlreadyNecessary = IsNecessary;
 
             base.AddSubscriberAsNecessary(necessarySubscriber);
 
-            if (wasAlreadyNecessary is false)
+            if (isAlreadyNecessary is false)
             {
                 OnNecessary();
 
@@ -265,7 +275,7 @@ namespace Factors
         //- TODO : We shouldn't need to give the core a name and ourselves a name as well.
         protected Reactor(TCore reactorCore, string nameToGive) : base(reactorCore, nameToGive)
         {
-            core.SetOwner(this);
+            reactorCore.SetOwner(this);
         }
 
         #endregion
@@ -280,7 +290,5 @@ namespace Factors
         }
 
         #endregion
-        
-        
     }
 }

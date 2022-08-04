@@ -12,8 +12,8 @@ namespace Factors.Cores
     {
         #region Instance Fields
 
-        protected readonly WeakSubscriber    weakSubscriber;
-        protected          bool              unsubscribeWhenTriggered = false;
+        protected readonly WeakSubscriber weakSubscriber;
+        protected          bool           unsubscribeWhenTriggered = false;
 
         #endregion
 
@@ -23,19 +23,17 @@ namespace Factors.Cores
         protected          IReactorCoreOwner    Owner            { get; set; }
         public             bool                 IsReacting       { get; protected set; }
         public             bool                 IsStabilizing    { get; protected set; }
+        public             bool                 HasReacted       { get; protected set; }
         protected abstract IEnumerable<IFactor> Triggers         { get; }
         public    abstract bool                 HasTriggers      { get; }
         public    abstract int                  NumberOfTriggers { get; }
-        
+
         public             bool                 IsUnstable       {           get => weakSubscriber.IsUnstable;
                                                                    protected set => weakSubscriber.IsUnstable = value; }
         public             bool                 IsNecessary      {           get => weakSubscriber.IsNecessary;
                                                                    protected set => weakSubscriber.IsNecessary = value; }
         public             bool                 HasBeenTriggered {           get => weakSubscriber.HasBeenTriggered;
                                                                    protected set => weakSubscriber.HasBeenTriggered = value; }
-        public             bool                 HasReacted       => VersionNumber > 0;
-        //^ TODO : This wont work if the outcome value is the same as the type's default value
-        
 
         #endregion
 
@@ -48,7 +46,7 @@ namespace Factors.Cores
             if (HasBeenTriggered is false) { InvalidateOutcome(null); }
             
             bool outcomeChanged;
-            
+
             IsReacting       = true;
             IsUnstable       = false;
             HasBeenTriggered = false;
@@ -70,26 +68,22 @@ namespace Factors.Cores
                 IsReacting = false;
             }
             
+            if (HasReacted is false)
+            {
+                HasReacted = true;
+            }
+            
             if (outcomeChanged)
             {
                 VersionNumber++;
                 return true;
             }
-            else
-            {
-                if (HasReacted is false)
-                {
-                    VersionNumber++;
-                    //- This way HasReacted will be correct even if our first reaction
-                    //  didnt count as a change because it returned the type's default value.  
-                }
-                return false;
-            } 
+            else return false;
         }
 
-        protected abstract void InvalidateOutcome(IFactor changedParentState);
+        protected abstract void InvalidateOutcome(IFactor changedFactor);
         protected abstract bool CreateOutcome();
-        
+
         public bool TryStabilizeOutcome()
         {
             bool successfullyReconciled = true;
@@ -115,6 +109,9 @@ namespace Factors.Cores
             }
             
             IsUnstable    = false;
+            //- Should we be changing this?  Should it be set by GenerateOutcome?
+            //  Should it only happen if we successfully reconcile?
+            //  What if we're destabilized while generating our outcome?  This may mark us as stable even if we aren't
             IsStabilizing = false;
 
             return successfullyReconciled;
@@ -140,21 +137,19 @@ namespace Factors.Cores
             {
                 HasBeenTriggered = true;
                 InvalidateOutcome(triggeringFactor);
-                Owner?.CoreTriggered();
+                Owner?.CoreTriggered(this);
                 
                 return true;
             }
     
             return false;
         }
-        
-        public virtual bool Destabilize(IFactor factor)
+
+        //- Does not imply the caller will queue this subscriber to be updated.  Only that the this subscriber
+        //  should mark itself and its dependents as Unstable, return whether it is Necessary or not.
+        public bool Destabilize(IFactor factor)
         {
-            if (IsStabilizing)
-            {
-                return false;
-            }
-            else if (IsNecessary)
+            if (IsNecessary)
             {
                 return true;
                 
@@ -162,11 +157,7 @@ namespace Factors.Cores
                 //  we're going to be triggered when our parent updates, or the parent won't
                 //  change, in which case we aren't Unstable.
             }
-            else if (HasBeenTriggered)
-            {
-                return false;
-            }
-            else if (IsUnstable is false) 
+            else if (IsUnstable is false)
             {
                 if (NotifyOwner_CoreDestabilized())
                 {
@@ -179,14 +170,18 @@ namespace Factors.Cores
             }
     
             return false;
+            
+            //- Note : This method used to check IsStabilizing and HasBeenTriggered, but I removed that because it
+            //         it no longer seemed relevant.  When we have time, go through all the possible ways this might
+            //         called and make sure I'm not missing something.
         }
         
-        protected bool NotifyOwner_CoreDestabilized() => Owner?.CoreDestabilized() ?? false;
+        protected bool NotifyOwner_CoreDestabilized() => Owner?.CoreDestabilized(this) ?? false;
         
         public virtual void OnNecessary()
         {
             IsNecessary = true;
-            
+
             //- We don't propagate the Necessary status to our triggers, to avoid walking up the tree.
             //  All Reactors walk down the tree to destabilize their dependents, so we can let them know then
             //  if need be.
@@ -246,7 +241,5 @@ namespace Factors.Cores
         }
 
         #endregion
-
-
     }
 }

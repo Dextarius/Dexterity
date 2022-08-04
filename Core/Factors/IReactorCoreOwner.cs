@@ -2,7 +2,7 @@
 {
     public interface IReactorCoreOwner: IFactor
     {
-        bool CoreDestabilized();
-        void CoreTriggered();
+        bool CoreDestabilized(IReactorCore destabilizedCore);
+        void CoreTriggered(IReactorCore triggeredCore);
     }
 }
