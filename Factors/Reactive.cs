@@ -81,7 +81,7 @@ namespace Factors
             this(functionToDetermineValue, null, name)
         {
         }
-        
+
         public Reactive(IFactor<T> factorToGetValueOf, string name = null) : 
             this(new DirectRelayCore<T>(factorToGetValueOf), name)
         {

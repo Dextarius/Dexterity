@@ -20,14 +20,14 @@ namespace Factors
 
         [ThreadStatic]
         private static UpdateList updateList;
-
-
+        
         #endregion
 
+        
         #region Instance Fields
 
         [NotNull, ItemNotNull]
-        protected readonly HashSet<IFactorSubscriber> allSubscribers = new HashSet<IFactorSubscriber>();
+        protected readonly HashSet<IFactorSubscriber> allSubscribers       = new HashSet<IFactorSubscriber>();
         protected readonly HashSet<IFactorSubscriber> necessarySubscribers = new HashSet<IFactorSubscriber>();
         protected          TCore                      core;
 
@@ -115,10 +115,6 @@ namespace Factors
             }
             else return false;
         }
-
-        //- Working On : Changing the subscription and trigger processes for observed reactors so that
-        //               parents are only notified that they are necessary during destabilizing, not
-        //               when they subscribe.
 
         public virtual void NotifyNecessary(IFactorSubscriber necessarySubscriber)
         {
