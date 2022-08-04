@@ -26,17 +26,17 @@ namespace Factors.Cores.DirectReactorCores
         {
             if (VersionNumber == 0)
             {
-                foreach (var input in Triggers)
+                foreach (var trigger in Triggers)
                 {
-                    AddTrigger(input, IsNecessary);
+                    AddTrigger(trigger, IsNecessary);
                 }
             }
         }
         
-        protected override void InvalidateOutcome(IFactor changedParentState) { }
+        protected override void InvalidateOutcome(IFactor changedFactor) { }
         
-        public void NotifyInvolved() => Observer.NotifyInvolved(Owner);
-        public void NotifyChanged()  => Observer.NotifyChanged(Owner);
+        // public void NotifyInvolved(IFactor involvedFactor) => Observer.NotifyInvolved(involvedFactor);
+        // public void NotifyChanged(IFactor involvedFactor)  => Observer.NotifyChanged(involvedFactor);
         
         #endregion
     }

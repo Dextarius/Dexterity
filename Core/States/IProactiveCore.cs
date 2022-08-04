@@ -6,6 +6,6 @@ namespace Core.States
 {
     public interface IProactiveCore<T> : IFactorCore, IValueCore<T>
     {
-        bool ChangeValueTo(T newValue);
+        bool SetValueIfNotEqual(T newValue);
     }
 }

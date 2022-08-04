@@ -11,29 +11,55 @@ namespace Factors.Cores.ProactiveCores
     {
         #region Instance Properties
 
-        public override T Value 
+        public override T Value
         {
             get
             {
+                T value = base.Value;
+                
+                //^ Getting the Value of a Factor often causes changes in factors, so grab it before we NotifyInvolved(). 
                 NotifyInvolved();
-                return currentValue;
+
+                return value;
             }
         }
-        
+
         protected IFactor Owner { get; set; }
-
-
+        
         #endregion
         
         
         #region Instance Methods
 
-        public void NotifyInvolved() => CausalObserver.ForThread.NotifyInvolved(Owner);
-        public void NotifyChanged()  => CausalObserver.ForThread.NotifyChanged(Owner);
-
-        public override bool ChangeValueTo(T newValue)
+        public void NotifyInvolved()
         {
-            if (base.ChangeValueTo(newValue))
+            if (Owner is null) 
+            { 
+                throw new InvalidOperationException(
+                    $"An {nameof(ObservedProactiveCore<T>)} attempted to notify the Observer that it was involved, " +
+                    "but its Owner field is null"); 
+            }
+            
+            CausalObserver.ForThread.NotifyInvolved(Owner);
+        }
+        
+        public void NotifyChanged()
+        {
+            if (Owner is null) 
+            { 
+                throw new InvalidOperationException(
+                $"An {nameof(ObservedProactiveCore<T>)} attempted to notify the Observer that it had changed, " +
+                 "but its Owner field is null"); 
+            }
+            
+            CausalObserver.ForThread.NotifyChanged(Owner);
+        }
+        
+        //^ TODO : Consolidate the error strings for the above methods, they're different by two words.
+
+        public override bool SetValueIfNotEqual(T newValue)
+        {
+            if (base.SetValueIfNotEqual(newValue))
             {
                 NotifyChanged();
                 return true;

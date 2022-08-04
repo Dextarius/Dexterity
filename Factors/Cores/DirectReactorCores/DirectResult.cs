@@ -16,20 +16,13 @@ namespace Factors.Cores.DirectReactorCores
         
         #region Properties
 
-        public TValue Value
-        {
-            get
-            {
-                NotifyInvolved();
-                return currentValue;
-            }
-        }
+        public TValue Value => currentValue;
 
         #endregion
 
 
         #region Instance Methods
-
+        
         protected override bool CreateOutcome()
         {
             TValue oldValue = currentValue;
@@ -50,8 +43,6 @@ namespace Factors.Cores.DirectReactorCores
         }
         
         public bool ValueEquals(TValue valueToCompare) => valueComparer.Equals(currentValue, valueToCompare);
-        
-        public TValue Peek() => currentValue;
         
         protected abstract TValue GenerateValue();
         

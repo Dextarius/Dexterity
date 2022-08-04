@@ -21,14 +21,14 @@ namespace Factors.Cores.ObservedReactorCores
         {
             get
             {
-                NotifyInvolved();
+                NotifyInvolved(Owner);
                 return currentValue;
             }
         }
 
         #endregion
 
-        
+
         #region Instance Methods
 
         protected override bool CreateOutcome()
@@ -51,7 +51,7 @@ namespace Factors.Cores.ObservedReactorCores
                 }
             }
         }
-        
+
         public bool ValueEquals(T valueToCompare) => valueComparer.Equals(currentValue, valueToCompare);
 
         public T Peek() => currentValue;

@@ -25,12 +25,10 @@ namespace Factors.Cores.ProactiveCores
 
 
         #region Instance Methods
+
+        public bool ValueEquals(T valueToCompare) => valueComparer.Equals(currentValue, valueToCompare);
         
-        public T Peek() => currentValue;
-        
-        public bool ValueEquals(T valueToCompare) => valueComparer.Equals(Value, valueToCompare);
-        
-        public virtual bool ChangeValueTo(T newValue)
+        public virtual bool SetValueIfNotEqual(T newValue)
         {
             if (valueComparer.Equals(currentValue, newValue) is false)
             {

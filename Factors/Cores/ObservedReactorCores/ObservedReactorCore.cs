@@ -39,16 +39,17 @@ namespace Factors.Cores.ObservedReactorCores
 
         #region Instance Methods
 
-        protected override void InvalidateOutcome(IFactor factorToSkip) => RemoveTriggers(factorToSkip);
+        protected override void InvalidateOutcome(IFactor changedFactor) => RemoveTriggers(changedFactor);
 
         protected void RemoveTriggers(IFactor factorToSkip)
         {
             triggersByInUse.SetAllValuesTo(false);
         }
         
-        public void NotifyInvolved()
+        
+        public void NotifyInvolved(IFactor involvedFactor)
         {
-            Observer.NotifyInvolved(Owner);
+            Observer.NotifyInvolved(involvedFactor);
             
             //- We could test for recursion here. If this Outcome is updating, then either it's accessing
             //  itself in its update method, or something it affected during this update is.  We could ask
@@ -57,9 +58,12 @@ namespace Factors.Cores.ObservedReactorCores
             //  depend on depends on us, which means there's a loop.
         }
 
-        public void NotifyChanged()
+        public void NotifyInvolved() => NotifyInvolved(Owner);
+
+        
+        public void NotifyChanged(IFactor changedFactor)
         {
-            Observer.NotifyChanged(Owner);
+            Observer.NotifyChanged(changedFactor);
             //- TODO : Decide if we need something here.
         }
 

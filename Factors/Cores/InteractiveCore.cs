@@ -29,19 +29,11 @@ namespace Factors.Cores
 
         #region Instance Properties
 
+        public          T    Value            => modifiedValue;
         public override int  UpdatePriority   => updatePriority;
         public override bool HasTriggers      => modifiers.Count > 0;
         public override int  NumberOfTriggers => modifiers.Count;
-
-        public T Value
-        {
-            get
-            {
-                NotifyInvolved();
-                return modifiedValue;
-            }
-        }
-
+        
         public T BaseValue
         {
             get => baseValue;
@@ -152,8 +144,7 @@ namespace Factors.Cores
             return result;
         }
         
-        public bool ValueEquals(T valueToCompare) => valueComparer.Equals(Value, valueToCompare);
-
+        public bool ValueEquals(T valueToCompare) => valueComparer.Equals(modifiedValue, valueToCompare);
 
         #endregion
 
