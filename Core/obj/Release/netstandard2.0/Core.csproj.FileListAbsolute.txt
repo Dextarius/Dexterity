@@ -1,0 +1,10 @@
+D:\Documents\Dropbox\Dexterity - Published\Core\obj\Release\netstandard2.0\Core.csproj.AssemblyReference.cache
+D:\Documents\Dropbox\Dexterity - Published\Core\obj\Release\netstandard2.0\Core.GeneratedMSBuildEditorConfig.editorconfig
+D:\Documents\Dropbox\Dexterity - Published\Core\obj\Release\netstandard2.0\Core.AssemblyInfoInputs.cache
+D:\Documents\Dropbox\Dexterity - Published\Core\obj\Release\netstandard2.0\Core.AssemblyInfo.cs
+D:\Documents\Dropbox\Dexterity - Published\Core\obj\Release\netstandard2.0\Core.csproj.CoreCompileInputs.cache
+D:\Documents\Dropbox\Dexterity - Published\Core\bin\Release\netstandard2.0\Core.deps.json
+D:\Documents\Dropbox\Dexterity - Published\Core\bin\Release\netstandard2.0\Core.dll
+D:\Documents\Dropbox\Dexterity - Published\Core\bin\Release\netstandard2.0\Core.pdb
+D:\Documents\Dropbox\Dexterity - Published\Core\obj\Release\netstandard2.0\Core.dll
+D:\Documents\Dropbox\Dexterity - Published\Core\obj\Release\netstandard2.0\Core.pdb

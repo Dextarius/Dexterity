@@ -4,7 +4,7 @@ using Core.Redirection;
 
 namespace Core.States
 {
-    public interface IProactiveCore<T> : IFactorCore, IValueCore<T>
+    public interface IProactiveCore<T> : IProactorCore, IValueCore<T>
     {
         bool SetValueIfNotEqual(T newValue);
     }

@@ -9,9 +9,9 @@ namespace Tests.Tools.Factories.Controllers
         DirectFunctionResult_ControllerBase<DirectFunctionResult<int, int>, int>
     {
         private static readonly Func<int, int> defaultValueFunction = ReturnArgumentValue;
-        private readonly        Func<int, int> valueFunction;
+        private        readonly Func<int, int> valueFunction;
 
-        protected override int  CallValueFunction() => valueFunction(inputControllers[0].ControlledInstance.Value);
+        protected override int CallValueFunction() => valueFunction(inputControllers[0].ControlledInstance.Value);
 
         public override int GetRandomInstanceOfValuesType_NotEqualTo(int valueToAvoid) => 
             Tools.GenerateRandomIntNotEqualTo(valueToAvoid);
@@ -24,12 +24,12 @@ namespace Tests.Tools.Factories.Controllers
             valueFunction = defaultValueFunction;
         }
 
-        public DirectFunctionResult_Controller() : this(new DirectProactiveCore_Controller())
+        public DirectFunctionResult_Controller() : this(new Proactive_Controller<DirectProactiveCore_Controller, int>())
         {
             
         }
     }
-    
+
 
     public class DirectFunctionResult2_Controller : 
         DirectFunctionResult_ControllerBase<DirectFunctionResult<int, int, int>, int>
@@ -54,8 +54,8 @@ namespace Tests.Tools.Factories.Controllers
             valueFunction = defaultValueFunction;
         }
 
-        public DirectFunctionResult2_Controller() : this(new DirectProactiveCore_Controller(), 
-                                                         new DirectProactiveCore_Controller())
+        public DirectFunctionResult2_Controller() : this(new Proactive_Controller<DirectProactiveCore_Controller, int>(), 
+                                                         new Proactive_Controller<DirectProactiveCore_Controller, int>())
         {
             
         }
@@ -90,9 +90,9 @@ namespace Tests.Tools.Factories.Controllers
             valueFunction = defaultValueFunction;
         }
 
-        public DirectFunctionResult3_Controller() : this(new DirectProactiveCore_Controller(), 
-                                                         new DirectProactiveCore_Controller(),
-                                                         new DirectProactiveCore_Controller())
+        public DirectFunctionResult3_Controller() : this(new Proactive_Controller<DirectProactiveCore_Controller, int>(), 
+                                                         new Proactive_Controller<DirectProactiveCore_Controller, int>(),
+                                                         new Proactive_Controller<DirectProactiveCore_Controller, int>())
         {
             
         }

@@ -16,7 +16,6 @@ namespace Factors.Modifiers
             if (Numerics.DoublesAreNotEqual(Amount, newAmount))
             {
                 Amount = newAmount;
-                VersionNumber++;
                 return true;
             }
             else return false;
@@ -43,7 +42,6 @@ namespace Factors.Modifiers
             if (Numerics.DoublesAreNotEqual(Amount, newAmount))
             {
                 Amount = newAmount;
-                VersionNumber++;
                 return true;
             }
             else return false;

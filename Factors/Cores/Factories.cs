@@ -7,7 +7,7 @@ using Factors.Cores.ObservedReactorCores.CollectionResults;
 
 namespace Factors.Cores
 {
-    public static class Result
+    public static class ResultCreator
     {
         public static IResult<TOutput> CreateFrom<TInput, TOutput>(Func<TInput, TOutput> valueFunction, 
                                                                    IFactor<TInput>       input) => 

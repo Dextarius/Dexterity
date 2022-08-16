@@ -27,7 +27,7 @@ namespace Factors.Modifiers
                     {
                         if (IsNecessary)
                         {
-                            OnNotNecessary();
+                            OnNotNecessary(); //- Will this work now that we reworked IsNecessary and IsReflexive?
                         }
                         
                         core.IsEnabled = false; //- Do we need this? 

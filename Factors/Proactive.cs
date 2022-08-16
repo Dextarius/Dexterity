@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Core.Causality;
-using Core.Factors;
 using Core.States;
 using Factors.Cores.ProactiveCores;
 using JetBrains.Annotations;
@@ -9,7 +8,7 @@ using static Core.Tools.Types;
 
 namespace Factors
 {
-    public class Proactive<T> : Factor<IProactiveCore<T>>, IState<T>
+    public class Proactive<T> : Proactor<IProactiveCore<T>>, IState<T>
     {
         #region Properties
         
@@ -30,6 +29,8 @@ namespace Factors
 
         #region Instance Methods
 
+        public bool ValueEquals(T valueToCompare) => core.ValueEquals(valueToCompare);
+        
         public override string ToString() => $"{Name} => {Value}";
         
 

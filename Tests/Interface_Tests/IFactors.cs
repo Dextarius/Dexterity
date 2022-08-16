@@ -148,7 +148,7 @@ namespace Tests.Interface_Tests
     //         {
     //             var subscriber = subscribers[i];
     //             
-    //             Assert.That(subscriber.HasBeenTriggered, Is.True);
+    //             Assert.That(subscriber.IsTriggered, Is.True);
     //         }
     //     }
     //     

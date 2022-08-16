@@ -58,8 +58,7 @@ namespace Factors.Cores.ObservedReactorCores
             //  depend on depends on us, which means there's a loop.
         }
 
-        public void NotifyInvolved() => NotifyInvolved(Owner);
-
+        public void NotifyInvolved() => NotifyInvolved(Callback);
         
         public void NotifyChanged(IFactor changedFactor)
         {
@@ -94,9 +93,9 @@ namespace Factors.Cores.ObservedReactorCores
         {
             if (influentialFactor is null) { throw new ArgumentNullException(nameof(influentialFactor)); }
 
-            if (HasBeenTriggered is false)
+            if (IsTriggered is false)
             {
-                AddTrigger(influentialFactor, IsNecessary);
+                AddTrigger(influentialFactor, IsReflexive);
                 triggersByInUse[influentialFactor] = true;
 
                 if (influentialFactor.UpdatePriority >= this.UpdatePriority)

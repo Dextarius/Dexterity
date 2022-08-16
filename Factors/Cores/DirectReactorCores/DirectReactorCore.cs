@@ -24,11 +24,11 @@ namespace Factors.Cores.DirectReactorCores
 
         protected void SubscribeToInputs()
         {
-            if (VersionNumber == 0)
+            if (HasReacted is false)
             {
                 foreach (var trigger in Triggers)
                 {
-                    AddTrigger(trigger, IsNecessary);
+                    AddTrigger(trigger, IsReflexive);
                 }
             }
         }

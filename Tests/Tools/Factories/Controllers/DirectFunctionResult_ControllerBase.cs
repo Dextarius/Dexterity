@@ -5,11 +5,13 @@ using Tests.Tools.Interfaces;
 namespace Tests.Tools.Factories.Controllers
 {
     public abstract class DirectFunctionResult_ControllerBase<TCore, TValue> : 
-        FunctionBasedReactive_Controller<TCore, TValue> 
+        FunctionBasedResult_Controller<TCore, TValue> 
         where TCore : IResult<TValue>
     {
         protected readonly IFactor_T_Controller<int>[] inputControllers;
         //^ The controllers for each of the Factors used in the Reactive's function
+
+        public override void SetOffInstancesTriggers() => ChangeInputsToANonEqualValue();
 
         protected override void ChangeInputsToANonEqualValue()
         {
@@ -18,6 +20,7 @@ namespace Tests.Tools.Factories.Controllers
                 inputController.ChangeValueToANonEqualValue();
             }
         }
+        
         protected override void ChangeInputsToAnEqualValue()
         {
             foreach (var inputController in inputControllers)

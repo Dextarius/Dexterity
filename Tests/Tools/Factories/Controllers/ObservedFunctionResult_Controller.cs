@@ -5,7 +5,7 @@ using Tests.Tools.Interfaces;
 namespace Tests.Tools.Factories.Controllers
 {
     public class ObservedFunctionResult_Controller : 
-        FunctionBasedReactive_Controller<ObservedFunctionResult<int>, int>
+        FunctionBasedResult_Controller<ObservedFunctionResult<int>, int>
     {
         private readonly Func<int>                 valueFunction;
         private readonly IFactor_T_Controller<int> inputController;
@@ -13,7 +13,8 @@ namespace Tests.Tools.Factories.Controllers
         protected override void ChangeInputsToANonEqualValue() => inputController.ChangeValueToANonEqualValue();
         protected override void ChangeInputsToAnEqualValue()   => inputController.SetValueToAnEqualValue();
         protected override int  CallValueFunction()            => valueFunction();
-        
+        public    override void SetOffInstancesTriggers()      => ChangeInputsToANonEqualValue();
+
         public override int GetRandomInstanceOfValuesType_NotEqualTo(int valueToAvoid) => 
             Tools.GenerateRandomIntNotEqualTo(valueToAvoid);
 
@@ -25,7 +26,8 @@ namespace Tests.Tools.Factories.Controllers
             valueFunction   = () => inputSourceController.ControlledInstance.Value;
         }
 
-        public ObservedFunctionResult_Controller() : this(new ObservedState_Controller())
+        public ObservedFunctionResult_Controller() : 
+            this(new Proactive_Controller<ObservedProactiveCore_Controller, int>())
         {
             
         }

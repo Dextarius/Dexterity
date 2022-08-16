@@ -4,8 +4,6 @@ namespace Factors.Modifiers
 {
     public interface IProactiveNumericModifierCore : INumericModCore
     {
-
-        
         public bool SetAmount(double newAmount);
     }
     

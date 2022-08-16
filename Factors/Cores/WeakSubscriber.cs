@@ -18,9 +18,9 @@ namespace Factors.Cores
         
         #region Properties
 
-        public bool IsNecessary      { get; set; }
-        public bool IsUnstable       { get; set; }
-        public bool HasBeenTriggered { get; set; } = true;
+        public bool IsNecessary { get; set; }
+        public bool IsUnstable  { get; set; }
+        public bool IsTriggered { get; set; } = true;
 
         #endregion
 
@@ -31,7 +31,7 @@ namespace Factors.Cores
 
         public bool Trigger(IFactor triggeringFactor, out bool removeSubscription)
         {
-            if (HasBeenTriggered)
+            if (IsTriggered)
             {
                 if (subscriber == null)
                 {
@@ -57,10 +57,9 @@ namespace Factors.Cores
                 removeSubscription = true;
                 return false;
             }
-
         }
 
-        private bool EnsureReferenceIsStillValid( out bool removeSubscription)
+        private bool EnsureReferenceIsStillValid(out bool removeSubscription)
         {
             if (subscriber != null)
             {

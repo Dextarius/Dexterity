@@ -11,6 +11,11 @@ namespace Tests.Tools
         
         public static string ValueDidNotMatch<T>(string situation) =>
             $"The value for the {NameOf<T>()} does not match the value {situation}. ";
+        
+        public static string ValueReturnedDidNotMatchValueSet<TType, TValue>(TType memberOwner,
+            string memberName, TValue valueReturned, TValue valueSet) =>
+                $"The value for the {NameOf<TType>()}.{memberName} was set to {valueSet} " +
+                $"but returned {valueReturned} when retrieved. ";
 
         public static string HasSubscribers<T>(string situation) =>
             $"The {NameOf<T>()} was marked as having subscribers {situation}. ";

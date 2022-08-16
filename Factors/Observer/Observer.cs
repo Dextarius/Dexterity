@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 
 namespace Factors.Observer
 {
+    //- Intermediary?
     public class Observer<TFactor, TObserved> : IPausable, IObserver<TFactor, TObserved> 
         where TObserved : IObserved
         where TFactor   : IFactor

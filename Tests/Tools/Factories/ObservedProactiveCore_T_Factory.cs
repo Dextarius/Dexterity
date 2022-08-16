@@ -15,8 +15,6 @@ namespace Tests.Tools.Factories
             var core = new ObservedProactiveCore<TValue>(value);
             var proactive = new Proactive<TValue>(core);
 
-            core.SetOwner(proactive);
-
             return proactive;
         }
 

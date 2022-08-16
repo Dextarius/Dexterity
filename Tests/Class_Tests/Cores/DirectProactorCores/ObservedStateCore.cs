@@ -15,7 +15,6 @@ namespace Tests.Class_Tests.Cores.DirectProactorCores
             var coreBeingTested = new ObservedProactiveCore<int>(testValue);
             var proactive       = new Proactive<int>(coreBeingTested);
 
-            coreBeingTested.SetOwner(proactive);
             AssertThatFactorHasValue(proactive, testValue);
         }
     }

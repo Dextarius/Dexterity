@@ -3,15 +3,13 @@ using Core.States;
 
 namespace Core.Factors
 {
-    public interface IReactorCore : IFactorCore, ITriggeredState
+    public interface IReactorCore : IFactorCore, ITriggeredState 
     {
-        bool IsNecessary { get; }
-        bool HasReacted  { get; }
-
-        bool GenerateOutcome();
-        bool TryStabilizeOutcome();
-        void OnNecessary();
-        void OnNotNecessary();
-        void SetOwner(IReactorCoreOwner owner);
+        void SetCallback(IReactorCoreCallback callback);
+    }
+    
+    public interface IReactorCore<T> : IReactorCore, IValue<T>, IValueEquatable<T>
+    {
+        
     }
 }

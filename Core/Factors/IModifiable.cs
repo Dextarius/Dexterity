@@ -1,10 +1,20 @@
 ﻿namespace Core.Factors
 {
-    public interface IModifiable<T> 
+    public interface IModifiableBase<T> : IValue<T>
     {
-        void   AddModifier(IFactorModifier<T> modifierToAdd);
-        void   RemoveModifier(IFactorModifier<T> modifierToRemove);
-        bool   ContainsModifier(IFactorModifier<T> modifierToFind);
-        string PrintBaseValueAndModifiers();
+        T      BaseValue                { get;  }
+        double FlatAmount               { get; }
+        double AdditiveMultiplier       { get; }
+        double MultiplicativeMultiplier { get; }
+   //   double ConstantValue            { get; }
+
+        void AddModifier(INumericMod modifier);
+        void RemoveModifier(INumericMod modifierToRemove);
+        bool ContainsModifier(INumericMod modifierToFind);
+    }
+
+    public interface IModifiable<T> : IModifiableBase<T> , IFactor<T>
+    {
+        
     }
 }

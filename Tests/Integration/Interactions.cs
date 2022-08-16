@@ -74,14 +74,14 @@ namespace Tests.Integration
             Reactive<int>  reactiveBeingTested = new Reactive<int>(proactive);
             int            triggerValueUpdate  = reactiveBeingTested.Value;
                 
-            Assert.That(reactiveBeingTested.HasBeenTriggered, Is.False,
+            Assert.That(reactiveBeingTested.IsTriggered, Is.False,
                 $"The {nameof(Reactive<int>)} was not valid after determining its value. ");
 
             proactive.Value = updatedValue;
             
-            Assert.That(reactiveBeingTested.HasBeenTriggered, Is.True,
+            Assert.That(reactiveBeingTested.IsTriggered, Is.True,
                 "The reactive was not marked as triggered after being invalidated.");
-            TestContext.WriteLine($"The {nameof(Reactive)} was triggered => {reactiveBeingTested.HasBeenTriggered}");
+            TestContext.WriteLine($"The {nameof(Reactive)} was triggered => {reactiveBeingTested.IsTriggered}");
         }
         
         [Test]

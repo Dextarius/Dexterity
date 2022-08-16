@@ -5,7 +5,7 @@ using Core.States;
 
 namespace Factors.Cores.ProactiveCores
 {
-    public abstract class ObservedCollectionCore<TCollection, TValue> : ObservedFactorCore, ICollectionCore<TValue> 
+    public abstract class ObservedCollectionCore<TCollection, TValue> : ObservedProactorCore, ICollectionCore<TValue> 
         where TCollection : ICollection<TValue>
     {
         #region Instance Fields
@@ -32,7 +32,7 @@ namespace Factors.Cores.ProactiveCores
         protected void OnCollectionChanged()
         {
             NotifyChanged();
-            
+            Callback.CoreUpdated(this);
         }
 
         public void Add(TValue item)

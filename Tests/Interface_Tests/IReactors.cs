@@ -34,59 +34,34 @@ namespace Tests.Interface_Tests
         #region Tests
         
         [Test]
-        public void AfterReacting_HasBeenTriggeredIsFalse()
+        public void AfterSuccessfullyReacting_VersionNumberIncrements()
         {
-            IReactor reactorBeingTested = reactorFactory.CreateInstance();
-
-            if (reactorBeingTested.HasBeenTriggered is false)
-            {
-                reactorBeingTested.Trigger();
-
-                if (reactorBeingTested.HasBeenTriggered is false)
-                {
-                    Assert.Inconclusive($"The {nameof(IReactor)} could not be put in a triggered state.");
-                }
-            }
+            var  reactorToTest            = reactorFactory.CreateStableInstance();
+            uint initialNumberOfReactions = reactorToTest.VersionNumber;
             
-            reactorBeingTested.ForceReaction();
-            Assert.That(reactorBeingTested.HasBeenTriggered, Is.False, 
-                $"{nameof(reactorBeingTested.HasBeenTriggered)} was still true after reacting.");
+            reactorToTest.Trigger();
+            Assert.That(reactorToTest.IsTriggered, Is.True);
+            reactorToTest.AttemptReaction();
+            Assert.That(reactorToTest.VersionNumber, Is.EqualTo(initialNumberOfReactions + 1));
         }
         
         [Test]
-        public void AfterTriggerIsCalled_HasBeenTriggeredIsTrue()
+        public void IfMadeReflexive_WhileTriggered_ShouldReact()
         {
-            IReactor reactorToTest = reactorFactory.CreateInstance();
+            var  reactorToTest = reactorFactory.CreateStableInstance();
+            uint initialNumberOfReactions;
 
-            if (reactorToTest.HasBeenTriggered)
-            {
-                reactorToTest.ForceReaction();
-            }
+            reactorToTest.IsReflexive = false;
+            Assert.That(reactorToTest.IsReflexive, Is.False);
             
-            Assert.That(reactorToTest.HasBeenTriggered, Is.False);
             reactorToTest.Trigger();
-            Assert.That(reactorToTest.HasBeenTriggered, Is.True, 
-                $"The reactor {nameof(reactorToTest.HasBeenTriggered)} was still false after calling " +
-                $"{nameof(reactorToTest.Trigger)}() ");
-        }
-
-        [Test]
-        public void WhenValueForIsReflexiveIsSet_IsReflexiveMatchesSetValue()
-        {
-            IReactor reactorBeingTested = reactorFactory.CreateInstance();
-
-            Assert.That(reactorBeingTested.IsReflexive,  Is.False,
-                $"The {NameOf<IReactor>()} was marked as reflexive, despite that option not being set. ");
-
-            reactorBeingTested.IsReflexive = true;
-                
-            Assert.That(reactorBeingTested.IsReflexive,
-                $"The {NameOf<IReactor>()} was marked as not being reflexive after setting that option to true. ");
-                
-            reactorBeingTested.IsReflexive = false;
-                
-            Assert.That(reactorBeingTested.IsReflexive,  Is.False,
-                $"The {NameOf<IReactor>()} was marked as being reflexive after setting that option to false. ");
+            Assert.That(reactorToTest.IsTriggered, Is.True);
+            
+            initialNumberOfReactions  = reactorToTest.VersionNumber;
+            reactorToTest.IsReflexive = true;
+            
+            Assert.That(reactorToTest.VersionNumber, Is.EqualTo(initialNumberOfReactions + 1));
+            Assert.That(reactorToTest.IsTriggered,   Is.False);
         }
         
         [Test]
@@ -98,14 +73,14 @@ namespace Tests.Interface_Tests
 
             Assert.That(reactorBeingTested.IsReflexive, Is.False);
             Assert.That(reactorBeingTested.IsNecessary, Is.False);
-            Assert.That(reactorBeingTested.HasBeenTriggered, Is.False);
+            Assert.That(reactorBeingTested.IsTriggered, Is.False);
             reactorBeingTested.Trigger();
 
             for (int i = 0; i < numberOfSubscribers; i++)
             {
                 var subscriber = subscribers[i];
 
-                Assert.That(subscriber.HasBeenTriggered, Is.False);
+                Assert.That(subscriber.IsTriggered, Is.False);
                 Assert.That(subscriber.IsUnstable,       Is.True);
             }
         }
@@ -118,7 +93,7 @@ namespace Tests.Interface_Tests
             TSubscriber[] subscribers;
 
             reactorBeingTested.ForceReaction();
-            Assert.That(reactorBeingTested.HasBeenTriggered, Is.False);
+            Assert.That(reactorBeingTested.IsTriggered, Is.False);
             
             subscribers = AddSubscribersTo(reactorBeingTested, numberOfSubscribers, subscriberFactory);
             reactorBeingTested.Destabilize(null);
@@ -127,7 +102,7 @@ namespace Tests.Interface_Tests
             {
                 var subscriber = subscribers[i];
 
-                Assert.That(subscriber.HasBeenTriggered, Is.False);
+                Assert.That(subscriber.IsTriggered, Is.False);
                 Assert.That(subscriber.IsUnstable,       Is.True);
             }
         }
@@ -141,10 +116,10 @@ namespace Tests.Interface_Tests
             int         expectedNumberOfSubscribers;
             int         actualNumberOfSubscribers;
 
-            if (reactorToTest.HasBeenTriggered is false)
+            if (reactorToTest.IsTriggered is false)
             {
                 reactorToTest.Trigger();
-                Assert.That(reactorToTest.HasBeenTriggered, Is.True);
+                Assert.That(reactorToTest.IsTriggered, Is.True);
             }
             
             originalNumberOfSubscribers = reactorToTest.NumberOfSubscribers;
@@ -184,7 +159,7 @@ namespace Tests.Interface_Tests
             var      subscriber    = subscriberFactory.CreateStableInstance();
 
             reactorToTest.Trigger();
-            Assert.That(reactorToTest.HasBeenTriggered, Is.True);
+            Assert.That(reactorToTest.IsTriggered, Is.True);
 
             reactorToTest.Subscribe(subscriber, false);
             Assert.That(subscriber.IsUnstable, Is.True);
@@ -205,61 +180,42 @@ namespace Tests.Interface_Tests
         }
 
         [Test]
-        public void WhenReactorWithNecessaryDependentsIsTriggered_ReactorAutomaticallyUpdates()
+        public void WhenReactorWithNecessaryDependents_IsTriggered_ReactorAutomaticallyUpdates()
         {
             var  reactorToTest               = reactorFactory.CreateStableInstance();
             var  subscriber                  = subscriberFactory.CreateStableInstance();
             uint initialNumberOfTimesReacted = reactorToTest.VersionNumber;
             
-            Assert.That(reactorToTest.HasBeenTriggered, Is.False);
+            Assert.That(reactorToTest.IsTriggered, Is.False);
             
             reactorToTest.Subscribe(subscriber, true);
             reactorToTest.Trigger();
-            
+
+            Assert.That(reactorToTest.IsTriggered,   Is.False);
             Assert.That(reactorToTest.VersionNumber, Is.EqualTo(initialNumberOfTimesReacted + 1));
             //- TODO : Is there a better way of testing if the reaction goes off?
         }
-        
+
         [Test]
         public void Destabilize_WhenReactorHasNecessaryDependents_ReturnsTrue()
         {
-            var  reactorToTest               = reactorFactory.CreateStableInstance();
-            var  subscriber                  = subscriberFactory.CreateStableInstance();
+            var reactorToTest = reactorFactory.CreateStableInstance();
+            var subscriber    = subscriberFactory.CreateStableInstance();
             
             Assert.That(reactorToTest.IsUnstable, Is.False);
             reactorToTest.Subscribe(subscriber, true);
 
             Assert.That(reactorToTest.Destabilize(null), Is.True);
-            //- TODO : Is there a better way of testing if the reaction goes off?
         }
-        
-        [Test]
-        public void IfMadeReflexive_WhileTriggered_ShouldReact()
-        {
-            var  reactorToTest            = reactorFactory.CreateStableInstance();
-            uint initialNumberOfReactions;
-
-            reactorToTest.IsReflexive = false;
-            Assert.That(reactorToTest.IsReflexive, Is.False);
-            
-            reactorToTest.Trigger();
-            Assert.That(reactorToTest.HasBeenTriggered, Is.True);
-            
-            initialNumberOfReactions  = reactorToTest.VersionNumber;
-            reactorToTest.IsReflexive = true;
-            
-            Assert.That(reactorToTest.VersionNumber, Is.EqualTo(initialNumberOfReactions + 1));
-        }
-
         
         [Test]
         public void IfReconcileIsCalled_WhileNotTriggeredAndNotUnstable_ReturnsTrue()
         {
             var reactorToTest = reactorFactory.CreateStableInstance();
             
-            Assert.That(reactorToTest.HasBeenTriggered, Is.False);
-            Assert.That(reactorToTest.IsUnstable,       Is.False);
-            Assert.That(reactorToTest.Reconcile(),      Is.True);
+            Assert.That(reactorToTest.IsTriggered, Is.False);
+            Assert.That(reactorToTest.IsUnstable,  Is.False);
+            Assert.That(reactorToTest.Reconcile(), Is.True);
         }
         
         // [Test]
@@ -278,7 +234,7 @@ namespace Tests.Interface_Tests
             var reactorToTest = reactorFactory.CreateStableInstance();
 
             reactorToTest.Trigger();
-            Assert.That(reactorToTest.HasBeenTriggered, Is.True);
+            Assert.That(reactorToTest.IsTriggered, Is.True);
             Assert.That(reactorToTest.Reconcile(),      Is.False);
         }
         
@@ -287,7 +243,7 @@ namespace Tests.Interface_Tests
         {
             var reactorToTest = reactorFactory.CreateStableInstance();
 
-            Assert.That(reactorToTest.HasBeenTriggered,  Is.False);
+            Assert.That(reactorToTest.IsTriggered,  Is.False);
             Assert.That(reactorToTest.IsUnstable,        Is.False);
             Assert.That(reactorToTest.AttemptReaction(), Is.False);
         }
@@ -298,24 +254,18 @@ namespace Tests.Interface_Tests
             var reactorToTest = reactorFactory.CreateStableInstance();
 
             reactorToTest.Trigger();
-            Assert.That(reactorToTest.HasBeenTriggered,  Is.True);
+            Assert.That(reactorToTest.IsTriggered,  Is.True);
             Assert.That(reactorToTest.AttemptReaction(), Is.True);
         }
+        
+        // [Test]
+        // public void AttemptReaction_IfUnstable_ReturnsTrue()
+        // {
+        //
+        // }
 
         //[Test]
-        public void WhenReactorWithNecessarySubscribersIsTriggered_ReactorUpdates()
-        {
-            
-        }
-        
-        //[Test]
-        public void WhenNecessaryDependentIsAddedToParent_ParentIsNecessary()
-        {
-           
-        }
-        
-        //[Test]
-        public void WhenAResultBecomesNecessary_ItOnlyNotifiesTheParentItIsNecessaryIfTheResultNeedsToBeUpdated()
+        public void WhenAResultBecomesNecessary_ItOnlyNotifiesTheParentItIsNecessary_IfTheResultNeedsToBeUpdated()
         {
             
         }
@@ -326,18 +276,7 @@ namespace Tests.Interface_Tests
             
         }
         
-        //[Test]
-        public void AttemptReaction_WhenUnstable_ReactsAndReturnsTrue()
-        {
-            
-        }
-        
-        //[Test]
 
-        public void AttemptReaction_WhenTriggered_ReactsAndReturnsTrue()
-        {
-            
-        }
         
         //[Test]
         public void AttemptReaction_WhenNotTriggeredOrUnstable_ReturnsFalse()

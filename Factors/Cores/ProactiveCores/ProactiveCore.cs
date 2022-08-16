@@ -1,25 +1,23 @@
 ﻿using System.Collections.Generic;
-using Core.Factors;
 using Core.States;
 using JetBrains.Annotations;
 
 namespace Factors.Cores.ProactiveCores
 {
-    public abstract class ProactiveCore<T> : FactorCore, IProactiveCore<T>
+    public abstract class ProactiveCore<T> : ProactorCore, IProactiveCore<T>
     {
         #region Instance Fields
 
         [NotNull]
         protected readonly IEqualityComparer<T> valueComparer;
-        protected          T currentValue;
+        protected          T                    currentValue;
 
         #endregion
         
         
         #region Properties
 
-        public virtual  T   Value          => currentValue;
-        public override int UpdatePriority => 0;
+        public virtual T Value => currentValue;
 
         #endregion
 
@@ -33,13 +31,12 @@ namespace Factors.Cores.ProactiveCores
             if (valueComparer.Equals(currentValue, newValue) is false)
             {
                 currentValue = newValue;
-                VersionNumber++;
+                Callback.CoreUpdated(this);
+                
                 return true;
             }
             else return false;
         }
-
-
 
         #endregion
 

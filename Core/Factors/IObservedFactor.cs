@@ -1,6 +1,6 @@
 ﻿namespace Core.Factors
 {
-    public interface IObservedFactor<out T> : IFactor<T>
+    public interface IObservedFactor<T> : IFactor<T>
     {
         T Peek();   
     }

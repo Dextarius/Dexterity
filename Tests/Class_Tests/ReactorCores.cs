@@ -65,7 +65,7 @@ namespace Tests.Class_Tests
             
             foreach (var core in coresToTest)
             {
-                Assert.That(core.HasBeenTriggered, Is.True);
+                Assert.That(core.IsTriggered, Is.True);
             }
         }
 
@@ -275,11 +275,11 @@ namespace Tests.Class_Tests
         //     dependent.MakeNecessary();
         //     factorBeingTested.Subscribe(dependent);
         //     
-        //     Assert.That(dependent.HasBeenTriggered, Is.True);
+        //     Assert.That(dependent.IsTriggered, Is.True);
         //
         //     factorBeingTested.TriggerSubscribers();
         //
-        //     Assert.That(dependent.HasBeenTriggered, Is.True);
+        //     Assert.That(dependent.IsTriggered, Is.True);
         //     Assert.That(dependent.WasUpdated,       Is.True);
         // }
         

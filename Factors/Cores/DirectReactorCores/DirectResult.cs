@@ -41,7 +41,7 @@ namespace Factors.Cores.DirectReactorCores
                 return true;
             }
         }
-        
+
         public bool ValueEquals(TValue valueToCompare) => valueComparer.Equals(currentValue, valueToCompare);
         
         protected abstract TValue GenerateValue();

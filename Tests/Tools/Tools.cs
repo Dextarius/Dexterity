@@ -21,14 +21,10 @@ namespace Tests.Tools
 
         public static T ReturnArgumentValue<T>(T input) => input;
 
-
         public static int AddValues(int input1, int input2) => input1 + input2;
         
         public static int AddValues(int input1, int input2, int input3) => input1 + input2 + input3;
-
-
-
-
+        
         public static Reactive<T> CreateReactiveThatGetsValueOf<T>(Proactive<T> proactiveSourceValue) =>
             new Reactive<T>(proactiveSourceValue);
 

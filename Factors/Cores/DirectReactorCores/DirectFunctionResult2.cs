@@ -22,7 +22,7 @@ namespace Factors.Cores.DirectReactorCores
         #region Properties
 
         public override int NumberOfTriggers => 2;
-        public override int UpdatePriority         => priority;
+        public override int UpdatePriority   => priority;
 
         protected override IEnumerable<IFactor> Triggers
         {

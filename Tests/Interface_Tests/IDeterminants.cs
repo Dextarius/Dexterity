@@ -32,7 +32,6 @@ namespace Tests.Interface_Tests
         #region Tests
 
         //- TODO : All of these subscriber methods may have to test both true and false for isNecessary now.
-        
         [Test]
         public void WhenSubscriberAddsItself_HasSubscriberIsTrue()
         {
@@ -142,7 +141,7 @@ namespace Tests.Interface_Tests
         }
         
         [Test]
-        public void WhenSubscribedTo_IfSubscriberPassedIsNecessaryAsTrue_AlsoBecomesNecessary()
+        public void WhenFactorIsSubscribedTo_IfSubscriberPassesTrueForIsNecessaryArg_FactorBecomesNecessary()
         {
             var factorToTest = factorFactory.CreateInstance();
             var subscriber   = new MockFactorSubscriber();
@@ -154,9 +153,9 @@ namespace Tests.Interface_Tests
             
             Assert.That(factorToTest.IsNecessary, Is.True);
         }
-        
+
         [Test]
-        public void WhenLastNecessarySubscriberUnsubscribes_IsNoLongerNecessary()
+        public void WhenAllNecessarySubscribersHaveUnsubscribedFromFactor_FactorIsNoLongerNecessary()
         {
             var factorToTest        = factorFactory.CreateStableInstance();
             int numberOfSubscribers = 10;
@@ -164,7 +163,7 @@ namespace Tests.Interface_Tests
 
             if (factorToTest.IsNecessary)
             {
-                Assert.Inconclusive("The tested IFactor was already Necessary before subscribers were added.");
+                Assert.Inconclusive("The tested Factor was already Necessary before subscribers were added.");
             }
             
             for (int i = 0; i < numberOfSubscribers; i++)
@@ -471,7 +470,7 @@ namespace Tests.Interface_Tests
     //         {
     //             var subscriber = subscribers[i];
     //             
-    //             Assert.That(subscriber.HasBeenTriggered, Is.True);
+    //             Assert.That(subscriber.IsTriggered, Is.True);
     //         }
     //     }
     //     

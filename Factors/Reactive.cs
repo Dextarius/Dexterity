@@ -35,6 +35,8 @@ namespace Factors
 
         #region Instance Methods
 
+        public bool ValueEquals(T valueToCompare) => core.ValueEquals(valueToCompare);
+
         public override void SwapCore(IResult<T> newCore)
         {
             var oldValue = core.Value;
@@ -46,7 +48,7 @@ namespace Factors
                 TriggerSubscribers();
             }
         }
-        
+
         public override string ToString() => $"{Name} => {Value}";
 
         //   public T Peek() => core.Peek();
@@ -65,6 +67,7 @@ namespace Factors
 
         public Reactive([NotNull] IResult<T> valueSource, string name = null) : base(valueSource, name)
         {
+            
         }
 
         public Reactive(Func<T> functionToDetermineValue, IEqualityComparer<T> comparer, string name = null) : 

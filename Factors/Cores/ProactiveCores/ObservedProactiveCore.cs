@@ -24,8 +24,6 @@ namespace Factors.Cores.ProactiveCores
             }
         }
 
-        protected IFactor Owner { get; set; }
-        
         #endregion
         
         
@@ -33,61 +31,39 @@ namespace Factors.Cores.ProactiveCores
 
         public void NotifyInvolved()
         {
-            if (Owner is null) 
+            if (Callback is null) 
             { 
                 throw new InvalidOperationException(
                     $"An {nameof(ObservedProactiveCore<T>)} attempted to notify the Observer that it was involved, " +
-                    "but its Owner field is null"); 
+                    $"but its {nameof(Callback)} field is null"); 
             }
             
-            CausalObserver.ForThread.NotifyInvolved(Owner);
+            CausalObserver.ForThread.NotifyInvolved(Callback);
         }
         
         public void NotifyChanged()
         {
-            if (Owner is null) 
+            if (Callback is null) 
             { 
                 throw new InvalidOperationException(
                 $"An {nameof(ObservedProactiveCore<T>)} attempted to notify the Observer that it had changed, " +
-                 "but its Owner field is null"); 
+                $"but its {nameof(Callback)} field is null"); 
             }
             
-            CausalObserver.ForThread.NotifyChanged(Owner);
+            CausalObserver.ForThread.NotifyChanged(Callback);
         }
-        
         //^ TODO : Consolidate the error strings for the above methods, they're different by two words.
 
         public override bool SetValueIfNotEqual(T newValue)
         {
             if (base.SetValueIfNotEqual(newValue))
             {
-                NotifyChanged();
+                NotifyChanged();  //- Should this happen before we trigger our subscribers?
                 return true;
             }
             else return false;
         }
 
-        //- TODO : Come up with something better than this, it's awkward as heck having to create the core,
-        //         then create the Proactive using the core, then use the core to set the Proactive as it's owner.
-        public void SetOwner(IFactor factor)
-        {
-            if (factor is null) { throw new ArgumentNullException(nameof(factor)); }
-            
-            if (Owner != null)
-            {
-                throw new InvalidOperationException(
-                    $"A process attempted to set the Owner for a {nameof(ObservedProactiveCore<T>)} to {factor}, " +
-                    $"but its Owner property is already assigned to {Owner}. ");
-            }
-            
-            Owner = factor ?? throw new ArgumentNullException(nameof(factor));
-        }
-        
-        public override void Dispose()
-        {
-            Owner = null;
-        }
-        
         #endregion
         
 

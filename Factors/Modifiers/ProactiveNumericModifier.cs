@@ -40,7 +40,7 @@ namespace Factors.Modifiers
             {
                 if (core.SetAmount(value))
                 {
-                    TriggerSubscribers();
+                    OnUpdated();
                 }
             }
         }

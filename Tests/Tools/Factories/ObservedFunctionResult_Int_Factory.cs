@@ -16,8 +16,6 @@ namespace Tests.Tools.Factories
             Func<int> valueFunction = () => valueSource.Value + Tools.GenerateRandomInt();
             var       resultCore    = new ObservedFunctionResult<int>(valueFunction);
 
-            sourceCore.SetOwner(valueSource);
-
             return new Reactive<int>(resultCore);
         }
 

@@ -5,7 +5,6 @@ namespace Core.Factors
 {
     public interface IFactor : INameable, IPrioritizedUpdate, IVersioned
     {
-
         bool Subscribe(IFactorSubscriber subscriberToAdd, bool isNecessary);
         void Unsubscribe(IFactorSubscriber subscriberToRemove);
         void NotifyNecessary(IFactorSubscriber necessarySubscriber);
@@ -16,11 +15,17 @@ namespace Core.Factors
         //  because NotifyNecessary is supposed to communicate that one of its subscribers relies on it.
         //  Perhaps it's a mistake in the interface that non-subscribers can call the method.  
         //- TODO : Consider making Subscribe() return some sort of 'subscription' object and put
-        //         the method on there instead.  This may make unsubscribing simpler as well
+        //         the method on there instead.  This may make unsubscribing simpler as well.
     }
 
-    public interface IFactor<out T> : IFactor,  IValue<T>
+    public interface IFactor<T> : IFactor,  IValue<T>, IValueEquatable<T>
     {
-
+        
+    }
+    
+    public interface ITrigger 
+    {
+        bool Subscribe(IFactorSubscriber subscriberToAdd, bool isNecessary);
+        void Unsubscribe(IFactorSubscriber subscriberToRemove);
     }
 }

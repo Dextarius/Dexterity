@@ -2,7 +2,7 @@
 
 namespace Core.Factors
 {
-    public interface IReactive<out T> : IReactor, IFactor<T>
+    public interface IReactive<T> : IReactor, IFactor<T>
     {
         
     }

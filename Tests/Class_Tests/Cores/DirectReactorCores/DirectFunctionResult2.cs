@@ -41,7 +41,7 @@ namespace Tests.Class_Tests.Cores.DirectReactorCores
             {
                 valueSource1.Value = GenerateRandomInt();
                 valueSource2.Value = GenerateRandomInt();
-                coreBeingTested.GenerateOutcome();
+                coreBeingTested.AttemptReaction();
                 functionValue = valueFunction.Invoke(valueSource1.Value, valueSource2.Value);
                 
                 Assert.That(reactive.Value, Is.EqualTo(functionValue));

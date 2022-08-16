@@ -8,7 +8,5 @@ namespace Core.Factors
         int  NumberOfSubscribers { get; }
         
         void TriggerSubscribers();
-       // void CopySubscriptionsTo(IFactor factorToCopyTo);
-       
     }
 }

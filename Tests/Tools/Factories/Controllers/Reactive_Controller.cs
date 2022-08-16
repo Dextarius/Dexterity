@@ -5,21 +5,40 @@ using Tests.Tools.Interfaces;
 
 namespace Tests.Tools.Factories.Controllers
 {
-    public abstract class Reactive_Controller<TCore, TValue> : Factor_T_Controller<Reactive<TValue>, TValue>, 
+    public class Reactive_Controller<TCoreController, TValue> : Factor_T_Controller<Reactive<TValue>, TValue>, 
         IReactive_Controller<Reactive<TValue> , TValue>, IFactorSubscriberController<Reactive<TValue>>
-        where TCore : IResult<TValue>
+        where TCoreController : IResult_Controller<TValue>, new()
     {
-        public abstract TValue ExpectedValue { get; }
-        public          TCore  Core          { get; }
-        
-        public bool CheckIfTriggered()         => ControlledInstance.HasBeenTriggered;
-        public void MakeStableAndUntriggered() => ControlledInstance.AttemptReaction();
-        public void MakeNecessary()            => ControlledInstance.IsReflexive = true;
+        #region Properties
 
-        protected Reactive_Controller(TCore core)
+        public TCoreController CoreController { get; }
+        public IResult<TValue> Core           => CoreController.ControlledInstance;
+        public TValue          ExpectedValue  => CoreController.ExpectedValue;
+
+        #endregion
+
+        
+        #region Instance Methods
+
+        public          bool   CheckIfTriggered()            => ControlledInstance.IsTriggered;
+        public          void   MakeStableAndUntriggered()    => ControlledInstance.AttemptReaction();
+        public          void   MakeNecessary()               => ControlledInstance.IsReflexive = true;
+        public override TValue ChangeValueToANonEqualValue() => CoreController.ChangeValueToANonEqualValue();
+        public override TValue SetValueToAnEqualValue()      => CoreController.SetValueToAnEqualValue();
+        public override TValue GetRandomInstanceOfValuesType_NotEqualTo(TValue valueToAvoid) =>
+            CoreController.GetRandomInstanceOfValuesType_NotEqualTo(valueToAvoid);
+
+        #endregion
+
+        
+        #region Constructors
+
+        public Reactive_Controller()
         {
-            Core = core;
-            ControlledInstance = new Reactive<TValue>(core);
+            CoreController     = new TCoreController();
+            ControlledInstance = new Reactive<TValue>(Core);
         }
+
+        #endregion
     }
 }

@@ -21,7 +21,7 @@ namespace Factors.Cores.ObservedReactorCores
         {
             get
             {
-                NotifyInvolved(Owner);
+                NotifyInvolved(Callback);
                 return currentValue;
             }
         }
