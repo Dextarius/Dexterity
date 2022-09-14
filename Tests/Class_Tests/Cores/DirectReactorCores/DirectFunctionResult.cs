@@ -14,7 +14,7 @@ namespace Tests.Class_Tests.Cores.DirectReactorCores
         {
             var            valueSource     = new Proactive<int>(GenerateRandomInt());
             Func<int, int> valueFunction   = (value) => value;
-            var            coreBeingTested = new DirectFunctionResult<int, int>(valueFunction, valueSource);
+            var            coreBeingTested = new DirectFunctionResult<int, int>(valueSource, valueFunction);
             var            reactive        = new Reactive<int>(coreBeingTested);
             int            functionValue;
 
@@ -27,7 +27,7 @@ namespace Tests.Class_Tests.Cores.DirectReactorCores
         {
             var            valueSource     = new Proactive<int>(GenerateRandomInt());
             Func<int, int> valueFunction   = (value) => value;
-            var            coreBeingTested = new DirectFunctionResult<int, int>(valueFunction, valueSource);
+            var            coreBeingTested = new DirectFunctionResult<int, int>(valueSource, valueFunction);
             var            reactive        = new Reactive<int>(coreBeingTested);
             int            functionValue;
 

@@ -4,50 +4,57 @@ using Core.States;
 using static Core.Tools.Types;
 
 namespace Factors.Cores.ProactiveCores
-{ 
+{
     public class ObservedHashSetCore<T> : ObservedCollectionCore<HashSet<T>, T>, ISetCore<T>
     {
-        public HashSet<T> AsNormalSet() => new HashSet<T>(Collection);
 
-        public new bool Add(T item)
+        protected override bool AddItem(T item, out long notifyInvolvedFlags, out long additionalChangeFlags)
         {
-            bool wasSuccessful = collection.Add(item);
-            
-            if (wasSuccessful)
-            {
-                OnCollectionChanged();
-            }
-            
-            NotifyInvolved();
+            additionalChangeFlags = TriggerFlags.None;
 
-            return wasSuccessful;
+            if (Collection.Add(item))
+            {
+                notifyInvolvedFlags = TriggerFlags.ItemRemoved;
+                return true;
+            }
+            else
+            {
+                notifyInvolvedFlags = TriggerFlags.None;
+                return false;
+            }
         }
-        
+
+        protected override bool RemoveItem(T item, out long additionalChangeFlags)
+        {
+            additionalChangeFlags = TriggerFlags.None;
+            return Collection.Remove(item);
+        }
+
         public int RemoveWhere(Predicate<T> predicate)
         {
-            int elementsRemoved = collection.RemoveWhere(predicate);
+            int numberOfItemsRemoved = collection.RemoveWhere(predicate);
 
-            if (elementsRemoved > 0)
+            if (numberOfItemsRemoved > 0)
             {
-                OnCollectionChanged();
+                OnCollectionChanged(TriggerFlags.ItemRemoved);
             }
-            
-            NotifyInvolved();
 
-            return elementsRemoved;
+            NotifyInvolved(TriggerFlags.TriggerWhenItemAdded | TriggerFlags.ItemReplaced);
+
+            return numberOfItemsRemoved;
         }
 
         public void ExceptWith(IEnumerable<T> other)
         {
             int  oldCount = collection.Count;
             bool elementsWereRemoved;
-            
+
             collection.ExceptWith(other);
             elementsWereRemoved = collection.Count != oldCount;
 
             if (elementsWereRemoved)
             {
-                OnCollectionChanged();
+                OnCollectionChanged(TriggerFlags.ItemRemoved);
             }
         }
 
@@ -55,73 +62,167 @@ namespace Factors.Cores.ProactiveCores
         {
             int  oldCount = collection.Count;
             bool elementsWereRemoved;
-            
+
             collection.IntersectWith(other);
             elementsWereRemoved = collection.Count != oldCount;
 
             if (elementsWereRemoved)
             {
-                OnCollectionChanged();
+                OnCollectionChanged(TriggerFlags.ItemRemoved);
             }
         }
-        
+
         public void SymmetricExceptWith(IEnumerable<T> other)
         {
             int  oldCount = collection.Count;
             bool elementsWereRemoved;
-            
+
             collection.SymmetricExceptWith(other);
             elementsWereRemoved = collection.Count != oldCount;
 
             if (elementsWereRemoved)
             {
-                OnCollectionChanged();
+                OnCollectionChanged(TriggerFlags.ItemRemoved);
             }
         }
-        
+
         public void UnionWith(IEnumerable<T> other)
         {
             int  oldCount = collection.Count;
-            bool elementsWereRemoved;
-            
-            collection.UnionWith(other);
-            elementsWereRemoved = collection.Count != oldCount;
+            bool elementsWereAdded;
 
-            if (elementsWereRemoved)
+            collection.UnionWith(other);
+            elementsWereAdded = collection.Count != oldCount;
+
+            if (elementsWereAdded)
             {
-                OnCollectionChanged();
+                OnCollectionChanged(TriggerFlags.ItemAdded);
             }
         }
-        
-        public bool IsProperSupersetOf(IEnumerable<T> other) => Collection.IsProperSupersetOf(other);
-        public bool   IsProperSubsetOf(IEnumerable<T> other) => Collection.IsProperSubsetOf(other);
-        public bool       IsSupersetOf(IEnumerable<T> other) => Collection.IsSupersetOf(other);
-        public bool         IsSubsetOf(IEnumerable<T> other) => Collection.IsSubsetOf(other);
-        public bool          SetEquals(IEnumerable<T> other) => Collection.SetEquals(other);
-        public bool           Overlaps(IEnumerable<T> other) => Collection.Overlaps(other);
 
+        public bool IsProperSupersetOf(IEnumerable<T> other)
+        {
+            bool meetsCriteria = Collection.IsProperSupersetOf(other);
+
+            if (meetsCriteria)
+            {
+                NotifyInvolved(TriggerFlags.TriggerWhenItemRemoved | TriggerFlags.TriggerWhenItemReplaced);
+            }
+            else
+            {
+                NotifyInvolved(TriggerFlags.TriggerWhenItemAdded | TriggerFlags.TriggerWhenItemReplaced);
+            }
+            
+            return meetsCriteria;
+        }
+
+        public bool IsProperSubsetOf(IEnumerable<T> other)
+        {
+            bool meetsCriteria = Collection.IsProperSubsetOf(other);
+
+            if (meetsCriteria)
+            {
+                NotifyInvolved(TriggerFlags.TriggerWhenItemAdded | TriggerFlags.TriggerWhenItemReplaced);
+            }
+            else
+            {
+                NotifyInvolved(TriggerFlags.TriggerWhenItemRemoved | TriggerFlags.TriggerWhenItemReplaced);
+            }
+            
+            return meetsCriteria;
+        }
+
+        public bool IsSupersetOf(IEnumerable<T> other)
+        {
+            bool meetsCriteria = Collection.IsSupersetOf(other);
+
+            if (meetsCriteria)
+            {
+                NotifyInvolved(TriggerFlags.TriggerWhenItemRemoved | TriggerFlags.TriggerWhenItemReplaced);
+            }
+            else
+            {
+                NotifyInvolved(TriggerFlags.TriggerWhenItemAdded | TriggerFlags.TriggerWhenItemReplaced);
+            }
+            
+            return meetsCriteria;
+        }
+
+        public bool IsSubsetOf(IEnumerable<T> other)
+        {
+            bool meetsCriteria = Collection.IsSubsetOf(other);
+
+            if (meetsCriteria)
+            {
+                NotifyInvolved(TriggerFlags.TriggerWhenItemAdded | TriggerFlags.TriggerWhenItemReplaced);
+            }
+            else
+            {
+                NotifyInvolved(TriggerFlags.TriggerWhenItemRemoved | TriggerFlags.TriggerWhenItemReplaced);
+            }
+            
+            return meetsCriteria;
+        }
+
+        public bool SetEquals(IEnumerable<T> other)
+        {
+            bool meetsCriteria = Collection.SetEquals(other);
+            
+            NotifyInvolved(TriggerFlags.TriggerWhenItemAdded   | 
+                           TriggerFlags.TriggerWhenItemRemoved | 
+                           TriggerFlags.TriggerWhenItemReplaced);
+            return meetsCriteria;
+        }
+
+        public bool Overlaps(IEnumerable<T> other)
+        {
+            bool meetsCriteria = Collection.Overlaps(other);
+
+            if (meetsCriteria)
+            {
+                NotifyInvolved(TriggerFlags.TriggerWhenItemRemoved | TriggerFlags.TriggerWhenItemReplaced);
+            }
+            else
+            {
+                NotifyInvolved(TriggerFlags.TriggerWhenItemAdded | TriggerFlags.TriggerWhenItemReplaced);
+            }
+            
+            return meetsCriteria;
+        }
+
+        public HashSet<T> AsNormalSet()
+        {
+            var createdSet =  new HashSet<T>(Collection);
+
+            NotifyInvolved(TriggerFlags.TriggerWhenItemAdded   | 
+                           TriggerFlags.TriggerWhenItemRemoved | 
+                           TriggerFlags.TriggerWhenItemReplaced);
+            return createdSet;
+        }
+        
         public void TrimExcess() => Collection.TrimExcess();
+
 
         #region Constructors
 
         protected ObservedHashSetCore(HashSet<T> hashSet) : base(hashSet)
         {
-            
+
         }
-        
+
         public ObservedHashSetCore(
             IEnumerable<T> collectionToCopy, IEqualityComparer<T> comparerForElements = null) :
-                this(new HashSet<T>(collectionToCopy, comparerForElements))
+            this(new HashSet<T>(collectionToCopy, comparerForElements))
         {
-            
+
         }
-        
-        public ObservedHashSetCore(HashSet<T> setToCopy, IEqualityComparer<T> comparerForElements = null) : 
+
+        public ObservedHashSetCore(HashSet<T> setToCopy, IEqualityComparer<T> comparerForElements = null) :
             this(new HashSet<T>(setToCopy, comparerForElements ?? setToCopy.Comparer))
         {
-            
+
         }
-        
+
         public ObservedHashSetCore(IEqualityComparer<T> comparer) : this(new HashSet<T>(comparer))
         {
         }
@@ -129,9 +230,7 @@ namespace Factors.Cores.ProactiveCores
         public ObservedHashSetCore() : this(new HashSet<T>())
         {
         }
-
-
-
+        
         #endregion
     }
 }

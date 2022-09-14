@@ -5,6 +5,13 @@ namespace Core.Redirection
 {
     public abstract class LinkedEnumerator : IEnumerator
     {
+        #region Instance Fields
+
+        protected bool enumerationStarted = false;
+
+        #endregion
+        
+        
         #region Properties
 
         protected virtual IEnumerator EnumeratorForLinkedCollection { get; }
@@ -26,9 +33,16 @@ namespace Core.Redirection
 
         //- Keep in mind this is called before the enumerator takes whatever specific action uses it
         protected abstract void OnInteraction();
+        protected abstract void OnEnumerationStarted();
 
         public bool MoveNext()
         {
+            if (enumerationStarted is false)
+            {
+                OnEnumerationStarted();
+                enumerationStarted = true;
+            }
+            
             OnInteraction();
             return EnumeratorForLinkedCollection.MoveNext();
         }
@@ -37,6 +51,7 @@ namespace Core.Redirection
         {
             OnInteraction();
             EnumeratorForLinkedCollection.Reset();
+            enumerationStarted = false;
         }
 
         #endregion
@@ -61,21 +76,21 @@ namespace Core.Redirection
     {
         #region Instance Fields
 
-        private readonly IEnumerator<T> enumeratorForParentsCollection;
+        private readonly IEnumerator<T> enumeratorForParentCollection;
 
         #endregion
         
 
         #region Properties
 
-        protected override IEnumerator EnumeratorForLinkedCollection => enumeratorForParentsCollection;
+        protected override IEnumerator EnumeratorForLinkedCollection => enumeratorForParentCollection;
 
         public new T Current
         {
             get
             {
                 OnInteraction();
-                return enumeratorForParentsCollection.Current;
+                return enumeratorForParentCollection.Current;
             }
         }
 
@@ -87,7 +102,7 @@ namespace Core.Redirection
         public void Dispose()
         {
             //- TODO : Do we want this to call OnInteraction()?
-            enumeratorForParentsCollection.Dispose();
+            enumeratorForParentCollection.Dispose();
         }
 
         #endregion
@@ -97,7 +112,7 @@ namespace Core.Redirection
 
         protected LinkedEnumerator(IEnumerator<T> enumeratorForParent)
         {
-            enumeratorForParentsCollection = enumeratorForParent;
+            enumeratorForParentCollection = enumeratorForParent;
         }
 
         #endregion

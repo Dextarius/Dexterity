@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using Core.Factors;
 
-namespace Core.Factors
+namespace Factors
 {
     public class DefaultModTypeOrder : IModTypeOrder
     {

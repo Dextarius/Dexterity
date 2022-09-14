@@ -16,15 +16,15 @@ namespace Factors.Observer
     {
         #region Constants
 
-        private const int    InitialArraySize      = 10;
-        private const string NullObjectInvolved    = "A process attempted to submit a null object as being involved in determining an outcome.";
-        private const string ProvidedNullOutcome   = "A thread requested a process be observed, but the accompanying Outcome was null.";
-        private const string ProvidedNullProcess   = "A thread requested a process be observed, but the process provided was null.";
-        private const string CurrentOutcomeIsNull  = "A process attempted to call " + nameof(NotifyInvolved) + "but the " + nameof(ObservedResponse) + " at the current index was null.";
-        private const string ChangedStateIsNull    = "A process attempted to submit a null object as having been changed during an outcome.";
-        private const string ObserverAlreadyPaused = "A process attempted to pause the Observer, but it was already paused.";
-        private const string ObserverNotPaused     = "A process attempted to resume the Observer, but it was not paused.";
-        private const string NextOutcomeIsNotNull  = "A process attempted to move to a new event, but the next event already had an Outcome.";
+        protected const int    InitialArraySize      = 10;
+        protected const string NullObjectInvolved    = "A process attempted to submit a null object as being involved in determining an outcome.";
+        protected const string ProvidedNullOutcome   = "A thread requested a process be observed, but the accompanying Outcome was null.";
+        protected const string ProvidedNullProcess   = "A thread requested a process be observed, but the process provided was null.";
+        protected const string CurrentOutcomeIsNull  = "A process attempted to call " + nameof(NotifyInvolved) + "but the " + nameof(ObservedResponse) + " at the current index was null.";
+        protected const string ChangedStateIsNull    = "A process attempted to submit a null object as having been changed during an outcome.";
+        protected const string ObserverAlreadyPaused = "A process attempted to pause the Observer, but it was already paused.";
+        protected const string ObserverNotPaused     = "A process attempted to resume the Observer, but it was not paused.";
+        protected const string NextOutcomeIsNotNull  = "A process attempted to move to a new event, but the next event already had an Outcome.";
      // private const string NoCurrentInfluences   = "A process attempted to clear the influences for the current" + 
      //                                                  nameof(ObserverInstance) +" event, but no event was being observed. ";
         #endregion
@@ -32,9 +32,9 @@ namespace Factors.Observer
         
         #region Instance Fields
 
-        [CanBeNull] 
-        private TObserved currentSubject;
-        private bool      isObservationPaused;
+        [CanBeNull]
+        protected TObserved currentSubject;
+        private   bool      isObservationPaused;
         
         #endregion
         
@@ -42,19 +42,23 @@ namespace Factors.Observer
         #region Properties
 
         public bool IsCurrentlyObserving => currentSubject != null  &&  isObservationPaused is false;
+        
+        //- We could use this to access the Reactor itself inside of its reaction function.
+        //- ObservedReactor?  ActiveReactor?
+        public TObserved Self { get; protected set; }
 
         #endregion
 
 
         #region Instance Methods
 
-        public void NotifyInvolved(TFactor involvedObject)
+        public void NotifyInvolved(TFactor involvedObject, long triggerFlags)
         {
             if (involvedObject == null) { throw new ArgumentNullException(nameof(involvedObject), NullObjectInvolved); }
 
             if (IsCurrentlyObserving)
             {
-                currentSubject.Notify_InfluencedBy(involvedObject);
+                currentSubject.Notify_InfluencedBy(involvedObject, triggerFlags);
             }
         }
 
@@ -180,6 +184,4 @@ namespace Factors.Observer
 
         #endregion
     }
-
-    
 }

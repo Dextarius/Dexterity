@@ -4,6 +4,6 @@ namespace Core.States
 {
     public interface IObserved
     {
-        void Notify_InfluencedBy(IFactor determinant);
+        void Notify_InfluencedBy(IFactor determinant, long triggerFlags);
     }
 }

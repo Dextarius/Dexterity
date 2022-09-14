@@ -2,11 +2,6 @@
 
 namespace Factors.Cores
 {
-    public abstract class ValueCore<TValue> : ReactorCore
-    {
-        
-    }
-
     public abstract class Result<TValue> : ReactorCore
     {
         #region Instance Fields
@@ -15,34 +10,40 @@ namespace Factors.Cores
 
         #endregion
         
-        public virtual TValue Value => currentValue;
-
-        protected override bool CreateOutcome()
+        public virtual TValue Value
         {
-            
+            get
+            {
+                AttemptReaction();
+                return currentValue;
+            }
+        }
+
+        protected override long CreateOutcome()
+        {
             TValue oldValue = currentValue;
             TValue newValue = GenerateValue();
             
-         // SubscribeToInputs();
             //- TODO : What if the input is somehow invalidated/changed during GenerateValue()?
+            // SubscribeToInputs();
+            
+            // if (modifiers?.Count > 0)
+            // {
+            //     newValue = modifiers.Modify(newValue);
+            // }
 
-            if (ValuesAreDifferent(oldValue, newValue))
-            {
-                return false;
-            }
-            else
+            if (ValuesAreDifferent(oldValue, newValue, out var triggerFlags))
             {
                 currentValue = newValue;
-                return true;
             }
+
+            return triggerFlags;
         }
         
-        
-        
-        public bool ValueEquals(TValue valueToCompare) => ValuesAreDifferent(currentValue, valueToCompare) is false;
+        public bool ValueEquals(TValue valueToCompare) => ValuesAreDifferent(currentValue, valueToCompare, out _) is false;
 
 
-        public    abstract bool   ValuesAreDifferent(TValue value1, TValue value2);
+        public    abstract bool   ValuesAreDifferent(TValue first, TValue second, out long triggerFlags);
         protected abstract TValue GenerateValue();
     }
 }

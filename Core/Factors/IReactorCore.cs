@@ -8,7 +8,7 @@ namespace Core.Factors
         void SetCallback(IReactorCoreCallback callback);
     }
     
-    public interface IReactorCore<T> : IReactorCore, IValue<T>, IValueEquatable<T>
+    public interface IReactorCore<T> : IReactorCore, IValueCore<T>
     {
         
     }

@@ -6,6 +6,7 @@ using Core.States;
 using Core.Tools;
 using Factors.Collections;
 using static Dextarius.Collections.ExtensionMethods;
+using static Factors.CollectionFactor;
 
 
 namespace Factors.Cores.ObservedReactorCores.CollectionResults
@@ -30,11 +31,18 @@ namespace Factors.Cores.ObservedReactorCores.CollectionResults
         
         public ICollection<TKey>   Keys   => keys   ??= new OutcomeKeyConservator(this);
         public ICollection<TValue> Values => values ??= new OutcomeValueConservator(this);
-        //^ The keys/value collections always represents the CURRENT dictionary keys/values (that's important to remember).
-        //  This is not a static copy of what keys were present when it was called!
+        //^ The keys/values collections always represents our CURRENT keys/values (that's important to remember).
+        //  This does not return a static copy of what keys/values were present when this was called!
 
         #endregion
 
+
+        #region Static Methods
+
+
+
+        #endregion
+        
 
         #region Instance Methods
 
@@ -52,9 +60,10 @@ namespace Factors.Cores.ObservedReactorCores.CollectionResults
             IEnumerable<KeyValuePair<TKey, TValue>> elements) => 
                 elements.ToDictionary(keyComparer);
 
-        protected override bool AreCollectionsEqual
-            (Dictionary<TKey, TValue> dictionary1, Dictionary<TKey, TValue> dictionary2) =>
-                dictionary1.HasSameKeysAndValuesAs(dictionary2, valueComparer);
+        protected override bool AreCollectionsEqual(Dictionary<TKey, TValue> newCollection, 
+                                                    Dictionary<TKey, TValue> oldCollection, 
+                                                out long                     triggerFlags) =>
+            HaveSameKeysAndValues(newCollection, oldCollection, valueComparer, out triggerFlags);
 
         #endregion
 

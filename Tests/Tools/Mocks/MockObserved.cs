@@ -13,5 +13,10 @@ namespace Tests.Tools.Mocks
         {
             WasInfluenced = true;
         }
+
+        public void Notify_InfluencedBy(IFactor determinant, long triggerFlags)
+        {
+            WasInfluenced = true;
+        }
     }
 }

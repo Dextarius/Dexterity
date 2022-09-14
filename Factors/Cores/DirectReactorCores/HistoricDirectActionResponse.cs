@@ -1,21 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using Core.Factors;
-using Core.States;
 using Core.Tools;
-using Factors.Cores.DirectReactorCores;
 using JetBrains.Annotations;
 
-namespace Factors
+namespace Factors.Cores.DirectReactorCores
 {
-    public class HistoricDirectFunctionResult<TInput, TOutput> : DirectResult<TOutput> 
+    public class HistoricDirectActionResponse<TInput> : HistoricDirectReactor<TInput>
     {
         #region Instance Fields
 
         [NotNull]
-        private readonly Func<TInput, TInput, TOutput> valueFunction;
-        private readonly IFactor<TInput>               inputSource;
-        private          TInput                        lastKnownValueOfInput;
+        private readonly Action<TInput, TInput> actionToTake;
 
         #endregion
 
@@ -38,7 +34,7 @@ namespace Factors
         
         #region Static Methods
 
-        protected static string CreateNameFrom(Func<TInput, TInput, TOutput> valueDelegate, IFactor<TInput> inputSource) => 
+        protected static string CreateNameFrom(Action<TInput, TInput> valueDelegate, IFactor<TInput> inputSource) => 
             Delegates.CreateStringShowingArgumentBeingPassedToDelegate(inputSource, valueDelegate);
 
         #endregion
@@ -46,36 +42,34 @@ namespace Factors
         
         #region Instance Methods
 
-        protected override TOutput GenerateValue()
+        protected override long CreateOutcome()
         {
             var lastKnownValue = lastKnownValueOfInput;
             var newValue       = inputSource.Value;
 
             lastKnownValueOfInput = newValue;
+            actionToTake(newValue, lastKnownValue);
 
-            return valueFunction(newValue, lastKnownValue); 
+            return TriggerFlags.Default;
             //- Make sure the parameter order of things using old and new values stays consistent.
         }
 
-        public override string ToString() => CreateNameFrom(valueFunction, inputSource);
+        public override string ToString() => CreateNameFrom(actionToTake, inputSource);
         
         #endregion
         
         
         #region Constructors
 
-        public HistoricDirectFunctionResult(Func<TInput, TInput, TOutput> functionThatDeterminesValue,
-                                            IFactor<TInput>               factorToUseAsInput,
-                                            IEqualityComparer<TOutput>    comparer = null)
-            : base(comparer)
+        public HistoricDirectActionResponse(IFactor<TInput>        factorToUseAsInput,
+                                            Action<TInput, TInput> functionThatDeterminesValue)
+            : base(factorToUseAsInput)
         {
-            valueFunction = functionThatDeterminesValue?? throw new ArgumentNullException(nameof(functionThatDeterminesValue));
-            inputSource   = factorToUseAsInput         ?? throw new ArgumentNullException(nameof(factorToUseAsInput));
+            actionToTake = functionThatDeterminesValue?? throw new ArgumentNullException(nameof(functionThatDeterminesValue));
         }
 
         #endregion
         
         //- TODO : See what you can consolidate between this class and the regular DirectFunctionResult<T, T>
     }
-    
 }

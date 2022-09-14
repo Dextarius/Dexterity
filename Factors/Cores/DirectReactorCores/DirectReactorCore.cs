@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Core.Factors;
+using Core.States;
 using Factors.Observer;
 
 namespace Factors.Cores.DirectReactorCores
@@ -39,5 +40,17 @@ namespace Factors.Cores.DirectReactorCores
         // public void NotifyChanged(IFactor involvedFactor)  => Observer.NotifyChanged(involvedFactor);
         
         #endregion
+
+
+        #region Constructors
+
+        protected DirectReactorCore(bool useWeakSubscriber = true) : base(useWeakSubscriber)
+        {
+
+        }
+
+        #endregion
     }
+
+    
 }

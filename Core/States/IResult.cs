@@ -3,8 +3,10 @@ using Core.Redirection;
 
 namespace Core.States
 {
-    public interface IResult<T> : IReactorCore, IValueCore<T>
+    public interface IResult<T> : IReactorCore, IValueCore<T>, IModifiable<T>
     {
-
+        
     }
+    
+    
 }

@@ -8,44 +8,87 @@ namespace Factors.Cores.DirectReactorCores
     {
         #region Instance Fields
 
-        protected readonly IEqualityComparer<TValue> valueComparer;
-        protected          TValue                    currentValue;
+        protected readonly IEqualityComparer<TValue>  valueComparer;
+        protected          TValue                     currentValue;
+        protected          ModifierCollection<TValue> modifiers;
 
         #endregion
 
         
         #region Properties
 
-        public TValue Value => currentValue;
+        public TValue Value
+        {
+            get
+            {
+                AttemptReaction();
+                return currentValue;
+            }
+        }
+
+        public IModifierCollection<TValue> Modifiers => modifiers ??= CreateModifierCollection<TValue>();
 
         #endregion
 
 
         #region Instance Methods
         
-        protected override bool CreateOutcome()
+        protected override long CreateOutcome()
         {
             TValue oldValue = currentValue;
             TValue newValue = GenerateValue();
-
-            SubscribeToInputs();
+            
             //- TODO : What if the input is somehow invalidated/changed during GenerateValue()?
-
-            if (valueComparer.Equals(oldValue, newValue))
+            SubscribeToInputs();
+            
+            if (modifiers?.Count > 0)
             {
+                newValue = modifiers.Modify(newValue);
+            }
+
+            if (ValuesAreDifferent(oldValue, newValue, out var triggerFlags))
+            {
+                currentValue = newValue;
+            }
+
+            return triggerFlags;
+        }
+
+        public bool ValueEquals(TValue valueToCompare) => ValuesAreDifferent(currentValue, valueToCompare, out _) is false;
+        
+        public TValue Peek() => currentValue;
+
+        protected abstract TValue GenerateValue();
+        
+        //v This method is duplicated in ObservedResult.
+        public ModifierCollection<TValue> ReplaceModifierCollection(ModifierCollection<TValue> newCollection)
+        {
+            var oldCollection = modifiers;
+
+            if (oldCollection != null)
+            {
+                RemoveTrigger(oldCollection);
+            }
+
+            modifiers = newCollection;
+            AddTrigger(newCollection, IsReflexive);
+            return oldCollection;
+        }
+        
+        protected virtual bool ValuesAreDifferent(TValue first, TValue second, out long triggerFlags)
+        {
+            if (valueComparer.Equals(first, second))
+            {
+                triggerFlags = TriggerFlags.None;
                 return false;
             }
             else
             {
-                currentValue = newValue;
+                triggerFlags = TriggerFlags.Default;
                 return true;
             }
         }
 
-        public bool ValueEquals(TValue valueToCompare) => valueComparer.Equals(currentValue, valueToCompare);
-        
-        protected abstract TValue GenerateValue();
-        
         #endregion
 
 

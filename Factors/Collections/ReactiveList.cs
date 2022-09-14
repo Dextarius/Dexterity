@@ -107,8 +107,8 @@ namespace Factors.Collections
             {
                 return false;
                 //- TODO : Revisit this.  Do we want to notify we're involved?  There should be no way
-                //         for the collection to contain an object of the wrong type though, so I don't see why
-                //         changing the elements of this list would affect the outcome of another factor.
+                //         the collection can ever contain an object of the wrong type though, so I don't see why
+                //         changing the elements of this list would affect the result of this method.
             }
         }
         

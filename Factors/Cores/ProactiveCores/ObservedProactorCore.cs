@@ -6,17 +6,11 @@ namespace Factors.Cores.ProactiveCores
 {
     public class ObservedProactorCore : ProactorCore, IInvolved
     {
-        #region Static Properties
-
-        protected static CausalObserver Observer => CausalObserver.ForThread;
-
-        #endregion
-
-
         #region Instance Methods
 
-        public void NotifyInvolved() => Observer.NotifyInvolved(Callback);
-        public void NotifyChanged()  => Observer.NotifyChanged(Callback);
+        public void NotifyInvolved(long triggerFlags) => Observer.NotifyInvolved(Callback, triggerFlags);
+        public void NotifyInvolved()                  => NotifyInvolved(TriggerFlags.Default);
+        public void NotifyChanged()                   => Observer.NotifyChanged(Callback);
 
         #endregion
     }

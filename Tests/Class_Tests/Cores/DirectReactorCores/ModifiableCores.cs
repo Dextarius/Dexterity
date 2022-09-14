@@ -7,7 +7,7 @@ using static Tests.Tools.Tools;
 namespace Tests.Class_Tests.Cores.DirectReactorCores
 {
     public class ModifiableCores<TFactor, TController, TValue>
-        where TFactor     : IModifiable<TValue> //- TODO : Try to separate the IDeterminant related parts
+        where TFactor     : ValueController<TValue> //- TODO : Try to separate the IDeterminant related parts
         where TController : IFactor_T_Controller<TFactor, TValue>, new()
     {
         //- WhenModifierRemoved_IsTriggered()

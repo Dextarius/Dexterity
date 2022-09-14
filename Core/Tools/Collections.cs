@@ -89,5 +89,17 @@ namespace Core.Tools
             
             return ~start;
         }
+        
+        public static Dictionary<TKey, TValue> CreateNewDictionary<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>> entries, IEqualityComparer<TKey> comparerForKeys)
+        {
+            var createdDictionary = new Dictionary<TKey, TValue>(comparerForKeys);
+
+            foreach (var keyValuePair in entries)
+            {
+                createdDictionary[keyValuePair.Key] = keyValuePair.Value;
+            }
+            
+            return createdDictionary;
+        }
     }
 }

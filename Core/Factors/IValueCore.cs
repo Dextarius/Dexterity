@@ -2,8 +2,8 @@ using Core.Redirection;
 
 namespace Core.Factors
 {
-    public interface IValueCore<T> : IValue<T>
+    public interface IValueCore<T> : IValue<T>, IValueEquatable<T>
     {
-        bool ValueEquals(T valueToCompare);
+        T Peek();
     }
 }

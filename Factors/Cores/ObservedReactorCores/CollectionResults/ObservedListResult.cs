@@ -4,6 +4,7 @@ using Core.Collections;
 using Core.States;
 using Core.Tools;
 using static Dextarius.Collections.ExtensionMethods;
+using static Factors.CollectionFactor;
 
 namespace Factors.Cores.ObservedReactorCores.CollectionResults
 {
@@ -25,8 +26,8 @@ namespace Factors.Cores.ObservedReactorCores.CollectionResults
 
         protected override List<T> CreateCollectionFromElements(IEnumerable<T> newElements) => new List<T>(newElements);
         
-        protected override bool AreCollectionsEqual(List<T> list1, List<T> list2) => 
-            list1.IsEquivalentTo(list2, elementComparer);
+        protected override bool AreCollectionsEqual(List<T> list1, List<T> list2, out long triggerFlags) => 
+            ListsAreEquivalent(list1, list2, elementComparer, out triggerFlags);
         
         public List<TOutput> ConvertAll<TOutput>(Converter<T, TOutput> converter) => Collection.ConvertAll(converter);
         public List<T>       GetRange(int startIndex, int count)                  => Collection.GetRange(startIndex, count);

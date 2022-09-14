@@ -1,40 +1,50 @@
 using System;
+using System.Threading;
 using System.Timers;
 
 namespace Factors.Time
 {
-    public class UsableTimer : Proactor<TimerCore>
+    public class ReactiveTimer : ReactiveTimerBase<TimerCore>
     {
-        #region Properties
-
-        public DateTime ExpirationTime => core.ExpirationTime;
-        public TimeSpan TimeRemaining  => core.TimeRemaining;
-        public bool     IsExpired      => core.IsExpired;
-        public bool     IsRunning      => core.IsRunning;
-
-        #endregion
-
-        
+       
         #region Instance Methods
 
         public void SetToExpireAt(DateTime expirationDate) => core.SetToExpireAt(expirationDate);
         public void SetToExpireIn(TimeSpan duration)       => core.SetToExpireIn(duration);
-        public void Cancel()                               => core.Cancel();
 
         #endregion
 
 
         #region Constructors
 
-        public UsableTimer(string nameToGive = nameof(UsableTimer)) : base(new TimerCore(), nameToGive)
+        public ReactiveTimer(string nameToGive = nameof(ReactiveTimer)) : base(new TimerCore(), nameToGive)
         {
         }
         
-        public UsableTimer(TimerCore reactorCore, string nameToGive = nameof(UsableTimer)) : 
+        public ReactiveTimer(TimerCore reactorCore, string nameToGive = nameof(ReactiveTimer)) : 
             base(reactorCore, nameToGive)
         {
         }
 
         #endregion
     }
+
+    public class RepeatingTimer : ReactiveTimerBase<RepeatingTimerCore>
+    {
+        public TimeSpan InitialDelay { get => core.InitialDelay; set => core.InitialDelay = value; } 
+        public TimeSpan RepeatDelay  { get => core.RepeatDelay;  set => core.RepeatDelay = value; } 
+
+        public void Start() => core.Start();
+        
+        
+        public RepeatingTimer(string nameToGive = nameof(ReactiveTimer)) : base(new RepeatingTimerCore(), nameToGive)
+        {
+        }
+        
+        public RepeatingTimer(RepeatingTimerCore reactorCore, string nameToGive = nameof(ReactiveTimer)) : 
+            base(reactorCore, nameToGive)
+        {
+        }
+    }
+
 }

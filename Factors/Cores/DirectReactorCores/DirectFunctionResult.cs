@@ -52,8 +52,8 @@ namespace Factors.Cores.DirectReactorCores
         
         #region Constructors
 
-        public DirectFunctionResult(Func<TInput, TOutput>      functionThatDeterminesValue,
-                                    IFactor<TInput>            factorToUseAsInput,
+        public DirectFunctionResult(IFactor<TInput>            factorToUseAsInput,
+                                    Func<TInput, TOutput>      functionThatDeterminesValue,
                                     IEqualityComparer<TOutput> comparer = null)
             : base(comparer)
         {

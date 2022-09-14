@@ -2,7 +2,6 @@
 {
     public interface ITriggeredState : IFactorSubscriber
     {
-        
         bool IsUnstable          { get; }
         bool IsReacting          { get; }
         bool IsStabilizing       { get; }

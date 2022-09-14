@@ -1,4 +1,5 @@
 ﻿using Core.Factors;
+using Factors;
 using Factors.Observer;
 
 namespace Tests.Tools.Mocks
@@ -7,7 +8,8 @@ namespace Tests.Tools.Mocks
     {
         protected readonly CausalObserver observer;
 
-        public void NotifyInvolved() => observer.NotifyInvolved(this);
+        public void NotifyInvolved(long triggerFlags) => observer.NotifyInvolved(this, TriggerFlags.Default);
+        public void NotifyInvolved()                  => NotifyInvolved(TriggerFlags.Default);
         
         public MockInvolvedFactor(CausalObserver observerToCall)
         {

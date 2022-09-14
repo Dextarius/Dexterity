@@ -5,6 +5,7 @@ using Core.States;
 using Dextarius.Collections;
 using Factors.Observer;
 using JetBrains.Annotations;
+using static Factors.Factor;
 
 namespace Factors.Cores.ObservedReactorCores
 {
@@ -13,7 +14,7 @@ namespace Factors.Cores.ObservedReactorCores
         #region Instance Fields
 
         [NotNull] 
-        protected readonly Dict<IFactor, bool> triggersByInUse = new Dict<IFactor, bool>();
+        protected readonly Dict<IFactor, long> flagsByTrigger = new Dict<IFactor, long>();
         protected          int                 priority;
 
         #endregion
@@ -28,28 +29,31 @@ namespace Factors.Cores.ObservedReactorCores
         
         #region Properties
 
-        public override bool HasTriggers      => triggersByInUse.Count > 0;
-        public override int  NumberOfTriggers => triggersByInUse.Count;
+        public override bool HasTriggers      => flagsByTrigger.Count > 0;
+        public override int  NumberOfTriggers => flagsByTrigger.Count;
         public override int  UpdatePriority   => priority;
 
-        protected override IEnumerable<IFactor> Triggers => triggersByInUse.Keys;
+        protected override IEnumerable<IFactor> Triggers => flagsByTrigger.Keys;
 
         #endregion
         
 
         #region Instance Methods
 
-        protected override void InvalidateOutcome(IFactor changedFactor) => RemoveTriggers(changedFactor);
+        protected override void InvalidateOutcome(IFactor changedFactor) => RemoveTriggers();
 
-        protected void RemoveTriggers(IFactor factorToSkip)
+        protected void RemoveTriggers()
         {
-            triggersByInUse.SetAllValuesTo(false);
+            flagsByTrigger.SetAllValuesTo(TriggerFlags.None);
         }
         
         
-        public void NotifyInvolved(IFactor involvedFactor)
+        public void NotifyInvolved(IFactor involvedFactor, long triggerFlags)
         {
-            Observer.NotifyInvolved(involvedFactor);
+            if (involvedFactor != null)
+            {
+                Observer.NotifyInvolved(involvedFactor, triggerFlags);
+            }
             
             //- We could test for recursion here. If this Outcome is updating, then either it's accessing
             //  itself in its update method, or something it affected during this update is.  We could ask
@@ -58,7 +62,8 @@ namespace Factors.Cores.ObservedReactorCores
             //  depend on depends on us, which means there's a loop.
         }
 
-        public void NotifyInvolved() => NotifyInvolved(Callback);
+        public void NotifyInvolved(long triggerFlags) => NotifyInvolved(Callback, triggerFlags);
+        public void NotifyInvolved()                  => NotifyInvolved(TriggerFlags.Default);
         
         public void NotifyChanged(IFactor changedFactor)
         {
@@ -68,7 +73,7 @@ namespace Factors.Cores.ObservedReactorCores
 
         protected void RemoveUnusedTriggers()
         {
-            foreach (var keyValuePair in triggersByInUse.RemoveWhereValueEquals(false))
+            foreach (var keyValuePair in flagsByTrigger.RemoveWhereValueEquals(TriggerFlags.None))
             {
                 RemoveTrigger(keyValuePair.Key);
             }
@@ -89,14 +94,24 @@ namespace Factors.Cores.ObservedReactorCores
 
         #region Explicit Implementations
 
-        void IObserved.Notify_InfluencedBy(IFactor influentialFactor)
+        void IObserved.Notify_InfluencedBy(IFactor influentialFactor, long triggerFlags)
         {
             if (influentialFactor is null) { throw new ArgumentNullException(nameof(influentialFactor)); }
-
+            
             if (IsTriggered is false)
             {
-                AddTrigger(influentialFactor, IsReflexive);
-                triggersByInUse[influentialFactor] = true;
+                AddTrigger(influentialFactor, IsReflexive, triggerFlags);
+
+                if (flagsByTrigger.TryGetValue(influentialFactor, out var existingTriggerFlags))
+                {
+                    long flagsAlreadyPresent = triggerFlags & existingTriggerFlags;
+                    
+                    if (flagsAlreadyPresent != triggerFlags)
+                    {
+                        flagsByTrigger[influentialFactor] = triggerFlags | existingTriggerFlags;
+                    }
+                }
+                //^ Maybe we should only call AddTrigger() if triggersByInUse doesn't contain influentialFactor.
 
                 if (influentialFactor.UpdatePriority >= this.UpdatePriority)
                 {

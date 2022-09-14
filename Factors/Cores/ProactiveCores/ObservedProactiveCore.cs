@@ -29,18 +29,22 @@ namespace Factors.Cores.ProactiveCores
         
         #region Instance Methods
 
-        public void NotifyInvolved()
+        public void NotifyInvolved(long triggerFlags)
         {
-            if (Callback is null) 
+            if (Callback is not null) 
             { 
                 throw new InvalidOperationException(
                     $"An {nameof(ObservedProactiveCore<T>)} attempted to notify the Observer that it was involved, " +
                     $"but its {nameof(Callback)} field is null"); 
+                //- TODO : Should this really throw?  I feel this is going to happen a fair amount
+                //         since this method is primarily used by callers other than ourselves.
             }
             
-            CausalObserver.ForThread.NotifyInvolved(Callback);
+            Observer.NotifyInvolved(Callback, triggerFlags);
         }
-        
+
+        public void NotifyInvolved() => NotifyInvolved(TriggerFlags.Default);
+
         public void NotifyChanged()
         {
             if (Callback is null) 

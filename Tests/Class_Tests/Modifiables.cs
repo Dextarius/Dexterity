@@ -7,7 +7,7 @@ using        Tests.Tools.Interfaces;
 namespace Tests.Class_Tests
 {
     public class Modifiables<TModifiable, TController, TValue>  
-        where TModifiable        : IModifiable<TValue>
+        where TModifiable        : ValueController<TValue>
         where TController        : IFactor_T_Controller<TModifiable, TValue>, new()
     {
        //  public void WhenModifiedValueIsRetrieved_WhileFactorIsInATriggeredState_Reacts()

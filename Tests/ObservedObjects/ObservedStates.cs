@@ -9,7 +9,7 @@ using static Tests.Tools.Tools;
 namespace Tests.ObservedObjects
 {
     public class ObservedStates<TState, TFactory, TValue>  
-        where TState   : IState<TValue>, IInvolved
+        where TState   : IProactive<TValue>, IInvolved
         where TFactory : IFactor_T_Factory<TState, TValue>, new()
     {
         #region Instance Fields

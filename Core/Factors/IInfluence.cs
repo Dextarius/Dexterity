@@ -4,11 +4,12 @@ namespace Core.Factors
 {
     public interface IInfluence
     {
-        bool HasSubscribers          { get; }
-        bool HasNecessarySubscribers { get; }
-        int  NumberOfSubscribers     { get; }
-        
-        void TriggerSubscribers(IFactor triggeringFactor);
+        bool HasSubscribers               { get; }
+        int  NumberOfSubscribers          { get; }
+        bool HasNecessarySubscribers      { get; }
+        int  NumberOfNecessarySubscribers { get; }
+
+        void TriggerSubscribers(IFactor triggeringFactor, long triggerFlags);
         bool DestabilizeSubscribers(IFactor triggeringFactor);
         bool Subscribe(IFactorSubscriber subscriberToAdd, bool isNecessary);
         bool Unsubscribe(IFactorSubscriber subscriberToRemove);

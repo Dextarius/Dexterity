@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Core.States;
+using static Factors.CollectionFactor;
 
 namespace Factors.Cores.ObservedReactorCores.CollectionResults
 {
@@ -18,9 +19,8 @@ namespace Factors.Cores.ObservedReactorCores.CollectionResults
         protected override HashSet<T> CreateCollectionFromElements(IEnumerable<T> elements) => 
             new HashSet<T>(elements, elementComparer);
 
-        protected override bool AreCollectionsEqual(HashSet<T> set1, HashSet<T> set2) => set1.SetEquals(set2);
-        
-        
+        protected override bool AreCollectionsEqual(HashSet<T> set1, HashSet<T> set2, out long triggerFlags) => 
+            HaveSameItems(set1, set2, out triggerFlags);
         
         public bool IsProperSupersetOf(IEnumerable<T> other) => Collection.IsProperSupersetOf(other);
         public bool   IsProperSubsetOf(IEnumerable<T> other) => Collection.IsProperSubsetOf(other);

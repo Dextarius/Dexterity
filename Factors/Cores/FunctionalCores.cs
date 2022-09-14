@@ -10,11 +10,11 @@ namespace Factors.Cores
         #region Static Methods
         
         public static DirectFunctionResult<TArg, TReturn> CreateFrom<TArg, TReturn>(
-            Func<TArg, TReturn> function, IFactor<TArg> argSource, IEqualityComparer<TReturn> comparer = null)
+            IFactor<TArg> argSource, Func<TArg, TReturn> function, IEqualityComparer<TReturn> comparer = null)
         {
             if (function is null) { throw new ArgumentNullException(nameof(function)); }
             
-            return new DirectFunctionResult<TArg, TReturn>(function, argSource, comparer);
+            return new DirectFunctionResult<TArg, TReturn>(argSource, function, comparer);
         }
 
         public static DirectFunctionResult<TArg1, TArg2, TReturn> CreateFrom<TArg1, TArg2, TReturn>(

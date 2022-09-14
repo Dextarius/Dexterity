@@ -96,7 +96,7 @@ namespace Tests.Interface_Tests
             Assert.That(reactorBeingTested.IsTriggered, Is.False);
             
             subscribers = AddSubscribersTo(reactorBeingTested, numberOfSubscribers, subscriberFactory);
-            reactorBeingTested.Destabilize(null);
+            reactorBeingTested.Destabilize();
 
             for (int i = 0; i < numberOfSubscribers; i++)
             {
@@ -140,7 +140,7 @@ namespace Tests.Interface_Tests
             int         expectedNumberOfSubscribers;
             int         actualNumberOfSubscribers;
 
-            reactorToTest.Destabilize(null);
+            reactorToTest.Destabilize();
             Assert.That(reactorToTest.IsUnstable, Is.True);
 
             originalNumberOfSubscribers = reactorToTest.NumberOfSubscribers;
@@ -171,7 +171,7 @@ namespace Tests.Interface_Tests
             IReactor reactorToTest = reactorFactory.CreateStableInstance();
             var      subscriber    = subscriberFactory.CreateStableInstance();
 
-            reactorToTest.Destabilize(null);
+            reactorToTest.Destabilize();
             Assert.That(reactorToTest.IsUnstable, Is.True);
 
             Assert.That(subscriber.IsUnstable, Is.False);
@@ -205,7 +205,7 @@ namespace Tests.Interface_Tests
             Assert.That(reactorToTest.IsUnstable, Is.False);
             reactorToTest.Subscribe(subscriber, true);
 
-            Assert.That(reactorToTest.Destabilize(null), Is.True);
+            Assert.That(reactorToTest.Destabilize(), Is.True);
         }
         
         [Test]

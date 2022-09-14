@@ -7,12 +7,12 @@ namespace Factors.Cores.ObservedReactorCores
     {
         #region Instance Methods
 
-        protected override bool CreateOutcome()
+        protected override long CreateOutcome()
         {
             Observer.ObserveInteractions(this);
             RemoveUnusedTriggers();
 
-            return true;
+            return TriggerFlags.Default;
         }
 
         protected abstract void ExecuteResponse();

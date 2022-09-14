@@ -5,12 +5,11 @@ using Core.States;
 using Core.Tools;
 using JetBrains.Annotations;
 using static Core.Tools.Types;
+using static Factors.TriggerFlags;
 
 namespace Factors.Cores.ProactiveCores
 {
-
-
-    public class ObservedListCore<T> : ObservedCollectionCore<List<T>, T>, IListCore<T>
+    public class ObservedListCore<T> : ObservedCollectionCore<List<T>, T>, IProactiveListCore<T>
     {
         #region Instance Fields
 
@@ -31,7 +30,7 @@ namespace Factors.Cores.ProactiveCores
                 if (itemComparer.Equals(currentValue, value) is false)
                 {
                     collection[index] = value;
-                    OnCollectionChanged();
+                    OnCollectionChanged(ItemReplaced);
                 }
             }
         }
@@ -45,20 +44,42 @@ namespace Factors.Cores.ProactiveCores
         
         public void Insert(int index, T item)
         {
+            long triggerFlags = ItemAdded;
+            
+            if (index != collection.Count)
+            {
+                triggerFlags |= ItemMoved | ItemReplaced;
+            }
+            
             collection.Insert(index, item);
-            OnCollectionChanged();
+            OnCollectionChanged(triggerFlags);
         }
         
         public void InsertRange(int index, IEnumerable<T> elements)
         {
+            long triggerFlags = ItemAdded;
+            
+            if (index != collection.Count)
+            {
+                triggerFlags |= ItemMoved | ItemReplaced;
+                
+            }
+            
             collection.InsertRange(index, elements);
-            OnCollectionChanged();
+            OnCollectionChanged(triggerFlags);
         }
         
         public void RemoveAt(int index)
         {
+            long triggerFlags = ItemRemoved;
+            
+            if (index != collection.Count - 1)
+            {
+                triggerFlags |= ItemMoved | ItemReplaced;
+            }
+            
             collection.RemoveAt(index);
-            OnCollectionChanged();
+            OnCollectionChanged(triggerFlags);
         }
         
         public int RemoveAll(Predicate<T> predicate)
@@ -67,9 +88,11 @@ namespace Factors.Cores.ProactiveCores
 
             if (elementsRemoved > 0)
             {
-                OnCollectionChanged();
+                OnCollectionChanged(ItemRemoved | ItemMoved | ItemReplaced);
             }
             
+            NotifyInvolved(ItemAdded | ItemReplaced);
+
             return elementsRemoved;
         }
 
@@ -77,8 +100,15 @@ namespace Factors.Cores.ProactiveCores
         {
             if (count > 0)
             {
+                long triggerFlags = ItemRemoved;
+            
+                if (index != collection.Count - 1)
+                {
+                    triggerFlags |= ItemMoved | ItemReplaced;
+                }
+                
                 collection.RemoveRange(index, count);
-                OnCollectionChanged();
+                OnCollectionChanged(triggerFlags);
             }
             else if (count < 0)
             {
@@ -88,44 +118,87 @@ namespace Factors.Cores.ProactiveCores
         
         public int AddObject(object value)
         {
-            if (value is T ||
-                value == null  &&  TheType<T>.IsNullable)
+            int  index    = collection.Count;
+            bool wasAdded;
+            
+            if (value is null && TheType<T>.IsNullable)
             {
-                IList collectionAsIList = collection;
-                int   indexOfItem       = collectionAsIList.Add(value);
-
-                if (indexOfItem >= 0)
-                {
-                    OnCollectionChanged();
-                }
-
-                return indexOfItem;
+                wasAdded = Add(default);
+            }
+            else if (value is T objectOfCorrectType)
+            {
+                wasAdded = Add(objectOfCorrectType);
             }
             else
             {
                 throw new ArgumentException("A process attempted to add an object of type " +
-                                           $"{value?.GetType()} to a {NameOf<ObservedListCore<T>>()}");
+                                            $"{value?.GetType()} to a {NameOf<ObservedListCore<T>>()}");
+            }
+            
+            if (wasAdded)
+            {
+                OnCollectionChanged(ItemAdded);
+                NotifyInvolved(TriggerFlags.ItemRemoved | TriggerFlags.ItemReplaced | TriggerFlags.ItemMoved);
+                return index;
+            }
+            else
+            {
+                //- Not sure why Add() would return false for a list...
+                return -1;
             }
         }
+
+        protected override bool AddItem(T item, out long notifyInvolvedFlags, out long additionalTriggerFlags)
+        {
+            collection.Add(item);
+            additionalTriggerFlags = TriggerFlags.None;
+            notifyInvolvedFlags           = TriggerFlags.None;
+            return true;
+        }
         
+        protected override bool RemoveItem(T item, out long additionalTriggerFlags)
+        {
+            int itemsIndex = collection.IndexOf(item);
+            int lastIndex      = collection.Count - 1;
+            
+            additionalTriggerFlags = TriggerFlags.None;
+
+            if (itemsIndex < 0)
+            {
+                return false;
+            }
+            else
+            {
+                collection.RemoveAt(itemsIndex);
+
+                if (itemsIndex != lastIndex)
+                {
+                    additionalTriggerFlags = ItemMoved | ItemReplaced;
+                }
+                
+                return true;
+            }
+        }
+
         public void Reverse(int index, int count)
         {
             if (collection.Count > 1  &&  count > 1) //- No point in reversing 1 element.
             {
                 collection.Reverse(index, count);
-                OnCollectionChanged();
+                NotifyInvolved_Rearranged();
             }
         }
         
         public void Reverse() => Reverse(0, Count);
 
-        //- TODO : If we write our own sorting methods we can keep track of whether anything actually changes or not. 
+        //- TODO : If we decide to write our own sorting methods we can keep track
+        //         of whether anything actually changes or not. 
         public void Sort(int index, int count, IComparer<T> comparer)
         {
             if (collection.Count > 1 && count > 1)
             {
                 collection.Sort(index, count, comparer);
-                OnCollectionChanged();
+                NotifyInvolved_Rearranged();
             }
         }
 
@@ -134,47 +207,227 @@ namespace Factors.Cores.ProactiveCores
             if (collection.Count > 1)
             {
                 Collection.Sort(comparison);
-                OnCollectionChanged();
+                NotifyInvolved_Rearranged();
             }
         }
 
         public void Sort(IComparer<T> comparer) => Sort(0, Count, comparer);
         public void Sort()                      => Sort(0, Count, Comparer<T>.Default);
 
-        public int BinarySearch(T item, IComparer<T> comparer, int startIndex, int count) => Collection.BinarySearch(startIndex, count, item, comparer);
-        public int BinarySearch(T item, IComparer<T> comparer)                            => Collection.BinarySearch(item, comparer);  //- Should we use the Comparer we already have?
-        public int BinarySearch(T item)                                                   => Collection.BinarySearch(item);
-        
-        public int FindIndex(Predicate<T> predicate, int startIndex, int count) => Collection.FindIndex(startIndex, count, predicate);
-        public int FindIndex(Predicate<T> predicate, int startIndex)            => Collection.FindIndex(startIndex, predicate);
-        public int FindIndex(Predicate<T> predicate)                            => Collection.FindIndex(predicate);
-        
-        public int FindLastIndex(Predicate<T> predicate, int startIndex, int count) => Collection.FindLastIndex(startIndex, count, predicate);
-        public int FindLastIndex(Predicate<T> predicate, int startIndex)            => Collection.FindLastIndex(startIndex, predicate);
-        public int FindLastIndex(Predicate<T> predicate)                            => Collection.FindLastIndex(predicate);
+        public int BinarySearch(T item, IComparer<T> comparer, int startIndex, int count)
+        {
+            int indexOfItem = Collection.BinarySearch(startIndex, count, item, comparer);
+            
+            NotifyInvolved_IndexOf(indexOfItem);
 
-        public int LastIndexOf(T item, int startIndex, int count) => Collection.LastIndexOf(item, startIndex, count);
-        public int LastIndexOf(T item, int startIndex)            => Collection.LastIndexOf(item, startIndex);
-        public int LastIndexOf(T item)                            => Collection.LastIndexOf(item);
-
-        public int     IndexOf(T item)                     => Collection.IndexOf(item);
-        public bool    TrueForAll(Predicate<T> predicate)  => Collection.TrueForAll(predicate);
-        public bool    Exists(Predicate<T> predicate)      => Collection.Exists(predicate);
-        public T       Find(Predicate<T> predicate)        => Collection.Find(predicate);
-        public List<T> FindAll(Predicate<T> predicate)     => Collection.FindAll(predicate);
-        public T       FindLast(Predicate<T> predicate)    => Collection.FindLast(predicate);
-        public void    ForEach(Action<T>    action)        => Collection.ForEach(action);
-        public List<T> GetRange(int startIndex, int count) => Collection.GetRange(startIndex, count);
-        public T[]     ToArray()                           => Collection.ToArray();
-        public void    TrimExcess()                        => Collection.TrimExcess();
+            return indexOfItem;
+        }
         
-        
-        public List<TOutput> ConvertAll<TOutput>(Converter<T, TOutput> converter) => Collection.ConvertAll(converter);
+        public int BinarySearch(T item, IComparer<T> comparer)
+        {
+            int indexOfItem = Collection.BinarySearch(item, comparer);
+            NotifyInvolved_IndexOf(indexOfItem);
+            return indexOfItem;
+        }
+        public int BinarySearch(T item)
+        {
+            int indexOfItem = Collection.BinarySearch(item);
+            NotifyInvolved_IndexOf(indexOfItem);
+            return indexOfItem;
+        }
 
-        public List<T> AsNormalList() => new List<T>(Collection);
+        public int FindIndex(Predicate<T> predicate, int startIndex, int count)
+        {
+            int indexOfItem = Collection.FindIndex(startIndex, count, predicate);
+
+            NotifyInvolved_IndexOf(indexOfItem);
+
+            return indexOfItem;
+        }
+        
+        public int FindIndex(Predicate<T> predicate, int startIndex)
+        {
+            int indexOfItem = Collection.FindIndex(startIndex, predicate);
+            NotifyInvolved_IndexOf(indexOfItem);
+            return indexOfItem;
+        }
+        
+        public int FindIndex(Predicate<T> predicate)
+        {
+            int indexOfItem = Collection.FindIndex(predicate);
+            NotifyInvolved_IndexOf(indexOfItem);
+            return indexOfItem;
+        }
+
+        public int FindLastIndex(Predicate<T> predicate, int startIndex, int count)
+        {
+            int indexOfItem = Collection.FindLastIndex(startIndex, count, predicate);
+            
+            NotifyInvolved_LastIndexOf(indexOfItem);
+            
+            return indexOfItem;
+        }
+        public int FindLastIndex(Predicate<T> predicate, int startIndex)
+        {
+            int indexOfItem = Collection.FindLastIndex(startIndex, predicate);
+            NotifyInvolved_LastIndexOf(indexOfItem);
+            return indexOfItem;
+        }
+        
+        public int FindLastIndex(Predicate<T> predicate)
+        {
+            int indexOfItem = Collection.FindLastIndex(predicate);
+            NotifyInvolved_LastIndexOf(indexOfItem);
+            return indexOfItem;
+        }
+
+        public int LastIndexOf(T item, int startIndex, int count)
+        {
+            int indexOfItem = Collection.LastIndexOf(item, startIndex, count);
+            NotifyInvolved_LastIndexOf(indexOfItem);
+            return indexOfItem;
+        }
+        public int LastIndexOf(T item, int startIndex)
+        {
+            int indexOfItem = Collection.LastIndexOf(item, startIndex);
+            NotifyInvolved_LastIndexOf(indexOfItem);
+            return indexOfItem;
+        }
+        public int LastIndexOf(T item)
+        {
+            int indexOfItem = Collection.LastIndexOf(item);
+            NotifyInvolved_LastIndexOf(indexOfItem);
+            return indexOfItem;
+        }
+
+        public int IndexOf(T item)
+        {
+            int indexOfItem = Collection.IndexOf(item);
+            
+            NotifyInvolved_IndexOf(indexOfItem);
+
+            return indexOfItem;
+        }
+        
+        public bool TrueForAll(Predicate<T> predicate)
+        {
+            bool isTrue = Collection.TrueForAll(predicate);
+
+            if (isTrue)
+            {
+                NotifyInvolved(ItemAdded | ItemReplaced);
+            }
+            else
+            {
+                NotifyInvolved(ItemRemoved | ItemReplaced);
+            }
+
+            return isTrue;
+        }
+
+        public bool Exists(Predicate<T> predicate)
+        {
+            bool isTrue = Collection.Exists(predicate);
+
+            NotifyInvolved_ContainsItem(isTrue);
+
+            return isTrue;
+        }
+
+        public T Find(Predicate<T> predicate)
+        {
+            int indexOfItem = Collection.FindIndex(predicate);
+
+            NotifyInvolved_IndexOf(indexOfItem);
+            
+            if (indexOfItem < 0) { return default; }
+            else                 { return collection[indexOfItem]; }
+        }
+
+        public List<T> FindAll(Predicate<T> predicate)
+        {
+            var results = Collection.FindAll(predicate);
+
+            if (results.Count > 0)
+            {
+                NotifyInvolved(ItemAdded | ItemRemoved | ItemReplaced);
+            }
+            else
+            {
+                NotifyInvolved(ItemAdded | ItemReplaced);
+
+            }
+
+            return results;
+        }
+
+        public T FindLast(Predicate<T> predicate)
+        {
+            int indexOfItem = Collection.FindLastIndex(predicate);
+
+            NotifyInvolved_LastIndexOf(indexOfItem);
+            
+            if (indexOfItem < 0) { return default; }
+            else                 { return collection[indexOfItem]; }
+        }
+
+        public void ForEach(Action<T> action)
+        {
+            NotifyInvolved(ItemAdded | ItemReplaced);
+            //- I didn't include the ItemRemoved flag because the purpose of this method seems 
+            //  to be to take some action on each item. If we remove an item, all of the remaining items 
+            //  still had the Action done to them.
+            Collection.ForEach(action);
+            
+            //- Should this even notify? It doesnt return anything.
+            //  The notification would only be useful if you wanted to
+            //  make a reaction that ran this method every time a new
+            //  item got into the collection.
+        }
+
+       public  List<T> GetRange(int startIndex, int numberOfItems)
+        {
+            var results = Collection.GetRange(startIndex, numberOfItems);
+
+            if (results.Count > 0)
+            {
+                NotifyInvolved(ItemRemoved | ItemReplaced | ItemMoved) ;
+            }
+            else
+            {
+                NotifyInvolved(ItemAdded | ItemReplaced);
+            }
+
+            return results;
+        }
+
+        public T[] ToArray()
+        {
+            var results = Collection.ToArray();
+
+            NotifyInvolved(TriggerFlags.Default);
+            return results;
+        }
+
+        public void TrimExcess() => Collection.TrimExcess();
+
+        public List<TOutput> ConvertAll<TOutput>(Converter<T, TOutput> converter)
+        {
+            var results = Collection.ConvertAll(converter);
+
+            NotifyInvolved(ItemAdded | ItemReplaced);
+            return results;
+        }
+
+        public List<T> AsNormalList()
+        {
+            var createdList = new List<T>(Collection);
+            
+            NotifyInvolved(TriggerFlags.Default);
+            return createdList;
+        }
         //- TODO : We may want to grab the field directly if it seems like the user is trying to avoid creating dependencies
         //         when they call this.
-
 
         //- TODO : Figure out if we think that methods which modify the collection, but also return a value,
         //         should call/not call NotifyInvolved(), since people may expect Reactors to be invalidated
@@ -188,13 +441,13 @@ namespace Factors.Cores.ProactiveCores
         #region Constructors
 
         protected ObservedListCore(List<T> list, IEqualityComparer<T> comparerForItems) : 
-                base(list)
+            base(list)
         {
             itemComparer = comparerForItems ?? EqualityComparer<T>.Default;
         }        
         public ObservedListCore(
             IEnumerable<T> collectionToCopy, IEqualityComparer<T> comparerForItems = null) : 
-                this(new List<T>(collectionToCopy), comparerForItems)
+            this(new List<T>(collectionToCopy), comparerForItems)
         {
         }
         
@@ -208,5 +461,7 @@ namespace Factors.Cores.ProactiveCores
         }
 
         #endregion
+
+
     }
 }

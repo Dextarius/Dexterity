@@ -1,6 +1,7 @@
 ﻿using System;
 using Core.Factors;
 using Core.States;
+using Factors;
 
 namespace Tests.Tools.Mocks
 {
@@ -17,8 +18,8 @@ namespace Tests.Tools.Mocks
         
 
 
-        public bool Trigger() => Trigger(null, out _);
-        public bool Trigger(IFactor triggeringFactor, out bool removeSubscription)
+        public bool Trigger() => Trigger(null, TriggerFlags.Default, out _);
+        public bool Trigger(IFactor triggeringFactor, long triggerFlags, out bool removeSubscription)
         {
             removeSubscription = RemoveSubscriptionOnTrigger;
             
@@ -33,7 +34,7 @@ namespace Tests.Tools.Mocks
             }
         }
         
-        public bool Destabilize(IFactor factor)
+        public bool Destabilize()
         {
             if (IsUnstable is false)
             {

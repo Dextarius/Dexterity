@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Core.Causality;
 using Core.Factors;
 using Core.States;
 using Factors.Cores.DirectReactorCores;
@@ -9,60 +8,8 @@ using JetBrains.Annotations;
 
 namespace Factors
 {
-    public class Reactive<T> : Reactor<IResult<T>>, IReactive<T>
+    public class Reactive<T> : ReactiveValue<T, IResult<T>>
     {
-        #region Constants
-
-        private string CannotUseNullFunction =
-            "A Reactive value cannot be constructed with a null " + nameof(Func<T>) + ", as it would never have a value. ";
-
-        #endregion
-        
-        
-        #region Instance Properties
-
-        public T Value
-        {
-            get
-            {
-                AttemptReaction();
-                return core.Value;
-            }
-        }
-
-        #endregion
-
-
-        #region Instance Methods
-
-        public bool ValueEquals(T valueToCompare) => core.ValueEquals(valueToCompare);
-
-        public override void SwapCore(IResult<T> newCore)
-        {
-            var oldValue = core.Value;
-
-            base.SwapCore(newCore);
-
-            if (newCore.ValueEquals(oldValue) is false)
-            {
-                TriggerSubscribers();
-            }
-        }
-
-        public override string ToString() => $"{Name} => {Value}";
-
-        //   public T Peek() => core.Peek();
-
-        #endregion
-
-        
-        #region Operators
-
-        public static implicit operator T(Reactive<T> reactive) => reactive.Value;
-
-        #endregion
-        
-        
         #region Constructors
 
         public Reactive([NotNull] IResult<T> valueSource, string name = null) : base(valueSource, name)
@@ -72,7 +19,7 @@ namespace Factors
 
         public Reactive(Func<T> functionToDetermineValue, IEqualityComparer<T> comparer, string name = null) : 
             this(FunctionResult.CreateFrom(functionToDetermineValue, comparer), 
-                 name?? CreateDefaultName<Reactive<T>>(functionToDetermineValue) )
+                name?? CreateDefaultName<Reactive<T>>(functionToDetermineValue) )
         {
             if (functionToDetermineValue == null)
             {
@@ -83,6 +30,7 @@ namespace Factors
         public Reactive(Func<T> functionToDetermineValue, string name = null) : 
             this(functionToDetermineValue, null, name)
         {
+            
         }
 
         public Reactive(IFactor<T> factorToGetValueOf, string name = null) : 
@@ -95,7 +43,6 @@ namespace Factors
         #endregion
     }
 
-    
     public static class Reactive
     {
         [Flags]

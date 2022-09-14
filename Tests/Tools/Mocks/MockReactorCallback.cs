@@ -14,10 +14,10 @@ namespace Tests.Tools.Mocks
 
         public void SetCallback(IReactorCoreCallback callback) => CallbackOverride = callback;
 
-        public void CoreUpdated(IFactorCore triggeredCore)
+        public void CoreUpdated(IFactorCore triggeredCore, long triggerFlags)
         {
             CoreUpdatedCount++;
-            CallbackOverride?.CoreUpdated(triggeredCore);
+            CallbackOverride?.CoreUpdated(triggeredCore, triggerFlags);
         }
         
         public bool ReactorTriggered(IReactorCore triggeredCore)

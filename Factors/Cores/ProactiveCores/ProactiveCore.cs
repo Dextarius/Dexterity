@@ -31,12 +31,14 @@ namespace Factors.Cores.ProactiveCores
             if (valueComparer.Equals(currentValue, newValue) is false)
             {
                 currentValue = newValue;
-                Callback.CoreUpdated(this);
+                Callback?.CoreUpdated(this, TriggerFlags.Default);
                 
                 return true;
             }
             else return false;
         }
+        
+        public T Peek() => currentValue;
 
         #endregion
 

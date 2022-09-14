@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Core.Factors;
+using Core.States;
 using Core.Tools;
+using JetBrains.Annotations;
 
 namespace Factors.Cores.DirectReactorCores
 {
@@ -19,28 +21,21 @@ namespace Factors.Cores.DirectReactorCores
 
         #region Properties
 
-        public override int NumberOfTriggers => 1;
-        public override int UpdatePriority   => inputSource.UpdatePriority + 1;
-
-        protected override IEnumerable<IFactor> Triggers
-        {
-            get
-            {
-                yield return inputSource;
-            }
-        }
+        protected override IEnumerable<IFactor> Triggers         { get { yield return inputSource; } }
+        public    override int                  NumberOfTriggers => 1;
+        public    override int                  UpdatePriority   => inputSource.UpdatePriority + 1;
 
         #endregion
 
         
         #region Instance Methods
 
-        protected override bool CreateOutcome()
+        protected override long CreateOutcome()
         {
             responseAction(inputSource.Value);
             SubscribeToInputs();
 
-            return true;
+            return TriggerFlags.Default;
         }
 
         public override string ToString() => Delegates.GetClassAndMethodName(responseAction);
@@ -50,7 +45,9 @@ namespace Factors.Cores.DirectReactorCores
 
         #region Constructors
 
-        public DirectActionResponse(Action<TArg> actionToTake, IFactor<TArg> inputArgSource) 
+        public DirectActionResponse(Action<TArg> actionToTake, IFactor<TArg> inputArgSource, 
+                                    bool useWeakSubscriber = true) : 
+            base(useWeakSubscriber)
         {
             responseAction = actionToTake;
             inputSource    = inputArgSource;
@@ -58,15 +55,16 @@ namespace Factors.Cores.DirectReactorCores
 
         #endregion
     }
+
     
-    
+
     public class DirectActionResponse : DirectReactorCore
     {
         #region Instance Fields
 
         [NotNull]
         private readonly Action  responseAction;
-        private readonly IFactor inputSource;
+        private readonly IFactor trigger;
 
         #endregion
         
@@ -74,13 +72,13 @@ namespace Factors.Cores.DirectReactorCores
         #region Properties
 
         public override int NumberOfTriggers => 1;
-        public override int UpdatePriority   => inputSource.UpdatePriority + 1;
+        public override int UpdatePriority   => trigger.UpdatePriority + 1;
 
         protected override IEnumerable<IFactor> Triggers
         {
             get
             {
-                yield return inputSource;
+                yield return trigger;
             }
         }
 
@@ -89,12 +87,12 @@ namespace Factors.Cores.DirectReactorCores
         
         #region Instance Methods
 
-        protected override bool CreateOutcome()
+        protected override long CreateOutcome()
         {
             responseAction();
             SubscribeToInputs();
 
-            return true;
+            return TriggerFlags.Default;
         }
 
         public override string ToString() => Delegates.GetClassAndMethodName(responseAction);
@@ -104,10 +102,12 @@ namespace Factors.Cores.DirectReactorCores
 
         #region Constructors
 
-        public DirectActionResponse(Action actionToTake, IFactor inputArgSource) 
+        public DirectActionResponse(IFactor inputArgSource, Action actionToTake, 
+                                    bool useWeakSubscriber = true) : 
+            base(useWeakSubscriber)
         {
             responseAction = actionToTake;
-            inputSource    = inputArgSource;
+            trigger    = inputArgSource;
         }
 
         #endregion

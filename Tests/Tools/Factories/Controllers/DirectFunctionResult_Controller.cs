@@ -18,7 +18,7 @@ namespace Tests.Tools.Factories.Controllers
 
         public DirectFunctionResult_Controller(IFactor_T_Controller<int> inputSourceController) : 
             base(new [] { inputSourceController }, 
-                 new DirectFunctionResult<int, int>(defaultValueFunction, inputSourceController.ControlledInstance)
+                 new DirectFunctionResult<int, int>(inputSourceController.ControlledInstance, defaultValueFunction)
                 )
         {
             valueFunction = defaultValueFunction;

@@ -16,7 +16,7 @@ namespace Tests.Tools.Factories
             var            valueSource   = new Proactive<int>(randomNumber);
             Func<int, int> valueFunction = (number) => number + Tools.GenerateRandomInt();
 
-            return new DirectFunctionResult<int, int>(valueFunction, valueSource);
+            return new DirectFunctionResult<int, int>(valueSource, valueFunction);
         }
     }
     

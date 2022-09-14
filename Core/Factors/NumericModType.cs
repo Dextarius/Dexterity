@@ -6,8 +6,8 @@
         Flat           = 1,
         Additive       = 2,
         Multiplicative = 3,
-     // Minimum        = 4, 
-     // Maximum        = 5,
+        Minimum        = 4, 
+        Maximum        = 5,
         ConstantValue  = 6
     }
 }

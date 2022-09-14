@@ -5,7 +5,7 @@ using Core.States;
 
 namespace Factors.Cores
 {
-    public class WeakSubscriber : IFactorSubscriber
+    public class WeakSubscriber : IReactorSubscriber
     {
         #region Instance Fields
 
@@ -18,18 +18,20 @@ namespace Factors.Cores
         
         #region Properties
 
-        public bool IsNecessary { get; set; }
-        public bool IsUnstable  { get; set; }
-        public bool IsTriggered { get; set; } = true;
+        public bool IsNecessary             { get; set; }
+        public bool IsUnstable              { get; set; }
+        public bool IsTriggered             { get; set; } = true;
+      //  public bool UsesTriggerFlags.Default { get; set; } = true;
+        
 
         #endregion
 
 
         #region Instance Methods
 
-        public bool Trigger() => Trigger(null, out _);
+        public bool Trigger() => Trigger(null, TriggerFlags.Default, out _);
 
-        public bool Trigger(IFactor triggeringFactor, out bool removeSubscription)
+        public bool Trigger(IFactor triggeringFactor, long triggerFlags, out bool removeSubscription)
         {
             if (IsTriggered)
             {
@@ -46,11 +48,11 @@ namespace Factors.Cores
             }
             else if (subscriber != null)
             {
-                return subscriber.Trigger(triggeringFactor, out removeSubscription);
+                return subscriber.Trigger(triggeringFactor, triggerFlags, out removeSubscription);
             }
             else if (weakReferenceToSubscriber.TryGetTarget(out var weakSubscriber))
             {
-                return weakSubscriber.Trigger(triggeringFactor, out removeSubscription);
+                return weakSubscriber.Trigger(triggeringFactor, triggerFlags, out removeSubscription);
             }
             else
             {
@@ -66,7 +68,7 @@ namespace Factors.Cores
                 removeSubscription = false;
                 return true;
             }
-            if (interactionCount >= 10)
+            else if (interactionCount >= 10)
             {
                 if (weakReferenceToSubscriber.TryGetTarget(out var target))
                 {
@@ -88,7 +90,7 @@ namespace Factors.Cores
             }
         }
         
-        public bool Destabilize(IFactor factor)
+        public bool Destabilize()
         {
             if (IsNecessary)
             {
@@ -101,24 +103,24 @@ namespace Factors.Cores
             }
             else
             {
-                return ForwardDestabilizeToOwner(factor);
+                return ForwardDestabilizeToOwner();
             }
             
             //- Since we can't unsubscribe during this method, if we find out the WeakReference
             //  is no longer active should we mark that in a field?
         }
         
-        protected bool ForwardDestabilizeToOwner(IFactor factor)
+        protected bool ForwardDestabilizeToOwner()
         {
             if (subscriber != null)
             {
-                return subscriber.Destabilize(factor);
+                return subscriber.Destabilize();
             }
             else
             {
                 if (weakReferenceToSubscriber.TryGetTarget(out var weakSubscriber))
                 {
-                    return weakSubscriber.Destabilize(factor);
+                    return weakSubscriber.Destabilize();
                 }
                 else
                 {
@@ -135,7 +137,8 @@ namespace Factors.Cores
 
             if (necessary)
             {
-                subscriber = subscriberToCall;
+                subscriber  = subscriberToCall;
+                IsNecessary = true;
             }
         }
     }

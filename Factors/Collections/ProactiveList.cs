@@ -4,11 +4,12 @@ using System.Collections.Generic;
 using Core.Factors;
 using Core.States;
 using Core.Tools;
+using Factors.Cores.ProactiveCores;
 using static Core.Tools.Types;
 
 namespace Factors.Collections
 {
-    public class ProactiveList<T> : ProactiveCollection<IListCore<T>, T>, IList<T>, IList
+    public class ProactiveList<T> : ProactiveCollection<IProactiveListCore<T>, T>, IList<T>, IList
     {
         #region Instance Properties
 
@@ -71,7 +72,13 @@ namespace Factors.Collections
         
         #region Constructors
 
-        public ProactiveList(IListCore<T> listCore, string name) : base(listCore, name?? NameOf<ProactiveList<T>>())
+        public ProactiveList(IProactiveListCore<T> listCore, string name) : 
+            base(listCore, name?? NameOf<ProactiveList<T>>())
+        {
+            
+        }
+        
+        public ProactiveList(string name = null) : this(new ObservedListCore<T>(), name)
         {
             
         }

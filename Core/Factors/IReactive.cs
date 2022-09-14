@@ -1,8 +1,6 @@
-﻿using Core.States;
-
-namespace Core.Factors
+﻿namespace Core.Factors
 {
-    public interface IReactive<T> : IReactor, IFactor<T>
+    public interface IReactive<T> : IReactor, IModifiableFactor<T>
     {
         
     }

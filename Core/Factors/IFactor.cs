@@ -20,7 +20,7 @@ namespace Core.Factors
 
     public interface IFactor<T> : IFactor,  IValue<T>, IValueEquatable<T>
     {
-        
+        T Peek();
     }
     
     public interface ITrigger 

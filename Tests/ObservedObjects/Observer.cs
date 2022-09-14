@@ -13,7 +13,7 @@ namespace Tests.ObservedObjects
         [Test]
         public void WhenNotifiedThatANullObjectIsInvolved_ThrowsException()
         {
-            Assert.Throws<ArgumentNullException>(() => Observer.NotifyInvolved(null));
+            Assert.Throws<ArgumentNullException>(() => Observer.NotifyInvolved(null, 0));
         }
 
         [Test]

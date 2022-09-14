@@ -1,14 +1,14 @@
 ﻿namespace Core.Factors
 {
-    public interface INumericMod : IFactor, INumericModBase
+    public interface INumericMod<T> : IFactor<T>, INumericModBase<T>
     {
 
     }
 
-    public interface INumericModBase 
+    public interface INumericModBase<T> : IValue<T>
     {
         NumericModType ModType     { get; }
         int            ModPriority { get; }
-        double         Amount      { get; }
     }
+    
 }

@@ -161,8 +161,8 @@ namespace Tests.Interface_Tests
                 reactorBeingTested.IsReflexive = false;
             }
             
-            Assert.That(reactorBeingTested.IsUnstable, Is.False);
-            Assert.That(reactorBeingTested.Destabilize(null), Is.False);
+            Assert.That(reactorBeingTested.IsUnstable,    Is.False);
+            Assert.That(reactorBeingTested.Destabilize(), Is.False);
         }
         
         [Test]
@@ -173,7 +173,7 @@ namespace Tests.Interface_Tests
 
             Assert.That(reactorBeingTested.IsUnstable,        Is.False);
             reactorBeingTested.IsReflexive = true;
-            Assert.That(reactorBeingTested.Destabilize(null), Is.True);
+            Assert.That(reactorBeingTested.Destabilize(), Is.True);
         }
 
         [Test]

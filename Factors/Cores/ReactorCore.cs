@@ -9,13 +9,24 @@ using static Core.Settings;
 
 namespace Factors.Cores
 {
+    //- What if we made a version of a Result that subscribed to Channel<T>s and
+    //  used the Observer and trigger flags to identify whether to process a new
+    //  value based on how it interacted with the previous value from that channel
+    //  (i.e. if a channel sent out an int, and all the result did was compare
+    //  that int to see if it was lower than something else, if it was lower
+    //  we could ignore all further values from that channel until one had
+    //  an ValueIncreased flag.
+    //   
+    //- We could even set up an object that receive a particular channel's values on behalf of 
+    //  the Result, and then uses its own process to determine a set of appropriate flags.
+
     public abstract class ReactorCore : FactorCore, IReactorCore, IUpdateable
     {
         #region Instance Fields
 
-        protected readonly WeakSubscriber weakSubscriber;
-        private            bool           isReflexive;
-        private            bool           automaticallyReacts;
+        protected readonly IReactorSubscriber subscriber;
+        private            bool               isReflexive;
+        private            bool               automaticallyReacts;
 
         #endregion
 
@@ -39,10 +50,10 @@ namespace Factors.Cores
         public    abstract int                  NumberOfTriggers { get; }
         
         
-        public bool IsUnstable       {           get => weakSubscriber.IsUnstable;
-                                       protected set => weakSubscriber.IsUnstable = value; }
-        public bool IsTriggered {           get => weakSubscriber.IsTriggered;
-                                  protected set => weakSubscriber.IsTriggered = value; }
+        public bool IsUnstable  {           get => subscriber.IsUnstable;
+                                  protected set => subscriber.IsUnstable = value; }
+        public bool IsTriggered {           get => subscriber.IsTriggered;
+                                  protected set => subscriber.IsTriggered = value; }
 
         public bool AutomaticallyReacts
         {
@@ -90,10 +101,10 @@ namespace Factors.Cores
 
         protected bool React()
         {
-            if (IsReacting)           { Debug.Fail($"Update loop in {NameOf<ReactorCore>()} => {this}."); }
+            if (IsReacting)           { Debug.Fail($"Update loop in {nameof(ReactorCore)} => {this}."); }
             if (IsTriggered is false) { InvalidateOutcome(null); }
             
-            bool outcomeChanged;
+            long outcomeTriggerFlags;
 
             IsReacting  = true;
             IsUnstable  = false;
@@ -101,7 +112,7 @@ namespace Factors.Cores
             
             try
             {
-                outcomeChanged = CreateOutcome();
+                outcomeTriggerFlags = CreateOutcome();
             }
             catch (Exception e)
             {
@@ -120,17 +131,21 @@ namespace Factors.Cores
             {
                 HasReacted = true;
             }
-            
-            if (outcomeChanged)
+
+            if (outcomeTriggerFlags is TriggerFlags.None)
             {
-                Callback?.CoreUpdated(this);
+                return false;
+            }
+            else
+            {
+                Callback?.CoreUpdated(this, outcomeTriggerFlags);
                 return true;
             }
-            else return false;
         }
 
-        protected abstract void InvalidateOutcome(IFactor changedFactor);
-        protected abstract bool CreateOutcome();
+        protected virtual void InvalidateOutcome(IFactor changedFactor) { }
+        
+        protected abstract long CreateOutcome();
         
         public bool AttemptReaction()
         {
@@ -192,9 +207,9 @@ namespace Factors.Cores
         
         public bool ForceReaction() => React();
 
-        public bool Trigger() => Trigger(null, out _);
+        public bool Trigger() => Trigger(null, TriggerFlags.Default, out _);
 
-        public bool Trigger(IFactor triggeringFactor, out bool removeSubscription)
+        public bool Trigger(IFactor triggeringFactor, long triggerFlags, out bool removeSubscription)
         {
             removeSubscription = false;  //- Remove this
             
@@ -229,7 +244,7 @@ namespace Factors.Cores
 
         //- Does not imply the caller will queue this subscriber to be updated.  Only that the this subscriber
         //  should mark itself and its dependents as Unstable, return whether it is Necessary or not.
-        public bool Destabilize(IFactor factor)
+        public bool Destabilize()
         {
             if (IsReflexive)
             {
@@ -261,7 +276,7 @@ namespace Factors.Cores
         
         protected void OnNecessary()
         {
-            weakSubscriber.IsNecessary = true;
+            subscriber.IsNecessary = true;
 
             //- We don't propagate the Necessary status to our triggers, to avoid walking up the tree.
             //  All Reactors walk down the tree when they trigger/destabilize their dependents, so we
@@ -286,7 +301,7 @@ namespace Factors.Cores
         
         protected void OnNotNecessary()
         {
-            weakSubscriber.IsNecessary = false;
+            subscriber.IsNecessary = false;
 
             if (HasReacted)
             {
@@ -301,8 +316,11 @@ namespace Factors.Cores
             //         not necessary.
         }
 
-        protected bool AddTrigger(IFactor trigger, bool necessary) => trigger.Subscribe(weakSubscriber, necessary);
-        protected void RemoveTrigger(IFactor trigger)              => trigger.Unsubscribe(weakSubscriber);
+        protected virtual bool AddTrigger(IFactor trigger, bool necessary, long triggerFlags) => 
+            trigger.Subscribe(subscriber, necessary);
+        
+        protected bool AddTrigger(IFactor trigger, bool necessary) => trigger.Subscribe(subscriber, necessary);
+        protected void RemoveTrigger(IFactor trigger)              => trigger.Unsubscribe(subscriber);
 
         public override bool Reconcile()
         {
@@ -341,15 +359,30 @@ namespace Factors.Cores
             }
         }
 
+        protected void EvaluateUpdatePriority()
+        {
+            //- Add this to AddTrigger()?
+        }
+        
+        protected ModifierCollection<T> CreateModifierCollection<T>()
+        {
+            var collection = new ModifierCollection<T>();
+
+            AddTrigger(collection, IsReflexive);
+            return collection;
+        }
+
         #endregion
 
 
         #region Constructors
 
-        protected ReactorCore()
+        protected ReactorCore(bool useWeakSubscriber = true)
         {
-            weakSubscriber = new WeakSubscriber(this);
-            IsTriggered    = true;
+            if (useWeakSubscriber) { subscriber = new WeakSubscriber(this);        }
+            else                   { subscriber = new PassthroughSubscriber(this); }
+            
+            IsTriggered = true;
         }
 
         #endregion

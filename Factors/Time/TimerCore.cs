@@ -1,36 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Timers;
 using Core.Factors;
 using Core.States;
-using Factors.Cores;
-using Factors.Cores.ProactiveCores;
 using Timer = System.Timers.Timer;
 
 namespace Factors.Time
 {
-    public class TimerCore : ProactorCore, ITimerCore, IFactorSubscriber
+    public class TimerCore : TimerCoreBase, IFactorSubscriber
     {
-        #region Instance Fields
-
-        protected readonly WeakSubscriber   weakSubscriber;
-        protected readonly FloatingTimeZone timeZone;
-        protected          DateTimeTrigger  currentTimer;
-
-        #endregion
-        
-        
-        #region Properties
-
-        public DateTime ExpirationTime => currentTimer?.ExpirationTime ?? DateTime.MinValue;
-        public TimeSpan TimeRemaining  => currentTimer?.TimeRemaining  ?? TimeSpan.Zero;
-        public bool     IsExpired      => currentTimer?.IsExpired      ?? true;
-        public bool     IsRunning      { get; protected set; }
-        
-        #endregion
-
-
         #region Instance Methods
 
         public void SetToExpireAt(DateTime expirationDate)
@@ -38,7 +16,7 @@ namespace Factors.Time
             if (expirationDate < timeZone.GetStableTime())
             {
                 Cancel();
-                Callback?.CoreUpdated(this);
+                Callback?.CoreUpdated(this, TriggerFlags.Default);
             }
             else
             {
@@ -73,15 +51,13 @@ namespace Factors.Time
             if (timerIsExpired && IsRunning)
             {
                 StopTimer();
-                Callback?.CoreUpdated(this);
+                Callback?.CoreUpdated(this, TriggerFlags.Default);
 
                 return true;
             }
             else return false;
         }
         
-        
-
         private void StopTimer()
         {
             var oldTimer = currentTimer;
@@ -104,10 +80,9 @@ namespace Factors.Time
 
         #region Constructors
 
-        public TimerCore(FloatingTimeZone timeZoneToUse)
+        public TimerCore(FloatingTimeZone timeZoneToUse) : base(timeZoneToUse)
         {
-            timeZone = timeZoneToUse;
-            weakSubscriber = new WeakSubscriber(this);
+            
         }
         
         public TimerCore() : this(FloatingTimeZone.Default)
@@ -122,7 +97,7 @@ namespace Factors.Time
             throw new NotImplementedException();
         }
 
-        bool ITriggerable.Trigger(IFactor triggeringFactor, out bool removeSubscription)
+        bool ITriggerable.Trigger(IFactor triggeringFactor, long triggerFlags, out bool removeSubscription)
         {
             removeSubscription = false; //- Remove this
             
@@ -157,7 +132,7 @@ namespace Factors.Time
             return false;
         }
         
-        bool IDestabilizable.Destabilize(IFactor factor)
+        bool IDestabilizable.Destabilize()
         {
             //- I can't think of any reason why this would be called. Right now the plan is to have
             //  this core subscribe to a DateTimeTrigger, and they shouldn't use Destabilize().

@@ -6,15 +6,17 @@ namespace Factors.Cores
 {
     public abstract class DirectResponse : DirectReactorCore
     {
-        protected override bool CreateOutcome()
+        protected override long CreateOutcome()
         {
-            bool wasSuccessful = ExecuteResponse();
+            long triggerFlags = ExecuteResponse();
            
             SubscribeToInputs();
 
-            return wasSuccessful;
+            return triggerFlags;
         }
 
-        protected abstract bool ExecuteResponse();
+        protected abstract long ExecuteResponse();
     }
+    
+
 }

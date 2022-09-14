@@ -8,20 +8,14 @@ using static Core.Tools.Types;
 
 namespace Factors
 {
-    public class Proactive<T> : Proactor<IProactiveCore<T>>, IState<T>
+    public class Proactive<T> : Proactor<IProactiveCore<T>>, IProactive<T>
     {
         #region Properties
         
         public T Value
         {
             get => core.Value;
-            set
-            {
-                if (core.SetValueIfNotEqual(value))
-                {
-                    TriggerSubscribers();
-                }
-            }
+            set => core.SetValueIfNotEqual(value);
         }
 
         #endregion
@@ -30,7 +24,9 @@ namespace Factors
         #region Instance Methods
 
         public bool ValueEquals(T valueToCompare) => core.ValueEquals(valueToCompare);
-        
+
+        public T Peek() => core.Peek();
+
         public override string ToString() => $"{Name} => {Value}";
         
 

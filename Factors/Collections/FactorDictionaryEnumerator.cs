@@ -21,8 +21,14 @@ namespace Factors.Collections
         //         seems like it could be obnoxious.  When we've had a chance to use the library more come
         //         back here and decide if it's likely that people are going to use the enumerators in a 
         //         way where they are using the same enumerator during multiple reaction processes.
-        protected override void OnInteraction() => involvedDictionary.NotifyInvolved() ;
+        //protected override void OnInteraction() => involvedDictionary.NotifyInvolved() ;
 
+        protected override void OnInteraction() { }
+        protected override void OnEnumerationStarted()
+        {
+            involvedDictionary.NotifyInvolved(TriggerFlags.ItemAdded | TriggerFlags.ItemRemoved | TriggerFlags.ItemReplaced);
+        }
+        
         #endregion
 
         
@@ -35,5 +41,7 @@ namespace Factors.Collections
         }
 
         #endregion
+
+
     }
 }

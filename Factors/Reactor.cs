@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using Core.Factors;
 using Core.States;
-using Factors.Cores;
 using JetBrains.Annotations;
 using static Core.Tools.Delegates;
 using static Core.Tools.Types;
@@ -77,12 +76,12 @@ namespace Factors
 
         //- Does not imply the caller will queue this subscriber to be updated.  Only that the subscriber
         //  should mark itself and its dependents as Unstable, and return whether it is Necessary or not.
-        public bool Destabilize(IFactor factor) => core.Destabilize(factor);
+        public bool Destabilize() => core.Destabilize();
 
         public bool Trigger() => core.Trigger();
 
-        public bool Trigger(IFactor triggeringFactor, out bool removeSubscription) =>
-            core.Trigger(triggeringFactor, out removeSubscription);
+        public bool Trigger(IFactor triggeringFactor, long triggerFlags, out bool removeSubscription) =>
+            core.Trigger(triggeringFactor, triggerFlags, out removeSubscription);
 
         public override bool Subscribe(IFactorSubscriber subscriberToAdd, bool isNecessary)
         {
@@ -96,13 +95,31 @@ namespace Factors
                 isNecessary is false   &&
                 IsTriggered || IsUnstable)
             {
-                if (subscriberToAdd.Destabilize(this))
+                if (subscriberToAdd.Destabilize())
                 {
                     NotifyNecessary(subscriberToAdd);
                 }
             }
 
             return successfullySubscribed;
+        }
+
+        public bool DestabilizeSubscribers()
+        {
+            if (influence is null) { return false; }
+            
+            bool wasAlreadyNecessary    = Influence.HasNecessarySubscribers;
+            bool hasNecessarySubscribers = Influence.DestabilizeSubscribers(this);
+
+            if (hasNecessarySubscribers &&
+                wasAlreadyNecessary is false)
+            {
+                OnNecessary();
+                //  If we're Reflexive will we start updating in
+                //  the middle of someone else propagating Destabilize()?
+            }
+
+            return hasNecessarySubscribers;
         }
 
         protected override void OnNecessary()
@@ -149,11 +166,11 @@ namespace Factors
 
         #region Explicit Implementations
 
-        void IFactorCoreCallback.CoreUpdated(IFactorCore triggeredCore)
+        void IFactorCoreCallback.CoreUpdated(IFactorCore triggeredCore, long triggerFlags)
         {
             if (EnsureIsCorrectCore(triggeredCore))
             {
-                OnUpdated();
+                OnUpdated(triggerFlags);
             }
         }
         
@@ -161,15 +178,7 @@ namespace Factors
         {
             if (EnsureIsCorrectCore(destabilizedCore))
             {
-                bool hasNecessaryDependents = Influence.DestabilizeSubscribers(this);
-
-                if (hasNecessaryDependents &&
-                    core.IsReflexive != IsNecessary)
-                {
-                    core.IsReflexive = IsNecessary;
-                }
-
-                return hasNecessaryDependents;
+                return DestabilizeSubscribers();
             }
             else return false;
         }

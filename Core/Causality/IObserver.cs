@@ -10,7 +10,7 @@ namespace Core.Causality
     {
         bool IsCurrentlyObserving { get; }
         
-        void       NotifyInvolved(TInfluence involvedObject);
+        void       NotifyInvolved(TInfluence involvedObject, long triggerFlags);
         void       NotifyChanged(TInfluence changedObject);
         void       ObserveInteractions<TInteraction>(TInteraction outcomeToObserve) where TInteraction : TObserved, IProcess;
         TValue     ObserveInteractions<TInteraction, TValue>(TInteraction outcomeToObserve) where TInteraction : TObserved, IProcess<TValue>;

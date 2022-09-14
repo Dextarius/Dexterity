@@ -10,6 +10,12 @@ namespace Core.Factors
     
     public interface IFactorCoreCallback : IFactor
     {
-        void CoreUpdated(IFactorCore triggeredCore);
+        void CoreUpdated(IFactorCore triggeredCore, long triggerFlags);
+    }
+    
+    public interface ICollectionCoreCallback<in TValue> : IReactorCoreCallback
+    {
+        bool ElementAdded(TValue valueAdded);
+        bool ElementRemoved(TValue valueRemoved);
     }
 }

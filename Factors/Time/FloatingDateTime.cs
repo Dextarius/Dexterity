@@ -29,7 +29,7 @@ namespace Factors.Time
         protected DateTime FloorCurrentDateAndNotifyInvolved(TimeSpan intervalToRoundTo)
         {
             long ticksInFlooredDate = (Snapshot.Ticks / intervalToRoundTo.Ticks) * intervalToRoundTo.Ticks;
-            var flooredDate = new DateTime(ticksInFlooredDate);
+            var  flooredDate        = new DateTime(ticksInFlooredDate);
             
             InvolveTimersSetTo(flooredDate - Offset, intervalToRoundTo);
 
@@ -44,8 +44,8 @@ namespace Factors.Time
             return returnValue;
         }
 
-        protected void InvolveTimersSetTo(DateTime previousIncrement, TimeSpan increment) =>
-            InvolveTimersSetTo(previousIncrement, previousIncrement + increment, default(int));
+        protected void InvolveTimersSetTo(DateTime previousIncrement, TimeSpan incrementLength) =>
+            InvolveTimersSetTo(previousIncrement, previousIncrement + incrementLength, default(int));
 
         protected DateTimeTrigger GetAndInvolveTimer(DateTime originalDateTime)
         {

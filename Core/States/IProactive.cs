@@ -3,7 +3,7 @@ using Core.Redirection;
 
 namespace Core.States
 {
-    public interface IState<T> : IFactor<T>
+    public interface IProactive<T> : IFactor<T>
     {
         new T Value { get; set; }
     }

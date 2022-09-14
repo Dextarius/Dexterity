@@ -3,12 +3,19 @@ using System.Collections.Generic;
 using Core;
 using Core.Factors;
 using Core.States;
+using Factors.Observer;
 using JetBrains.Annotations;
 
 namespace Factors.Cores
 {
     public abstract class FactorCore : IFactorCore
     {
+        #region Static Properties
+
+        protected static CausalObserver Observer => CausalObserver.ForThread;
+
+        #endregion
+        
         #region Instance Properties
 
         public virtual int UpdatePriority => 0;

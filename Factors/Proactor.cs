@@ -1,6 +1,7 @@
 ﻿using Core.Causality;
 using Core.Factors;
 using Core.States;
+using Factors.Cores.ProactiveCores;
 using JetBrains.Annotations;
 
 namespace Factors
@@ -20,12 +21,31 @@ namespace Factors
 
         #region Explicit Implementations
 
-        void IFactorCoreCallback.CoreUpdated(IFactorCore triggeredCore)
+        void IFactorCoreCallback.CoreUpdated(IFactorCore triggeredCore, long triggerFlags)
         {
             if (EnsureIsCorrectCore(triggeredCore))
             {
-                OnUpdated();
+                OnUpdated(triggerFlags);
             }
+        }
+
+        #endregion
+    }
+    
+    
+    
+    public class Proactor : Proactor<ProactorCore>
+    {
+        #region Constructors
+
+        public Proactor(ProactorCore factorCore, string factorsName = "Proactor") : base(factorCore, factorsName)
+        {
+            factorCore.SetCallback(this);
+        }
+        
+        public Proactor(string factorsName = "Proactor") : base(new ProactorCore(), factorsName)
+        {
+            
         }
 
         #endregion
