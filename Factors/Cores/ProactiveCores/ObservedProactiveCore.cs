@@ -31,7 +31,7 @@ namespace Factors.Cores.ProactiveCores
 
         public void NotifyInvolved(long triggerFlags)
         {
-            if (Callback is not null) 
+            if (Callback is null) 
             { 
                 throw new InvalidOperationException(
                     $"An {nameof(ObservedProactiveCore<T>)} attempted to notify the Observer that it was involved, " +
