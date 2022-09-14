@@ -157,9 +157,9 @@ namespace Tests.Interface_Tests
         [Test]
         public void WhenAllNecessarySubscribersHaveUnsubscribedFromFactor_FactorIsNoLongerNecessary()
         {
-            var factorToTest        = factorFactory.CreateStableInstance();
-            int numberOfSubscribers = 10;
-            var controllers         = new TSubscriberController[numberOfSubscribers];
+            var factorToTest          = factorFactory.CreateStableInstance();
+            int numberOfSubscribers   = 10;
+            var subscriberControllers = new TSubscriberController[numberOfSubscribers];
 
             if (factorToTest.IsNecessary)
             {
@@ -168,11 +168,11 @@ namespace Tests.Interface_Tests
             
             for (int i = 0; i < numberOfSubscribers; i++)
             {
-                var controller = new TSubscriberController();
-                var subscriber = controller.ControlledInstance;
+                var subscriberController = new TSubscriberController();
+                var subscriber           = subscriberController.ControlledInstance;
                 
-                controllers[i] = controller;
-                controller.MakeStableAndUntriggered();
+                subscriberControllers[i] = subscriberController;
+                subscriberController.MakeStableAndUntriggered();
              // controller.MakeNecessary();
              // Assert.That(subscriber.IsNecessary, Is.True);
                 factorToTest.Subscribe(subscriber, true);
@@ -183,14 +183,14 @@ namespace Tests.Interface_Tests
             //- Unsubscribe all subscribers except the first.
             for (int i = 1; i < numberOfSubscribers; i++)
             {
-                factorToTest.Unsubscribe(controllers[i].ControlledInstance);
+                factorToTest.Unsubscribe(subscriberControllers[i].ControlledInstance);
             }
             
             //- The first subscriber should still be subscribed, so we should still be Necessary.
             Assert.That(factorToTest.IsNecessary, Is.True);
             
             //- Now we remove the only remaining subscriber.
-            factorToTest.Unsubscribe(controllers[0].ControlledInstance);
+            factorToTest.Unsubscribe(subscriberControllers[0].ControlledInstance);
             Assert.That(factorToTest.IsNecessary, Is.False);
         }
 
