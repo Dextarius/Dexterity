@@ -114,53 +114,38 @@ namespace Factors
         
             if (newList != oldList)
             {
-                var unmatchedItems = MakeDictionary(oldList, itemComparer);
+                var unmatchedItems = GetNumberOfInstancesForEachItemIn(oldList, itemComparer);
 
-                for (int i = 0; i < newList.Count; i++)
+                for (int i = 0;  i < newList.Count;  i++)
                 {
-                    var newListsItem = newList[i];
-                    var oldListsItem = oldList[i];
-
-                    if (itemComparer.Equals(newListsItem, oldListsItem))
+                    var  newListsItem = newList[i];
+                    bool newListsItemWasAlsoInOldList = unmatchedItems.TryGetValue(newListsItem, out var numberOfInstances);
+                    
+                    if (newListsItemWasAlsoInOldList)
                     {
+                        bool currentIndexExistsInOldList = i < oldList.Count;
 
-                        if (unmatchedItems.TryGetValue(oldListsItem, out var numberOfInstances))
+                        if (currentIndexExistsInOldList)
                         {
-                            if (numberOfInstances > 1)
+                            var  oldListsItem       = oldList[i];
+                            bool itemWasAtSameIndex = itemComparer.Equals(newListsItem, oldListsItem);
+                        
+                            if (itemWasAtSameIndex is false)
                             {
-                                unmatchedItems[oldListsItem] = numberOfInstances - 1;
+                                triggerFlags |= TriggerFlags.ItemMoved;
                             }
-                            else
-                            {
-                                unmatchedItems.Remove(oldListsItem);
-                            }
+                        
+                            if (numberOfInstances > 1) { unmatchedItems[oldListsItem] = numberOfInstances - 1; }
+                            else                       { unmatchedItems.Remove(oldListsItem);                  }
                         }
                         else
                         {
-                            //- This shouldn't happen
-                            throw new InvalidOperationException();
+                            triggerFlags |= TriggerFlags.ItemMoved;
                         }
                     }
                     else
                     {
-                        if (unmatchedItems.TryGetValue(oldListsItem, out var numberOfInstances))
-                        {
-                            if (numberOfInstances > 1)
-                            {
-                                unmatchedItems[oldListsItem] = numberOfInstances - 1;
-                            }
-                            else
-                            {
-                                unmatchedItems.Remove(oldListsItem);
-                            }
-
-                            triggerFlags |= TriggerFlags.ItemMoved;
-                        }
-                        else
-                        {
-                            triggerFlags |= TriggerFlags.ItemAdded;
-                        }
-                        
+                        triggerFlags |= TriggerFlags.ItemAdded;
                     }
                 }
 
@@ -176,7 +161,7 @@ namespace Factors
             //          comparers for their keys.
         }
 
-        public static Dictionary<T, int> MakeDictionary<T>(IList<T> list, IEqualityComparer<T> comparer)
+        public static Dictionary<T, int> GetNumberOfInstancesForEachItemIn<T>(IList<T> list, IEqualityComparer<T> comparer)
         {
             var createdDictionary = new Dictionary<T, int>(comparer);
                 
