@@ -93,6 +93,13 @@ namespace Factors.Cores.ObservedReactorCores.CollectionResults
                 return false;
             }
         }
+        
+        public bool CollectionEquals(IEnumerable<TValue> collectionToCompare)
+        {
+            var collectionX = CreateCollectionFromElements(collectionToCompare);
+            
+            return AreCollectionsEqual(collectionX , collectionX, out _);
+        }
 
         public IEnumerator<TValue> GetEnumerator()
         {
@@ -129,7 +136,10 @@ namespace Factors.Cores.ObservedReactorCores.CollectionResults
         #region Explicit Implementations
 
         IEnumerable<TValue> IProcess<IEnumerable<TValue>>.Execute() => GetElements();
+        
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         #endregion
+
     }
 }

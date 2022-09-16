@@ -90,7 +90,8 @@ namespace Core.Tools
             return ~start;
         }
         
-        public static Dictionary<TKey, TValue> CreateNewDictionary<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>> entries, IEqualityComparer<TKey> comparerForKeys)
+        public static Dictionary<TKey, TValue> CreateDictionaryFrom<TKey, TValue>(
+            IEnumerable<KeyValuePair<TKey, TValue>> entries, IEqualityComparer<TKey> comparerForKeys)
         {
             var createdDictionary = new Dictionary<TKey, TValue>(comparerForKeys);
 

@@ -2,10 +2,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using Core.States;
 using Core.Tools;
 using JetBrains.Annotations;
 using static Core.Tools.Types;
+using static Factors.TriggerFlags;
 
 namespace Factors.Cores.ProactiveCores
 {
@@ -30,8 +32,7 @@ namespace Factors.Cores.ProactiveCores
                 if (itemComparer.Equals(currentValue, value) is false)
                 {
                     collection[index] = value;
-                    OnItemRemoved(currentValue);
-                    OnItemAdded(value);
+                    OnItemReplaced(currentValue, value, ItemReplaced);
                 }
             }
         }
@@ -41,23 +42,85 @@ namespace Factors.Cores.ProactiveCores
         #endregion
 
         
-        #region Instance Methods 
+        #region Instance Methods
         
-        public void Insert(int index, T item)
+        protected override bool AddItem(T itemToAdd, out long additionalNotifyFlags, out long additionalChangeFlags)
         {
-            collection.Insert(index, item);
-            OnItemAdded(item);
+            collection.Add(itemToAdd);
+            additionalChangeFlags = TriggerFlags.None;
+            additionalNotifyFlags = TriggerFlags.None;
+            return true;
         }
         
-        public void InsertRange(int index, IEnumerable<T> elements)
+        protected override bool RemoveItem(T item, out long additionalTriggerFlags)
         {
-            foreach (var item in elements)
+            int itemsIndex = collection.IndexOf(item);
+            int lastIndex  = collection.Count - 1;
+            
+            additionalTriggerFlags = TriggerFlags.None;
+
+            if (itemsIndex < 0)
             {
-                Insert(index, item);
-                index++;
+                return false;
+            }
+            else
+            {
+                collection.RemoveAt(itemsIndex);
+
+                if (itemsIndex != lastIndex)
+                {
+                    additionalTriggerFlags = ItemMoved | ItemReplaced;
+                }
+                
+                return true;
             }
         }
         
+        protected void OnRangeOfItemsAdded(int startingIndex, int count)
+        {
+            for (int i = startingIndex; i < startingIndex + count; i++)
+            {
+                ItemWasAdded.Send(collection[i]);
+            }
+        }
+        
+        public void Insert(int index, T item)
+        {
+            long triggerFlags = ItemAdded;
+            
+            if (index != collection.Count)
+            {
+                triggerFlags |= ItemMoved | ItemReplaced;
+            }
+            
+            collection.Insert(index, item);
+            OnItemAdded(item);
+            OnCollectionChanged(triggerFlags);
+        }
+        
+        public void InsertRange(int index, IEnumerable<T> itemsToInsert)
+        {
+            long triggerFlags          = ItemAdded;
+            int  numberOfItemsInserted = 0;
+
+            if (index != collection.Count)
+            {
+                triggerFlags |= ItemMoved | ItemReplaced;
+            }
+
+            foreach (var item in itemsToInsert)
+            {
+                Collection[index + numberOfItemsInserted] = item;
+                numberOfItemsInserted++;
+            }
+
+            if (numberOfItemsInserted > 0)
+            {
+                OnRangeOfItemsAdded(index, numberOfItemsInserted);
+                OnCollectionChanged(triggerFlags);
+            }
+        }
+
         public void RemoveAt(int index)
         {
             if (index >= collection.Count)
@@ -123,7 +186,7 @@ namespace Factors.Cores.ProactiveCores
             else
             {
                 throw new ArgumentException("A process attempted to add an object of type " +
-                                           $"{value?.GetType()} to a {NameOf<ObservedListCore<T>>()}");
+                                           $"{value?.GetType()} to a {NameOf<ObservedProactiveListCore<T>>()}");
             }
             
             return indexOfItem;

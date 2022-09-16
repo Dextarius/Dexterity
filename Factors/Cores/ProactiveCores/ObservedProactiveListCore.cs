@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Core.States;
 using Core.Tools;
 using JetBrains.Annotations;
+using Dextarius.Collections;
 using static Core.Tools.Types;
 using static Factors.TriggerFlags;
 
 namespace Factors.Cores.ProactiveCores
 {
-    public class ObservedListCore<T> : ObservedCollectionCore<List<T>, T>, IProactiveListCore<T>
+    public class ObservedProactiveListCore<T> : ObservedProactiveCollectionCore<List<T>, T>, IProactiveListCore<T>
     {
         #region Instance Fields
 
@@ -30,7 +32,7 @@ namespace Factors.Cores.ProactiveCores
                 if (itemComparer.Equals(currentValue, value) is false)
                 {
                     collection[index] = value;
-                    OnCollectionChanged(ItemReplaced);
+                    OnItemReplaced(currentValue, value, ItemReplaced);
                 }
             }
         }
@@ -42,7 +44,7 @@ namespace Factors.Cores.ProactiveCores
         
         #region Instance Methods 
         
-        public void Insert(int index, T item)
+        public void Insert(int index, T itemToInsert)
         {
             long triggerFlags = ItemAdded;
             
@@ -51,11 +53,11 @@ namespace Factors.Cores.ProactiveCores
                 triggerFlags |= ItemMoved | ItemReplaced;
             }
             
-            collection.Insert(index, item);
+            collection.Insert(index, itemToInsert);
             OnCollectionChanged(triggerFlags);
         }
         
-        public void InsertRange(int index, IEnumerable<T> elements)
+        public void InsertRange(int index, IEnumerable<T> itemsToInsert)
         {
             long triggerFlags = ItemAdded;
             
@@ -65,7 +67,7 @@ namespace Factors.Cores.ProactiveCores
                 
             }
             
-            collection.InsertRange(index, elements);
+            collection.InsertRange(index, itemsToInsert);
             OnCollectionChanged(triggerFlags);
         }
         
@@ -91,7 +93,7 @@ namespace Factors.Cores.ProactiveCores
                 OnCollectionChanged(ItemRemoved | ItemMoved | ItemReplaced);
             }
             
-            NotifyInvolved(ItemAdded | ItemReplaced);
+            NotifyInvolved(TriggerWhenItemAdded | ItemReplaced);
 
             return elementsRemoved;
         }
@@ -132,7 +134,7 @@ namespace Factors.Cores.ProactiveCores
             else
             {
                 throw new ArgumentException("A process attempted to add an object of type " +
-                                            $"{value?.GetType()} to a {NameOf<ObservedListCore<T>>()}");
+                                            $"{value?.GetType()} to a {NameOf<ObservedProactiveListCore<T>>()}");
             }
             
             if (wasAdded)
@@ -185,10 +187,10 @@ namespace Factors.Cores.ProactiveCores
             if (collection.Count > 1  &&  count > 1) //- No point in reversing 1 element.
             {
                 collection.Reverse(index, count);
-                NotifyInvolved_Rearranged();
+                OnCollectionChanged(ItemMoved);
             }
         }
-        
+
         public void Reverse() => Reverse(0, Count);
 
         //- TODO : If we decide to write our own sorting methods we can keep track
@@ -315,11 +317,11 @@ namespace Factors.Cores.ProactiveCores
 
             if (isTrue)
             {
-                NotifyInvolved(ItemAdded | ItemReplaced);
+                NotifyInvolved(TriggerWhenItemAdded | ItemReplaced);
             }
             else
             {
-                NotifyInvolved(ItemRemoved | ItemReplaced);
+                NotifyInvolved(TriggerWhenItemRemoved | ItemReplaced);
             }
 
             return isTrue;
@@ -350,11 +352,11 @@ namespace Factors.Cores.ProactiveCores
 
             if (results.Count > 0)
             {
-                NotifyInvolved(ItemAdded | ItemRemoved | ItemReplaced);
+                NotifyInvolved(TriggerWhenItemAdded | ItemRemoved | ItemReplaced);
             }
             else
             {
-                NotifyInvolved(ItemAdded | ItemReplaced);
+                NotifyInvolved(TriggerWhenItemAdded | ItemReplaced);
 
             }
 
@@ -373,7 +375,7 @@ namespace Factors.Cores.ProactiveCores
 
         public void ForEach(Action<T> action)
         {
-            NotifyInvolved(ItemAdded | ItemReplaced);
+            NotifyInvolved(TriggerWhenItemAdded | ItemReplaced);
             //- I didn't include the ItemRemoved flag because the purpose of this method seems 
             //  to be to take some action on each item. If we remove an item, all of the remaining items 
             //  still had the Action done to them.
@@ -391,11 +393,11 @@ namespace Factors.Cores.ProactiveCores
 
             if (results.Count > 0)
             {
-                NotifyInvolved(ItemRemoved | ItemReplaced | ItemMoved) ;
+                NotifyInvolved(TriggerWhenItemRemoved | ItemReplaced | ItemMoved) ;
             }
             else
             {
-                NotifyInvolved(ItemAdded | ItemReplaced);
+                NotifyInvolved(TriggerWhenItemAdded | ItemReplaced);
             }
 
             return results;
@@ -415,9 +417,12 @@ namespace Factors.Cores.ProactiveCores
         {
             var results = Collection.ConvertAll(converter);
 
-            NotifyInvolved(ItemAdded | ItemReplaced);
+            NotifyInvolved(TriggerWhenItemAdded | ItemReplaced);
             return results;
         }
+        
+        public override bool CollectionEquals(IEnumerable<T> collectionToCompare) => 
+            collection.IsEquivalentTo(collectionToCompare.ToList(), itemComparer);
 
         public List<T> AsNormalList()
         {
@@ -440,23 +445,23 @@ namespace Factors.Cores.ProactiveCores
         
         #region Constructors
 
-        protected ObservedListCore(List<T> list, IEqualityComparer<T> comparerForItems) : 
+        protected ObservedProactiveListCore(List<T> list, IEqualityComparer<T> comparerForItems) : 
             base(list)
         {
             itemComparer = comparerForItems ?? EqualityComparer<T>.Default;
         }        
-        public ObservedListCore(
+        public ObservedProactiveListCore(
             IEnumerable<T> collectionToCopy, IEqualityComparer<T> comparerForItems = null) : 
             this(new List<T>(collectionToCopy), comparerForItems)
         {
         }
         
-        public ObservedListCore(IEqualityComparer<T> itemComparer) : 
+        public ObservedProactiveListCore(IEqualityComparer<T> itemComparer) : 
             this(new List<T>(), itemComparer)
         {
         }
 
-        public ObservedListCore() : this(new List<T>(), null)
+        public ObservedProactiveListCore() : this(new List<T>(), null)
         {
         }
 

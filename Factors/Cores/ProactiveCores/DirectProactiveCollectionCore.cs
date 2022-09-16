@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Core.States;
+using static Factors.TriggerFlags;
 
 namespace Factors.Cores.ProactiveCores
 {
-    public class DirectProactiveCollectionCore<TCollection, TValue> 
+    public abstract class DirectProactiveCollectionCore<TCollection, TValue>  : ProactorCore
         where TCollection : ICollection<TValue>
     {
         #region Instance Fields
@@ -24,40 +26,78 @@ namespace Factors.Cores.ProactiveCores
             set => collection = value; 
         }
 
+        public Channel<TValue> ItemWasAdded   { get; } = new Channel<TValue>();
+        public Channel<TValue> ItemWasRemoved { get; } = new Channel<TValue>();
+
         #endregion
 
 
         #region Instance Methods
 
-        protected void OnItemAdded(TValue itemAdded)
+        public void NotifyChanged() => Observer.NotifyChanged(Callback);
+        
+        protected void OnCollectionChanged(long triggerFlags)
         {
-
+            NotifyChanged();
+            Callback?.CoreUpdated(this, triggerFlags);
         }
         
+        protected void OnItemAdded(TValue itemAdded)
+        {
+            ItemWasAdded.Send(itemAdded);
+        }
+        
+        protected void OnMultipleItemsAdded(IEnumerable<TValue> itemsAdded, long triggerFlags)
+        {
+            OnCollectionChanged(triggerFlags);
+            ItemWasAdded.Send(itemsAdded);
+        }
+
         protected void OnItemRemoved(TValue itemRemoved)
         {
+            ItemWasRemoved.Send(itemRemoved);
+        }
+        
+        protected void OnItemReplaced(TValue oldItem, TValue newItem, long triggerFlags)
+        {
+            OnCollectionChanged(triggerFlags);
+            ItemWasRemoved.Send(oldItem);
+            ItemWasAdded.Send(newItem);
 
         }
 
         public bool Add(TValue item)
         {
-            int oldCount = collection.Count;
-        
-            collection.Add(item);
-        
-            if (collection.Count > oldCount)
+            if (AddItem(item, out long involveFlags, out long additionalChangeFlags))
             {
                 OnItemAdded(item);
-                return true;
+                OnCollectionChanged(ItemAdded | additionalChangeFlags);
+                
+                return involveFlags is not TriggerFlags.None;
             }
             else return false;
         }
+
+        protected abstract bool AddItem(TValue itemToAdd, out long notifyInvolvedFlags, out long additionalChangeFlags);
         
         public void AddRange(IEnumerable<TValue> itemsToAdd)
         {
-            foreach (var item in itemsToAdd)
+            int  numberOfItemsAdded = 0;
+            long triggerFlags       = ItemAdded;
+            var  itemsAsList        = itemsToAdd.ToList();
+            
+            foreach (var item in itemsAsList)
             {
-                Add(item);
+                if (AddItem(item, out _, out long additionalChangeFlags))
+                {
+                    numberOfItemsAdded++;
+                    triggerFlags |= additionalChangeFlags;
+                }
+            }
+
+            if (numberOfItemsAdded > 0)
+            {
+                OnMultipleItemsAdded(itemsAsList, triggerFlags);
             }
         }
         
@@ -65,15 +105,28 @@ namespace Factors.Cores.ProactiveCores
         
         public bool Remove(TValue item)
         {
-            bool wasSuccessful = collection.Remove(item);
+            bool wasSuccessful = RemoveItem(item, out long additionalTriggerFlags);
             
             if (wasSuccessful)
             {
                 OnItemRemoved(item);
+                OnCollectionChanged(ItemRemoved | additionalTriggerFlags);
             }
-            
+
+            // Callback.NotifyInvolved(TriggerWhenItemAdded);
+           
+            //^ Should we even notify here?  
+            //  Do we think someone will try to bind to this?
+            //  What flags do we use if they succeed in removing an item?
+            //- I suppose you could use this to make a reaction that ensured
+            //  a particular item wasn't in the collection by trying to remove
+            //  it every time an item was added.  That strategy doesnt account
+            //  for multiple additions though.
+
             return wasSuccessful;
         }
+
+        protected abstract bool RemoveItem(TValue item, out long additionalTriggerFlags);
 
         public void Clear()
         {
@@ -93,9 +146,11 @@ namespace Factors.Cores.ProactiveCores
             }
         }
 
-        public bool Contains(TValue item)             => Collection.Contains(item);
+        public bool Contains(TValue item) => Collection.Contains(item);
+        
         public void CopyTo(TValue[] array, int index) => Collection.CopyTo(array, index);
-        public void CopyTo(Array array,    int index) => ((ICollection)Collection).CopyTo(array, index);
+        
+        public void CopyTo(Array    array, int index) => ((ICollection)Collection).CopyTo(array, index);
 
         #endregion
 

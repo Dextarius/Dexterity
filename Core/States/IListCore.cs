@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Core.States
 {
-    public interface IListCore<T> : ICollectionCore<T>, IList<T>
+    public interface IListCore<T> : IProactiveCollectionCore<T>, IList<T>
     {
         #region Properties
 

@@ -7,18 +7,20 @@ namespace Factors.Cores.ProactiveCores
 {
     public class DirectProactiveHashSetCore<T> : DirectProactiveCollectionCore<HashSet<T>, T>
     {
-        public new bool Add(T item)
+        protected override bool AddItem(T itemToAdd, out long additionalNotifyFlags, out long additionalChangeFlags)
         {
-            bool wasSuccessful = collection.Add(item);
-
-            if (wasSuccessful)
-            {
-                OnItemAdded(item);
-            }
-
-            return wasSuccessful;
+            collection.Add(itemToAdd);
+            additionalChangeFlags = TriggerFlags.None;
+            additionalNotifyFlags = TriggerFlags.None;
+            return true;
         }
         
+        protected override bool RemoveItem(T item, out long additionalTriggerFlags)
+        {
+            additionalTriggerFlags = TriggerFlags.None;
+            return Collection.Remove(item);
+        }
+
         public int RemoveWhere(Predicate<T> predicate)
         {
             if (predicate is null) { throw new ArgumentNullException(nameof(predicate)); }
@@ -131,9 +133,7 @@ namespace Factors.Cores.ProactiveCores
         public DirectProactiveHashSetCore() : this(new HashSet<T>())
         {
         }
-
-
-
+        
         #endregion
     }
 }

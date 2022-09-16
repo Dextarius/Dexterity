@@ -19,6 +19,5 @@ namespace Core.States
         ICollection              GetValuesAsICollection();
         
         new IDictionaryEnumerator GetEnumerator();
-
     }
 }

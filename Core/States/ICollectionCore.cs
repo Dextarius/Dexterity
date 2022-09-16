@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Core.Factors;
 
 namespace Core.States
 {
-    public interface ICollectionCore<TValue> : IProactorCore, ICollection<TValue>
+    public interface ICollectionCore<TValue> : IFactorCore, IEnumerable<TValue>  
     {
-        void AddRange(IEnumerable<TValue> itemsToAdd);
-        void AddRange(params TValue[] itemsToAdd);
-        void CopyTo(Array array, int index);
+        bool CollectionEquals(IEnumerable<TValue> collectionToCompare);
     }
 }

@@ -24,11 +24,10 @@ namespace Factors.Collections
         //protected override void OnInteraction() => involvedDictionary.NotifyInvolved() ;
 
         protected override void OnInteraction() { }
-        protected override void OnEnumerationStarted()
-        {
-            involvedDictionary.NotifyInvolved(TriggerFlags.ItemAdded | TriggerFlags.ItemRemoved | TriggerFlags.ItemReplaced);
-        }
         
+        protected override void OnEnumerationStarted() => 
+            involvedDictionary.NotifyInvolved(TriggerFlags.ItemAdded | TriggerFlags.ItemRemoved | TriggerFlags.ItemReplaced);
+
         #endregion
 
         

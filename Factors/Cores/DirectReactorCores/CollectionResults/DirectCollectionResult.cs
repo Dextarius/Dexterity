@@ -58,7 +58,7 @@ namespace Factors.Cores.DirectReactorCores.CollectionResults
         public void CopyTo(TValue[] array, int index) => Collection.CopyTo(array, index);
         public void CopyTo(Array    array, int index) => ((ICollection)Collection).CopyTo(array, index);
         public bool Contains(TValue item)             => Collection.Contains(item);
-        
+
         public IEnumerator<TValue> GetEnumerator()
         {
             foreach (TValue element in Collection)
@@ -69,11 +69,18 @@ namespace Factors.Cores.DirectReactorCores.CollectionResults
             
             //- TODO : Do we really want to call NotifyInvolved() on every iteration?
         }
-
         
+        public bool CollectionEquals(IEnumerable<TValue> collectionToCompare)
+        {
+            var collectionX = CreateCollectionFromElements(collectionToCompare);
+            
+            return AreCollectionsEqual(collectionX , collectionX, out _);
+        }
+
         //- This method should never return null, because most of the operations these classes take assumes there is 
         //  a collection at all times even if it's just an empty one.
         protected abstract TCollection         CreateCollectionFromElements(IEnumerable<TValue> newElements);
+        public abstract    bool                CollectionEquals(IEnumerable collectionToCompare);
         protected abstract IEnumerable<TValue> GetElements();
         protected abstract bool                AreCollectionsEqual(TCollection collection1, 
                                                                    TCollection collection2, 
@@ -86,6 +93,9 @@ namespace Factors.Cores.DirectReactorCores.CollectionResults
 
         IEnumerable<TValue> IProcess<IEnumerable<TValue>>.Execute() => GetElements();
 
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
         #endregion
+
     }
 }

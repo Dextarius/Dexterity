@@ -9,8 +9,8 @@ using static Core.Tools.Collections;
 
 namespace Factors.Cores.ProactiveCores
 {
-    public class ObservedDictionaryCore<TKey, TValue> : 
-        ObservedCollectionCore<Dictionary<TKey,TValue>, KeyValuePair<TKey, TValue>>, IDictionaryCore<TKey, TValue>
+    public class ObservedProactiveDictionaryCore<TKey, TValue> : 
+        ObservedProactiveCollectionCore<Dictionary<TKey,TValue>, KeyValuePair<TKey, TValue>>, IDictionaryCore<TKey, TValue>
     {
         #region Instance Fields
 
@@ -153,6 +153,13 @@ namespace Factors.Cores.ProactiveCores
 
         public ICollection GetKeysAsICollection()   => keys   ??= new StateKeyConservator(this);
         public ICollection GetValuesAsICollection() => values ??= new StateValueConservator(this);
+        
+        public override bool CollectionEquals(IEnumerable<KeyValuePair<TKey, TValue>> collectionToCompare)
+        {
+            var dictionaryToCompare = CreateDictionaryFrom(collectionToCompare, collection.Comparer);
+
+            return this.collection.HasSameKeysAndValuesAs(dictionaryToCompare, valueComparer);
+        }
 
         public new IDictionaryEnumerator GetEnumerator() => new FactorDictionaryEnumerator(this, Collection.GetEnumerator());
         //- TODO : Decide if we really want to make an enumerator object every time someone calls this method.  If not then 
@@ -163,46 +170,46 @@ namespace Factors.Cores.ProactiveCores
 
         #region Constructors
         
-        protected ObservedDictionaryCore(Dictionary<TKey, TValue> dictionaryToCopy, IEqualityComparer<TValue> comparerForValues) : 
+        protected ObservedProactiveDictionaryCore(Dictionary<TKey, TValue> dictionaryToCopy, IEqualityComparer<TValue> comparerForValues) : 
             base(dictionaryToCopy)
         {
             valueComparer = comparerForValues ?? EqualityComparer<TValue>.Default;
         }
         
-        public ObservedDictionaryCore(IEnumerable<KeyValuePair<TKey, TValue>> collectionToCopy  = null,
+        public ObservedProactiveDictionaryCore(IEnumerable<KeyValuePair<TKey, TValue>> collectionToCopy  = null,
                                       IEqualityComparer<TKey>                 comparerForKeys   = null, 
                                       IEqualityComparer<TValue>               comparerForValues = null) : 
-            this(CreateNewDictionary(collectionToCopy, comparerForKeys ?? EqualityComparer<TKey>.Default), 
+            this(CreateDictionaryFrom(collectionToCopy, comparerForKeys ?? EqualityComparer<TKey>.Default), 
                  comparerForValues)
         {
             
         }
         
-        public ObservedDictionaryCore(ICollection<KeyValuePair<TKey, TValue>> collectionToCopy, 
+        public ObservedProactiveDictionaryCore(ICollection<KeyValuePair<TKey, TValue>> collectionToCopy, 
                                       IEqualityComparer<TValue>               comparerForValues) : 
             this(collectionToCopy, null, comparerForValues)
         {
         }
         
-        public ObservedDictionaryCore(IEqualityComparer<TKey>   comparerForKeys, 
+        public ObservedProactiveDictionaryCore(IEqualityComparer<TKey>   comparerForKeys, 
                                       IEqualityComparer<TValue> comparerForValues = null) : 
             this(new Dictionary<TKey, TValue>(comparerForKeys ?? EqualityComparer<TKey>.Default), comparerForValues)
         {
         }
 
-        public ObservedDictionaryCore(IEqualityComparer<TValue> comparerForValues) : 
+        public ObservedProactiveDictionaryCore(IEqualityComparer<TValue> comparerForValues) : 
             this(null, null, comparerForValues)
         {
         }
         
-        public ObservedDictionaryCore(Dictionary<TKey, TValue>  dictionaryToCopy,
+        public ObservedProactiveDictionaryCore(Dictionary<TKey, TValue>  dictionaryToCopy,
                                       IEqualityComparer<TKey>   comparerForKeys   = null, 
                                       IEqualityComparer<TValue> comparerForValues = null) : 
             this(new Dict<TKey, TValue>(dictionaryToCopy, comparerForKeys ?? dictionaryToCopy.Comparer), comparerForValues)
         {
         }
 
-        public ObservedDictionaryCore() : this(new Dictionary<TKey, TValue>(), null)
+        public ObservedProactiveDictionaryCore() : this(new Dictionary<TKey, TValue>(), null)
         {
         }
 
@@ -211,23 +218,23 @@ namespace Factors.Cores.ProactiveCores
 
         #region Nested Classes
 
-        protected class StateKeyConservator : ReadOnlyConservator< ObservedDictionaryCore<TKey, TValue>, TKey>
+        protected class StateKeyConservator : ReadOnlyConservator< ObservedProactiveDictionaryCore<TKey, TValue>, TKey>
         {
             public override ICollection<TKey> ManagedCollection => collectionSource.Collection.Keys;
             
             protected override string GetCollectionDescription() => "The Keys collection of a ProactiveDictionary";
             
-            internal StateKeyConservator(ObservedDictionaryCore<TKey, TValue> creator) : base(creator) { }
+            internal StateKeyConservator(ObservedProactiveDictionaryCore<TKey, TValue> creator) : base(creator) { }
         }
 
 
-        protected class StateValueConservator : ReadOnlyConservator< ObservedDictionaryCore<TKey, TValue>, TValue>
+        protected class StateValueConservator : ReadOnlyConservator< ObservedProactiveDictionaryCore<TKey, TValue>, TValue>
         {
             public override ICollection<TValue> ManagedCollection => collectionSource.Collection.Values;
 
             protected override string GetCollectionDescription() => "The Values collection of a ProactiveDictionary";
 
-            internal StateValueConservator(ObservedDictionaryCore<TKey, TValue> creator) : base(creator) { }
+            internal StateValueConservator(ObservedProactiveDictionaryCore<TKey, TValue> creator) : base(creator) { }
         }
 
         #endregion

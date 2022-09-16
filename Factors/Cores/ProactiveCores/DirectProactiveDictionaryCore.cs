@@ -5,6 +5,7 @@ using Core.States;
 using Dextarius.Collections;
 using Factors.Collections;
 using static Core.Tools.Collections;
+using static Factors.TriggerFlags;
 
 namespace Factors.Cores.ProactiveCores
 {
@@ -37,6 +38,7 @@ namespace Factors.Cores.ProactiveCores
                         collection[key] = value;
                         OnItemRemoved(new KeyValuePair<TKey, TValue>(key, currentValue));
                         OnItemAdded(new KeyValuePair<TKey, TValue>(key, value));
+                        OnCollectionChanged(ItemAdded | ItemRemoved | ItemReplaced);
                         
                         //- TODO : Consider if we want to add a ValueReplaced() method or something
                         //         so that we aren't telling subscribers we're removing the key and
@@ -47,6 +49,7 @@ namespace Factors.Cores.ProactiveCores
                 {
                     collection[key] = value;
                     OnItemAdded(new KeyValuePair<TKey, TValue>(key, value));
+                    OnCollectionChanged(ItemAdded);
                 }
             }
         }
@@ -60,6 +63,7 @@ namespace Factors.Cores.ProactiveCores
         {
             collection.Add(key, value);
             OnItemAdded(new KeyValuePair<TKey, TValue>(key, value));
+            OnCollectionChanged(ItemAdded);
         }
 
         public bool Remove(TKey key)
@@ -68,19 +72,40 @@ namespace Factors.Cores.ProactiveCores
             {
                 collection.Remove(key);
                 OnItemRemoved(new KeyValuePair<TKey, TValue>(key, value));
+                OnCollectionChanged(ItemRemoved);
+                
                 return true;
             }
             else return false;
         }
+        
+        protected override bool AddItem(KeyValuePair<TKey, TValue> itemToAdd, out long notifyInvolvedFlags, 
+                                                                              out long additionalChangeFlags)
+        {
+            collection.Add(itemToAdd.Key, itemToAdd.Value);
+            notifyInvolvedFlags   = TriggerFlags.ItemRemoved;
+            additionalChangeFlags = TriggerFlags.None;
+            
+            return true;        
+        }
 
-        public bool TryGetValue(TKey key, out TValue value) => Collection.TryGetValue(key, out value);
-        public bool ContainsKey(TKey key)                   => Collection.ContainsKey(key);
-        public bool ContainsValue(TValue key)               => Collection.ContainsValue(key);
+        protected override bool RemoveItem(KeyValuePair<TKey, TValue> item, out long additionalTriggerFlags)
+        {
+            additionalTriggerFlags = TriggerFlags.None;
+            return collection.Remove(item.Key);
+        }
+
+        public     bool                  TryGetValue(TKey key, out TValue value) => Collection.TryGetValue(key, out value);
         
-        public ICollection GetKeysAsICollection()   => keys   ??= new StateKeyConservator(this);
-        public ICollection GetValuesAsICollection() => values ??= new StateValueConservator(this);
+        public     bool                  ContainsKey(TKey key)                   => Collection.ContainsKey(key);
         
-        public new IDictionaryEnumerator GetEnumerator() => ((IDictionary)Collection).GetEnumerator();
+        public     bool                  ContainsValue(TValue key)               => Collection.ContainsValue(key);
+        
+        public     ICollection           GetKeysAsICollection()                  => keys   ??= new StateKeyConservator(this);
+        
+        public     ICollection           GetValuesAsICollection()                => values ??= new StateValueConservator(this);
+        
+        public new IDictionaryEnumerator GetEnumerator()                         => ((IDictionary) Collection).GetEnumerator();
 
         #endregion
         
@@ -96,7 +121,7 @@ namespace Factors.Cores.ProactiveCores
         public DirectProactiveDictionaryCore(IEnumerable<KeyValuePair<TKey, TValue>> collectionToCopy  = null,
                                       IEqualityComparer<TKey>                 comparerForKeys   = null, 
                                       IEqualityComparer<TValue>               comparerForValues = null) : 
-            this(CreateNewDictionary(collectionToCopy, comparerForKeys ?? EqualityComparer<TKey>.Default), 
+            this(CreateDictionaryFrom(collectionToCopy, comparerForKeys ?? EqualityComparer<TKey>.Default), 
                  comparerForValues)
         {
             

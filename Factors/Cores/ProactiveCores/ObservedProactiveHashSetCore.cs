@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using Core.States;
+using Dextarius.Collections;
 using static Core.Tools.Types;
 
 namespace Factors.Cores.ProactiveCores
 {
-    public class ObservedHashSetCore<T> : ObservedCollectionCore<HashSet<T>, T>, ISetCore<T>
+    public class ObservedProactiveHashSetCore<T> : ObservedProactiveCollectionCore<HashSet<T>, T>, ISetCore<T>
     {
-
         protected override bool AddItem(T item, out long notifyInvolvedFlags, out long additionalChangeFlags)
         {
             additionalChangeFlags = TriggerFlags.None;
@@ -30,9 +30,9 @@ namespace Factors.Cores.ProactiveCores
             return Collection.Remove(item);
         }
 
-        public int RemoveWhere(Predicate<T> predicate)
+        public int RemoveWhere(Predicate<T> shouldRemoveItem)
         {
-            int numberOfItemsRemoved = collection.RemoveWhere(predicate);
+            int numberOfItemsRemoved = collection.RemoveWhere(shouldRemoveItem);
 
             if (numberOfItemsRemoved > 0)
             {
@@ -200,34 +200,41 @@ namespace Factors.Cores.ProactiveCores
             return createdSet;
         }
         
+        public override bool CollectionEquals(IEnumerable<T> collectionToCompare)
+        {
+            var setEquals = collectionToCompare.ToHashSet();
+
+            return this.collection.SetEquals(setEquals);
+        }
+        
         public void TrimExcess() => Collection.TrimExcess();
 
 
         #region Constructors
 
-        protected ObservedHashSetCore(HashSet<T> hashSet) : base(hashSet)
+        protected ObservedProactiveHashSetCore(HashSet<T> hashSet) : base(hashSet)
         {
 
         }
 
-        public ObservedHashSetCore(
+        public ObservedProactiveHashSetCore(
             IEnumerable<T> collectionToCopy, IEqualityComparer<T> comparerForElements = null) :
             this(new HashSet<T>(collectionToCopy, comparerForElements))
         {
 
         }
 
-        public ObservedHashSetCore(HashSet<T> setToCopy, IEqualityComparer<T> comparerForElements = null) :
+        public ObservedProactiveHashSetCore(HashSet<T> setToCopy, IEqualityComparer<T> comparerForElements = null) :
             this(new HashSet<T>(setToCopy, comparerForElements ?? setToCopy.Comparer))
         {
 
         }
 
-        public ObservedHashSetCore(IEqualityComparer<T> comparer) : this(new HashSet<T>(comparer))
+        public ObservedProactiveHashSetCore(IEqualityComparer<T> comparer) : this(new HashSet<T>(comparer))
         {
         }
 
-        public ObservedHashSetCore() : this(new HashSet<T>())
+        public ObservedProactiveHashSetCore() : this(new HashSet<T>())
         {
         }
         

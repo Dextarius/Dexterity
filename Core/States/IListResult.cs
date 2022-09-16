@@ -7,6 +7,6 @@ namespace Core.States
     {
         T this[int index] { get; }
 
-        List<T>       AsNormalList();
+        List<T> AsNormalList();
     }
 }

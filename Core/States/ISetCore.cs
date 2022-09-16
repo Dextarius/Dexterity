@@ -3,10 +3,10 @@ using System.Collections.Generic;
 
 namespace Core.States
 { 
-    public interface ISetCore<T> : ICollectionCore<T>, IReadOnlySetMembers<T>
+    public interface ISetCore<T> : IProactiveCollectionCore<T>, IReadOnlySetMembers<T>
     {
         new bool       Add(T item);
-            int        RemoveWhere(Predicate<T> predicate);
+            int        RemoveWhere(Predicate<T> shouldRemoveItem);
             void       ExceptWith(IEnumerable<T> other);
             void       IntersectWith(IEnumerable<T> other);
             void       SymmetricExceptWith(IEnumerable<T> other);

@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using Core.Factors;
+using System.Linq;
 using Core.States;
 using static Factors.TriggerFlags;
 
 namespace Factors.Cores.ProactiveCores
 {
-    public abstract class ObservedCollectionCore<TCollection, TValue> : ObservedProactorCore, ICollectionCore<TValue>
-        where TCollection : ICollection<TValue>
+    public abstract class ObservedProactiveCollectionCore<TCollection, TValue> : 
+        ObservedProactorCore, IProactiveCollectionCore<TValue>
+            where TCollection : ICollection<TValue>
     {
         #region Instance Fields
 
@@ -32,10 +33,46 @@ namespace Factors.Cores.ProactiveCores
 
         #region Instance Methods
         
+        protected void OnItemAdded(TValue itemAdded, long triggerFlags)
+        {
+            OnCollectionChanged(triggerFlags);
+           // ItemWasAdded.Send(itemAdded);
+        }
+        
+        protected void OnMultipleItemsAdded(IEnumerable<TValue> itemsAdded, long triggerFlags)
+        {
+            OnCollectionChanged(triggerFlags);
+           // ItemWasAdded.Send(itemsAdded);
+        }
+        
+        protected void OnRangeOfItemsAdded(int startingIndex, int count, long triggerFlags)
+        {
+            for (int i = startingIndex; i < count; i++)
+            {
+                //- BroadcastItemAdded(item);
+
+            }
+
+            OnCollectionChanged(triggerFlags);
+        }
+        
+        protected void OnItemRemoved(TValue itemRemoved, long triggerFlags)
+        {
+
+        }
+        
+        protected void OnItemReplaced(TValue oldItem, TValue newItem, long triggerFlags)
+        {
+            OnCollectionChanged(triggerFlags);
+           // ItemWasRemoved.Send(oldItem);
+           // ItemWasAdded.Send(newItem);
+
+        }
+        
         protected void OnCollectionChanged(long triggerFlags)
         {
             NotifyChanged();
-            Callback.CoreUpdated(this, triggerFlags);
+            Callback?.CoreUpdated(this, triggerFlags);
         }
         
         public bool Add(TValue item)
@@ -43,13 +80,9 @@ namespace Factors.Cores.ProactiveCores
             if (AddItem(item, out long involveFlags, out long additionalChangeFlags))
             {
                 OnCollectionChanged(ItemAdded | additionalChangeFlags);
+                NotifyInvolved(TriggerWhenItemRemoved | involveFlags);
 
-                if (involveFlags is not  TriggerFlags.None)
-                {
-                    
-                }
-                
-                return true;
+                return involveFlags is not TriggerFlags.None;
             }
             else return false;
         }
@@ -78,9 +111,9 @@ namespace Factors.Cores.ProactiveCores
 
         public void AddRange(params TValue[] itemsToAdd) => AddRange((IEnumerable<TValue>)itemsToAdd);
 
-        public bool Remove(TValue item)
+        public bool Remove(TValue itemToRemove)
         {
-            bool wasSuccessful = RemoveItem(item, out long additionalTriggerFlags);
+            bool wasSuccessful = RemoveItem(itemToRemove, out long additionalTriggerFlags);
             
             if (wasSuccessful)
             {
@@ -99,7 +132,7 @@ namespace Factors.Cores.ProactiveCores
             return wasSuccessful;
         }
         
-        protected abstract bool RemoveItem(TValue item, out long additionalTriggerFlags);
+        protected abstract bool RemoveItem(TValue itemToRemove, out long additionalTriggerFlags);
         
         public void Clear()
         {
@@ -112,8 +145,6 @@ namespace Factors.Cores.ProactiveCores
         
         public IEnumerator<TValue> GetEnumerator()
         {
-            NotifyInvolved_IterateAll();
-                
             foreach (TValue element in collection)
             {
                 yield return element;
@@ -147,8 +178,6 @@ namespace Factors.Cores.ProactiveCores
             }
         }
 
-        protected void NotifyInvolved_ContainsItem(int indexOfItem) => NotifyInvolved_ContainsItem(indexOfItem <= 0);
-        
         protected void NotifyInvolved_IndexOf(int itemsIndex)
         {
             if (itemsIndex < 0)
@@ -183,13 +212,15 @@ namespace Factors.Cores.ProactiveCores
         {
             NotifyInvolved(TriggerWhenItemRemoved | TriggerWhenItemReplaced);
         }
+
+        public abstract bool CollectionEquals(IEnumerable<TValue> collectionToCompare);
         
         #endregion
 
         
         #region Constructors
 
-        protected ObservedCollectionCore(TCollection initialValue)
+        protected ObservedProactiveCollectionCore(TCollection initialValue)
         {
             collection = initialValue;
         }
@@ -210,22 +241,4 @@ namespace Factors.Cores.ProactiveCores
         //         collections that depend on them handle those different cases.  This might
         //         simplify the work we have to do for enabling Recycling considerably.
     }
-
-    public readonly struct ValueShell<T>
-    {
-        private readonly IInvolved factor;
-        private readonly long      flags;
-        private readonly T         value;
-        
-        public  readonly T Value
-        {
-            get
-            {
-                factor.NotifyInvolved(flags);
-                return value;
-            }
-        }
-    }
-    
-    
 }

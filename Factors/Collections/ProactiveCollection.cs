@@ -33,7 +33,7 @@ namespace Factors.Collections
     
     public abstract class ProactiveCollection<TCore, TValue> : Proactor<TCore>, ICollectionFactor<TValue>, 
                                                                ICollection<TValue>, ICollection
-        where TCore : ICollectionCore<TValue>, IProactorCore
+        where TCore : IProactiveCollectionCore<TValue>, IProactorCore
     {
         #region Properties
 

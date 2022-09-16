@@ -2,10 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Core.Factors;
+using Core.States;
+using Dextarius.Collections;
 
 namespace Factors.Cores
 {
-    public class ModifierCollectionCore<T> : ReactorCore, IEnumerable<IModifier<T>>
+    public class ModifierCollectionCore<T> : ReactorCore, ICollectionCore<IModifier<T>>,
+        ICollection<IModifier<T>>
     {
         #region Instance Fields
 
@@ -72,16 +75,18 @@ namespace Factors.Cores
         
             return modifiers.Count;
         }
-        
-        public void Remove(IModifier<T> modifierToRemove)
+
+        public bool Remove(IModifier<T> modifierToRemove)
         {
-            if (modifiers != null        &&
-                modifierToRemove != null && 
+            if (modifiers != null &&
+                modifierToRemove != null &&
                 modifiers.Remove(modifierToRemove))
             {
                 RemoveTrigger(modifierToRemove);
                 Trigger();
+                return true;
             }
+            else return false;
         }
         
         public void Clear()
@@ -113,7 +118,36 @@ namespace Factors.Cores
         }
 
         protected override long CreateOutcome() => TriggerFlags.Default;
+
+        public void CopyTo(IModifier<T>[] array, int arrayIndex) => modifiers.CopyTo(array, arrayIndex);
+
+        public bool CollectionEquals(ICollection<IModifier<T>> collectionToCompare)
+        {
+            if (collectionToCompare.Count != this.Count)
+            {
+                return false;
+            }
+            else
+            {
+                foreach (var modifier in collectionToCompare)
+                {
+                    if (modifiers.Contains(modifier) is false)
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        }
         
+        public bool CollectionEquals(IEnumerable<IModifier<T>> collectionToCompare)
+        {
+            var listToCompare = new List<IModifier<T>>(collectionToCompare);
+
+            return modifiers.IsEquivalentTo(listToCompare, EqualityComparer<IModifier<T>>.Default);
+        }
+
         public IEnumerator<IModifier<T>> GetEnumerator()
         {
             if (modifiers != null) 
@@ -124,12 +158,14 @@ namespace Factors.Cores
                 }
             }
         }
-
+        
         #endregion
         
 
         #region Explicit Implementations
 
+        bool ICollection<IModifier<T>>.IsReadOnly => false;
+        
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         #endregion
