@@ -140,14 +140,20 @@ namespace Factors
             VersionNumber++;
             TriggerSubscribers();
         }
-
+        
         public virtual void SwapCore(TCore newCore)
         {
             if (newCore is null) { throw new ArgumentNullException(nameof(newCore)); }
             
             var oldCore = core;
-
+            
             core = newCore;
+            
+            if (CoresAreNotEqual(oldCore, newCore))
+            {
+                TriggerSubscribers();
+            }
+            
             oldCore.Dispose();
         }
         
@@ -162,6 +168,8 @@ namespace Factors
             else return true;
         }
         
+        public abstract bool CoresAreNotEqual(TCore oldCore, TCore newCore);
+
         public override string ToString() => $"{Name} : {core.ToString()}";
 
         #endregion

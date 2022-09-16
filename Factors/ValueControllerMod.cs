@@ -41,7 +41,10 @@ namespace Factors
 
         public T Peek() => core.Peek();
 
-
+        public override bool CoresAreNotEqual(IValueControllerCore<T> oldCore, IValueControllerCore<T> newCore)
+        {
+            throw new NotImplementedException();
+        }
         //- TODO : We're going to want to add something to SwapCore() so that we keep the mods that have been added to us.
         
         #endregion

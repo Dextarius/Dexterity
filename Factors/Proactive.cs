@@ -28,7 +28,9 @@ namespace Factors
         public T Peek() => core.Peek();
 
         public override string ToString() => $"{Name} => {Value}";
-        
+
+        public override bool CoresAreNotEqual(IProactiveCore<T> oldCore, IProactiveCore<T> newCore) => 
+            newCore.ValueEquals(oldCore.Value) is false;
 
         #endregion
         

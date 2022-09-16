@@ -78,7 +78,7 @@ namespace Factors.Collections
             
         }
         
-        public ProactiveList(string name = null) : this(new ObservedListCore<T>(), name)
+        public ProactiveList(string name = null) : this(new ObservedProactiveListCore<T>(), name)
         {
             
         }

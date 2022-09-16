@@ -9,7 +9,7 @@ using static Core.Tools.Types;
 
 namespace Factors
 {
-    public class Reactor<TCore> : Factor<TCore>, IReactor, IReactorCoreCallback
+    public abstract class Reactor<TCore> : Factor<TCore>, IReactor, IReactorCoreCallback
         where TCore : IReactorCore
     {
         private bool isReflexive;

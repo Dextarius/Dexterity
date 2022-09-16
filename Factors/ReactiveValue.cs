@@ -11,7 +11,7 @@ namespace Factors
         #region Constants
 
         protected string CannotUseNullFunction =
-            "A Reactive value cannot be constructed with a null " + nameof(Func<TValue>) + ", as it would never have a value. ";
+            "A Reactive cannot be constructed with a null delegate, as it would never have a value. ";
 
         #endregion
         
@@ -38,16 +38,11 @@ namespace Factors
 
         public override void SwapCore(TCore newCore)
         {
-            var oldValue = core.Value;
 
-            base.SwapCore(newCore);
-
-            if (newCore.ValueEquals(oldValue) is false)
-            {
-                TriggerSubscribers();
-            }
         }
-        
+
+        public override bool CoresAreNotEqual(TCore oldCore, TCore newCore) => newCore.ValueEquals(oldCore.Value) is false;
+
         public TValue Peek() => core.Peek();
         
         public override string ToString() => $"{Name} => {Value}";

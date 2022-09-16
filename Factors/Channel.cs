@@ -44,22 +44,39 @@ namespace Factors
         {
             if (subscribers.Count > 0)
             {
-                SendValueToSubscribers(valueToSend);
+                SendToSubscribers(valueToSend);
+            }
+        }
+        
+        public void Send(IEnumerable<TValue> valuesToSend)
+        {
+            if (subscribers.Count > 0)
+            {
+                SendToSubscribers(valuesToSend);
             }
         }
 
-        protected abstract void SendValueToSubscribers(TValue value);
+        protected abstract void SendToSubscribers(TValue value);
+        protected abstract void SendToSubscribers(IEnumerable<TValue> values);
 
         #endregion
     }
     
     public class Channel<T> : ChannelBase<T, IChannelSubscriber<T>>, IChannel<T>
     {
-        protected override void SendValueToSubscribers(T value)
+        protected override void SendToSubscribers(T value)
         {
             foreach (var subscriber in subscribers)
             {
                 subscriber.Receive(value);
+            }
+        }
+        
+        protected override void SendToSubscribers(IEnumerable<T> values)
+        {
+            foreach (var subscriber in subscribers)
+            {
+                subscriber.Receive(values);
             }
         }
     }
@@ -69,11 +86,19 @@ namespace Factors
     {
         //- Add a priority system for subscribers.
         
-        protected override void SendValueToSubscribers(T value)
+        protected override void SendToSubscribers(T value)
         {
             foreach (var subscriber in subscribers)
             {
                value = subscriber.Receive(value);
+            }
+        }
+        
+        protected override void SendToSubscribers(IEnumerable<T> values)
+        {
+            foreach (var subscriber in subscribers)
+            {
+                subscriber.Receive(values);
             }
         }
     }
@@ -93,10 +118,13 @@ namespace Factors
     public interface IChannelSubscriber<T>
     {
         void Receive(T value);
+        void Receive(IEnumerable<T> values);
     }
     
     public interface IChannelModifier<T>
     {
-        T Receive(T value);
+        T    Receive(T value);
+        void Receive(IEnumerable<T> values);
+
     }
 }

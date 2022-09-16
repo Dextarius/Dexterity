@@ -27,6 +27,13 @@ namespace Factors.Time
         }
 
         #endregion
+
+        public override bool CoresAreNotEqual(TimerCore oldCore, TimerCore newCore) =>
+            newCore.ExpirationTime != oldCore.ExpirationTime;
+        //- TODO : Come back to this later.  We need to decide how we're going to handle
+        //         situations where a timer swaps cores to a core with a different
+        //         expiration time, since if we trigger our subscribers they may
+        //         think the timer went off because the time was up.
     }
 
     public class RepeatingTimer : ReactiveTimerBase<RepeatingTimerCore>
@@ -36,6 +43,8 @@ namespace Factors.Time
 
         public void Start() => core.Start();
         
+        public override bool CoresAreNotEqual(RepeatingTimerCore oldCore, RepeatingTimerCore newCore) =>
+            newCore.ExpirationTime != oldCore.ExpirationTime;
         
         public RepeatingTimer(string nameToGive = nameof(ReactiveTimer)) : base(new RepeatingTimerCore(), nameToGive)
         {

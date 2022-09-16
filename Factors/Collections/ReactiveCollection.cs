@@ -38,6 +38,8 @@ namespace Factors.Collections
 
         public bool Contains(TValue item) => Collection.Contains(item);
 
+        public override bool CoresAreNotEqual(TCore oldCore, TCore newCore) => newCore.CollectionEquals(oldCore);
+
         public IEnumerator<TValue> GetEnumerator() => Collection.GetEnumerator();
 
         #endregion

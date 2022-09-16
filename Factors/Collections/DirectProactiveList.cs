@@ -76,7 +76,7 @@ namespace Factors.Collections
     //         
     //     }
     //     
-    //     public DirectProactiveList(string name = null) : this(new ObservedListCore<T>(), name)
+    //     public DirectProactiveList(string name = null) : this(new ObservedProactiveListCore<T>(), name)
     //     {
     //         
     //     }

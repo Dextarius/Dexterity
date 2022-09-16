@@ -36,6 +36,8 @@ namespace Factors
     
     public class Proactor : Proactor<ProactorCore>
     {
+        public override bool CoresAreNotEqual(ProactorCore oldCore, ProactorCore newCore) => false;
+        
         #region Constructors
 
         public Proactor(ProactorCore factorCore, string factorsName = "Proactor") : base(factorCore, factorsName)

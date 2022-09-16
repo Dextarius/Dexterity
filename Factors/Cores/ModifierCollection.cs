@@ -18,6 +18,9 @@ namespace Factors.Cores
         
         public IEnumerator<IModifier<T>> GetEnumerator() => core.GetEnumerator();
 
+        public override bool CoresAreNotEqual(ModifierCollectionCore<T> oldCore, ModifierCollectionCore<T> newCore) =>
+            newCore.CollectionEquals(oldCore);
+
         public ModifierCollection(string nameToGive = null) : 
             this(new ModifierCollectionCore<T>(), nameToGive)
         {

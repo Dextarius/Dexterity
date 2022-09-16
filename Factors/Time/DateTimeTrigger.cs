@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Core.Factors;
 using Core.States;
 using Factors.Cores.ProactiveCores;
 
@@ -63,6 +62,8 @@ namespace Factors.Time
             }
         }
 
+        public override bool CoresAreNotEqual(ProactorCore oldCore, ProactorCore newCore) => false;
+        
         protected override void OnFirstSubscriberGained()
         {
             base.OnFirstSubscriberGained();
@@ -89,14 +90,5 @@ namespace Factors.Time
         }
 
         #endregion
-    }
-    
-    
-    public interface ITimerCore : IProactorCore
-    {
-        DateTime ExpirationTime { get; }
-        TimeSpan TimeRemaining  { get; }
-        bool     IsExpired      { get; }
-        bool     IsRunning      { get; }
     }
 }

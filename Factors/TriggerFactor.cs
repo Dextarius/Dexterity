@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 
 namespace Factors
 {
-    public class TriggerFactor<TCore> : Factor<TCore>, ITriggerCoreCallback
+    public abstract class TriggerFactor<TCore> : Factor<TCore>, ITriggerCoreCallback
         where TCore : TriggerCore
     {
         #region Instance Properties
@@ -110,7 +110,7 @@ namespace Factors
 
         bool ITriggerCoreCallback.CoreUpdated(TriggerCore triggerCore)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
         
         bool ITriggerCoreCallback.CoreDestabilized(TriggerCore destabilizedCore)

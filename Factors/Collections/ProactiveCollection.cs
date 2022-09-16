@@ -53,6 +53,8 @@ namespace Factors.Collections
         public void                CopyTo(TValue[] array, int arrayIndex)   => core.CopyTo(array, arrayIndex);
         public IEnumerator<TValue> GetEnumerator()                          => core.GetEnumerator();
 
+        public override bool CoresAreNotEqual(TCore oldCore, TCore newCore) => newCore.CollectionEquals(oldCore);
+
         #endregion
 
         

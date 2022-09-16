@@ -10,7 +10,7 @@ using static Core.Tools.Types;
 
 namespace Factors.Collections
 {
-    public partial class ProactiveDictionary<TKey, TValue> : 
+    public class ProactiveDictionary<TKey, TValue> : 
         ProactiveCollection< IDictionaryCore<TKey, TValue>, KeyValuePair<TKey, TValue>>, 
         IDictionary<TKey, TValue>, IDictionary
     {
@@ -47,7 +47,8 @@ namespace Factors.Collections
             
         }
         
-        public ProactiveDictionary(string name)  :  this(new ObservedDictionaryCore<TKey, TValue>(), name)
+        public ProactiveDictionary(string name)  :  
+            this(new ObservedProactiveDictionaryCore<TKey, TValue>(), name)
         {
         }
 

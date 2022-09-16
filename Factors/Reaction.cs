@@ -14,6 +14,8 @@ namespace Factors
         public static Reaction Create<T>(Action<T> actionToTake, IFactor<T> inputSource) =>
             new Reaction(
                 new DirectActionResponse<T>(actionToTake, inputSource));
+        
+        public override bool CoresAreNotEqual(IReactorCore oldCore, IReactorCore newCore) => false;
 
         #region Constructors
         
@@ -31,5 +33,6 @@ namespace Factors
         // }
 
         #endregion
+        
     }
 }

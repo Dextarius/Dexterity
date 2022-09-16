@@ -13,6 +13,9 @@ namespace Factors.Modifiers
 
         public T Modify(T valueToModify) => core.Modify(valueToModify);
         
+        public override bool CoresAreNotEqual(IModifierCore<T> oldCore, IModifierCore<T> newCore) => false;
+
+        
         public Modifier(IModifierCore<T> reactorCore, string nameToGive = null) : base(reactorCore, nameToGive)
         {
             

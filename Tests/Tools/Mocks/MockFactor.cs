@@ -10,7 +10,10 @@ namespace Tests.Tools.Mocks
 {
     internal class MockFactor : Factor<IFactorCore>
     {
-        
+        public override bool CoresAreNotEqual(IFactorCore oldCore, IFactorCore newCore)
+        {
+            throw new NotImplementedException();
+        }
         
         public MockFactor() : base(new MockFactorCore())
         {
