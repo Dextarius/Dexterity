@@ -33,7 +33,6 @@ namespace Tests.Tools.Factories.Controllers
         
         protected FunctionBasedResult_Controller(TCore core) : base(core)
         {
-            
         }
     }
 }

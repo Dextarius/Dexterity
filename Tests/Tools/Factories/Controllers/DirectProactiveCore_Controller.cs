@@ -29,7 +29,6 @@ namespace Tests.Tools.Factories.Controllers
 
         public DirectProactiveCore_Controller() : base(new DirectProactiveCore<int>(Tools.GenerateRandomInt()))
         {
-            
         }
     }
 }

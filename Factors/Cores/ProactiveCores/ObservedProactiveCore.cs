@@ -16,10 +16,9 @@ namespace Factors.Cores.ProactiveCores
             get
             {
                 T value = base.Value;
-                
                 //^ Getting the Value of a Factor often causes changes in factors, so grab it before we NotifyInvolved(). 
+                
                 NotifyInvolved();
-
                 return value;
             }
         }

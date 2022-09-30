@@ -36,7 +36,6 @@ namespace Factors.Collections
         public ReactiveSet([NotNull] ISetResult<T> collectionSource, string name = null) : 
             base(collectionSource, name ?? DefaultName)
         {
-            
         }
 
         #endregion

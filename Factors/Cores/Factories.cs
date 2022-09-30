@@ -9,12 +9,12 @@ namespace Factors.Cores
 {
     public static class ResultCreator
     {
-        public static IResult<TOutput> CreateFrom<TInput, TOutput>(IFactor<TInput>       input, 
-                                                                   Func<TInput, TOutput> valueFunction) => 
+        public static IResult<TOutput> CreateFrom<TInput, TOutput>(Func<TInput, TOutput> valueFunction, 
+                                                                   IFactor<TInput>       input) => 
             new DirectFunctionResult<TInput,TOutput>(input, valueFunction);
         
         public static IResult<TOutput> CreateFrom<TInput1, TInput2, TOutput>(Func<TInput1, TInput2, TOutput> valueFunction, 
-                                                                             IFactor<TInput1>                firstInput, 
+                                                                             IFactor<TInput1>                firstInput,
                                                                              IFactor<TInput2>                secondInput) => 
             new DirectFunctionResult<TInput1, TInput2, TOutput>(valueFunction, firstInput, secondInput);
         

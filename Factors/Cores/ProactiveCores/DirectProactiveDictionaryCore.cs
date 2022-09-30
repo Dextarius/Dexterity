@@ -112,19 +112,19 @@ namespace Factors.Cores.ProactiveCores
 
         #region Constructors
         
-        protected DirectProactiveDictionaryCore(Dictionary<TKey, TValue> dictionaryToCopy, IEqualityComparer<TValue> comparerForValues) : 
+        protected DirectProactiveDictionaryCore(Dictionary<TKey, TValue>  dictionaryToCopy, 
+                                                IEqualityComparer<TValue> comparerForValues) : 
             base(dictionaryToCopy)
         {
             valueComparer = comparerForValues ?? EqualityComparer<TValue>.Default;
         }
         
         public DirectProactiveDictionaryCore(IEnumerable<KeyValuePair<TKey, TValue>> collectionToCopy  = null,
-                                      IEqualityComparer<TKey>                 comparerForKeys   = null, 
-                                      IEqualityComparer<TValue>               comparerForValues = null) : 
+                                             IEqualityComparer<TKey>                 comparerForKeys   = null, 
+                                             IEqualityComparer<TValue>               comparerForValues = null) : 
             this(CreateDictionaryFrom(collectionToCopy, comparerForKeys ?? EqualityComparer<TKey>.Default), 
                  comparerForValues)
         {
-            
         }
         
         public DirectProactiveDictionaryCore(ICollection<KeyValuePair<TKey, TValue>> collectionToCopy, 

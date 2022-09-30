@@ -7,7 +7,8 @@ using static Factors.TriggerFlags;
 
 namespace Factors.Collections
 {
-    public class HashSetImplementer<T> : CollectionImplementer<HashSet<T>, T>, ISet<T>
+    public class HashSetImplementer<T> : CollectionImplementer<HashSet<T>, T, ICollectionOwner<T>>, 
+                                         ISet<T>, IHashSetImplementer<T>
     {
         protected override bool AddItem(T item, out long notifyInvolvedFlags, out long additionalChangeFlags)
         {
@@ -238,28 +239,25 @@ namespace Factors.Collections
 
         #region Constructors
 
-        protected HashSetImplementer(ICollectionOwner<HashSet<T>, T> owner, HashSet<T> hashSet) : base(hashSet, owner)
+        protected HashSetImplementer(ICollectionOwner<T> owner, HashSet<T> hashSet) : base(hashSet, owner)
         {
-
         }
 
-        public HashSetImplementer(ICollectionOwner<HashSet<T>, T> owner,
-                                  IEnumerable<T>                  collectionToCopy, 
-                                  IEqualityComparer<T>            comparerForElements = null) :
+        public HashSetImplementer(ICollectionOwner<T>  owner,
+                                  IEnumerable<T>       collectionToCopy, 
+                                  IEqualityComparer<T> comparerForElements = null) :
             this(owner, new HashSet<T>(collectionToCopy, comparerForElements))
         {
-
         }
 
-        public HashSetImplementer(ICollectionOwner<HashSet<T>, T> owner,
-                                  HashSet<T>                      setToCopy, 
-                                  IEqualityComparer<T>            comparerForElements = null) :
+        public HashSetImplementer(ICollectionOwner<T>  owner,
+                                  HashSet<T>           setToCopy, 
+                                  IEqualityComparer<T> comparerForElements = null) :
             this(owner, new HashSet<T>(setToCopy, comparerForElements ?? setToCopy.Comparer))
         {
-
         }
 
-        public HashSetImplementer(ICollectionOwner<HashSet<T>, T> owner, IEqualityComparer<T> comparer) : 
+        public HashSetImplementer(ICollectionOwner<T> owner, IEqualityComparer<T> comparer) : 
             this(owner, new HashSet<T>(comparer))
         {
         }

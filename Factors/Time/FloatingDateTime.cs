@@ -32,8 +32,9 @@ namespace Factors.Time
             var  flooredDate        = new DateTime(ticksInFlooredDate);
             
             InvolveTimersSetTo(flooredDate - Offset, intervalToRoundTo);
+            //- NotifyInvolved();
 
-            return flooredDate; //- NotifyInvolved();
+            return flooredDate; 
         }
         
         protected T InvolveTimersSetTo<T>(DateTime previousIncrement, DateTime nextIncrement, T returnValue)

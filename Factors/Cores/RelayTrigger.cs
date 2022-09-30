@@ -24,7 +24,7 @@ namespace Factors.Cores
             ActualFactor.NotifyNecessary(necessarySubscriber);
 
         public void NotifyNotNecessary(IFactorSubscriber unnecessarySubscriber) =>
-        ActualFactor.NotifyNecessary(unnecessarySubscriber);
+            ActualFactor.NotifyNecessary(unnecessarySubscriber);
 
 
         public bool Reconcile() => ActualFactor.Reconcile();

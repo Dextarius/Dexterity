@@ -5,30 +5,10 @@ namespace Factors
 {
     public static class CollectionFactor
     {
-        // #region Constants
-        //
-        // public const long
-        //     ItemAddedFlag          =  0b_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0001L,
-        //     ItemRemovedFlag        =  0b_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0010L,
-        //     ItemMovedFlag          =  0b_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0100L,
-        //     ItemReplacedFlag       =  0b_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_1000L,
-        //     ItemsToLeftChangedFlag = -0b_1000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000L,
-        //     IndexMask              =  0b_0111_1111_1111_1111_1111_1111_1111_1111_0000_0000_0000_0000_0000_0000_0000_0000L,
-        //
-        //     TriggerFlags.ItemAdded          = ItemAddedFlag,
-        //     TriggerFlags.ItemRemoved        = ItemRemovedFlag,
-        //     TriggerFlags.ItemMoved          = ItemMovedFlag,
-        //     TriggerFlags.ItemReplaced       = ItemReplacedFlag,
-        //     TriggerOnItemsToLeftChanged = ItemsToLeftChangedFlag;
-        //     
-        //
-        // #endregion
-        
-        
         public static bool HaveSameKeysAndValues<TKey, TValue>(IDictionary<TKey, TValue> newDictionary, 
                                                                IDictionary<TKey, TValue> oldDictionary, 
                                                                IEqualityComparer<TValue> valueComparer,
-                                                           out long                      triggerFlags)
+                                                               out long                  triggerFlags)
         {
             triggerFlags = TriggerFlags.None;
         
@@ -70,9 +50,7 @@ namespace Factors
             //          comparers for their keys.
         }
         
-        public static bool HaveSameItems<T>(ISet<T>  newSet, 
-                                            ISet<T>  oldSet,
-                                            out long triggerFlags)
+        public static bool HaveSameItems<T>(ISet<T>  newSet, ISet<T>  oldSet, out long triggerFlags)
         {
             triggerFlags = TriggerFlags.None;
         
@@ -156,9 +134,6 @@ namespace Factors
             }
             
             return triggerFlags is TriggerFlags.None;
-            
-            //- Later : Consider if we should return false if the dictionaries use different equality
-            //          comparers for their keys.
         }
 
         public static Dictionary<T, int> GetNumberOfInstancesForEachItemIn<T>(IList<T> list, IEqualityComparer<T> comparer)

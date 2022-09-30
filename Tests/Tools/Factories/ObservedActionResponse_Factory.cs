@@ -18,7 +18,6 @@ namespace Tests.Tools.Factories
             var createdInstance = CreateInstance();
 
             createdInstance.ForceReaction();
-
             return createdInstance;
         }
     }

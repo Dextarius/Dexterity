@@ -10,7 +10,7 @@ using static Core.Tools.Types;
 
 namespace Factors.Collections
 {
-    public class ListImplementer<T> : CollectionImplementer<List<T>, T>, IList<T>
+    public class ListImplementer<T> : CollectionImplementer<List<T>, T, IListOwner<T>>, IListImplementer<T>
     {
         #region Instance Fields
 
@@ -26,7 +26,7 @@ namespace Factors.Collections
             get
             {
                 var currentValue = Collection[index];
-                    
+                
                 Owner.NotifyInvolved(TriggerWhenItemRemoved | TriggerWhenItemReplaced | TriggerWhenItemMoved);
                 return currentValue;
             }
@@ -441,7 +441,8 @@ namespace Factors.Collections
             //- Should this even notify? It doesnt return anything.
             //  The notification would only be useful if you wanted to
             //  make a reaction that ran this method every time a new
-            //  item got into the collection.
+            //  item got into the collection, and you could just use
+            //  Count to keep track of that.
         }
 
        public List<T> GetRange(int startIndex, int numberOfItems)
@@ -486,10 +487,10 @@ namespace Factors.Collections
             Owner.NotifyInvolved(TriggerFlags.Default);
             return createdList;
         }
-        //- TODO : We may want to grab the field directly if it seems like the user is trying to avoid creating dependencies
-        //         when they call this.
+        //- TODO : We may want to grab the collection field directly if it seems like the user is trying
+        //        to avoid creating dependencies when they call this.
 
-        //- TODO : Figure out if we think that methods which modify the collection, but also return a value,
+        //- TODO : Figure out whether we think that methods which modify the collection, but also return a value,
         //         should call/not call Owner.NotifyInvolved(), since people may expect Reactors to be invalidated
         //         if a change in the collection might cause the the value returned by the method to change.
         //- Note : We could try using a type of object that has an implicit conversion to the normal return value,
@@ -500,24 +501,24 @@ namespace Factors.Collections
         
         #region Constructors
 
-        protected ListImplementer(ICollectionOwner<List<T>, T> owner, List<T> list, IEqualityComparer<T> comparerForItems) : 
+        protected ListImplementer(IListOwner<T> owner, List<T> list, IEqualityComparer<T> comparerForItems) : 
             base(list, owner)
         {
             itemComparer = comparerForItems ?? EqualityComparer<T>.Default;
         }        
-        public ListImplementer(ICollectionOwner<List<T>, T> owner,
-                               IEnumerable<T>               collectionToCopy, 
-                               IEqualityComparer<T>         comparerForItems = null) : 
+        public ListImplementer(IListOwner<T>        owner,
+                               IEnumerable<T>       collectionToCopy, 
+                               IEqualityComparer<T> comparerForItems = null) : 
             this(owner, new List<T>(collectionToCopy), comparerForItems)
         {
         }
         
-        public ListImplementer(ICollectionOwner<List<T>, T> owner, IEqualityComparer<T> itemComparer) : 
+        public ListImplementer(IListOwner<T> owner, IEqualityComparer<T> itemComparer) : 
             this(owner, new List<T>(), itemComparer)
         {
         }
 
-        public ListImplementer(ICollectionOwner<List<T>, T> owner) : this(owner, new List<T>(), null)
+        public ListImplementer(IListOwner<T> owner) : this(owner, new List<T>(), null)
         {
         }
 

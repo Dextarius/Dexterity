@@ -5,7 +5,7 @@ using Core.Factors;
 
 namespace Factors.Cores
 {
-    public abstract class ModifierListCore<T> : ReactorCore
+    public abstract class StatModifierCore<T> : ReactorCore
     {
         #region Static Fields
 
@@ -52,8 +52,7 @@ namespace Factors.Cores
         #region Instance Methods
 
         protected override long CreateOutcome() => TriggerFlags.Default;
-
-
+        
         public void AddFlatModifier(INumericMod<T> modifierToAdd)
         {
             if (modifierToAdd is null) { throw new ArgumentNullException(nameof(modifierToAdd)); }
@@ -134,7 +133,6 @@ namespace Factors.Cores
 
             constantValue.Include(modifierToAdd);
         }
-        
         
         public void RemoveFlatModifier(INumericMod<T> modifierToRemove)
         {
@@ -225,10 +223,10 @@ namespace Factors.Cores
 
         protected override void InvalidateOutcome(IFactor changedFactor) { }
         
-        protected abstract T    ApplyMaximum(T valueToModify, T maximumValue);
-        protected abstract T    ApplyMinimum(T valueToModify, T minimumValue);
-        protected abstract T    Multiply(T valueToModify, double multiplier);
-        protected abstract T    Add(T valueToModify, T amountToAdd);
+        protected abstract T ApplyMaximum(T valueToModify, T maximumValue);
+        protected abstract T ApplyMinimum(T valueToModify, T minimumValue);
+        protected abstract T     Multiply(T valueToModify, double multiplier);
+        protected abstract T          Add(T valueToModify, T amountToAdd);
         protected abstract bool ValuesAreDifferent(T first, T second);
         
 
@@ -237,14 +235,13 @@ namespace Factors.Cores
 
         #region Constructors
 
-        protected ModifierListCore(IModTypeOrder modOrder)
+        protected StatModifierCore(IModTypeOrder modOrder)
         {
             modTypeOrder = modOrder;
         }
 
-        protected ModifierListCore() : this(defaultModTypeOrder)
+        protected StatModifierCore() : this(defaultModTypeOrder)
         {
-            
         }
 
         #endregion

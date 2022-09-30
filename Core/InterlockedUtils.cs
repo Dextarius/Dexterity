@@ -7,7 +7,7 @@ namespace Core
     public static class InterlockedUtils
     {
         [Flags]
-        public enum ExchangeResult { Failed = 0, Successful = 1, Exchanged = 3, Equal,  }
+        public enum ExchangeResult { Failed = 0, Successful, Exchanged, Equal,  }
 
         public static T CompareExchangeUntilSuccessful<T>(ref T destination, T newValue) where T : class
         {

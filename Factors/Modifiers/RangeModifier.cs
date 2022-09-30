@@ -18,7 +18,6 @@ namespace Factors.Modifiers
         
         public Modifier(IModifierCore<T> reactorCore, string nameToGive = null) : base(reactorCore, nameToGive)
         {
-            
         }
     }
 
@@ -66,14 +65,14 @@ namespace Factors.Modifiers
             return valueToModify;
         }
 
-        protected abstract bool IsLessThan(T baseValue, T valueToCheck);
         protected abstract bool IsGreaterThan(T baseValue, T valueToCheck);
-        
+        protected abstract bool    IsLessThan(T baseValue, T valueToCheck);
+
         protected RangeModifierCore(IFactor<T> minimumValueFactor, IFactor<T> maximumValueFactor)
         {
             IsTriggered = false;
-            minimum = minimumValueFactor;
-            maximum = maximumValueFactor;
+            minimum     = minimumValueFactor;
+            maximum     = maximumValueFactor;
             AddTrigger(minimumValueFactor, IsReflexive);
             AddTrigger(maximumValueFactor, IsReflexive);
         }

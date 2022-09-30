@@ -64,7 +64,7 @@ namespace Factors.Cores.ObservedReactorCores.CollectionResults
 
         #region Constructors
 
-        protected ObservedListResult(IEqualityComparer<T> comparerForElements = null) : base()
+        protected ObservedListResult(IEqualityComparer<T> comparerForElements = null)
         {
             elementComparer   = comparerForElements ?? EqualityComparer<T>.Default;
             currentCollection = new List<T>();

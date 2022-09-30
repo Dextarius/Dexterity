@@ -20,6 +20,7 @@ namespace Factors.Cores.ProactiveCores
         
         #endregion
         
+        
         #region Instance Properties
 
         public T this[int index]
@@ -256,8 +257,7 @@ namespace Factors.Cores.ProactiveCores
         
         #region Constructors
 
-        protected DirectProactiveListCore(List<T> list, IEqualityComparer<T> comparerForItems) : 
-            base(list)
+        protected DirectProactiveListCore(List<T> list, IEqualityComparer<T> comparerForItems) : base(list)
         {
             itemComparer = comparerForItems ?? EqualityComparer<T>.Default;
         }        
@@ -266,8 +266,7 @@ namespace Factors.Cores.ProactiveCores
         {
         }
         
-        public DirectProactiveListCore(IEqualityComparer<T> itemComparer) : 
-            this(new List<T>(), itemComparer)
+        public DirectProactiveListCore(IEqualityComparer<T> itemComparer) : this(new List<T>(), itemComparer)
         {
         }
 

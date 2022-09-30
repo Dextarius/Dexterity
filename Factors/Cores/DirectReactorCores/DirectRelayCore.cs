@@ -11,13 +11,7 @@ namespace Factors.Cores.DirectReactorCores
 
         public override int NumberOfTriggers => 1;
         
-        protected override IEnumerable<IFactor> Triggers
-        {
-            get
-            {
-                yield return valueSource;
-            }
-        }
+        protected override IEnumerable<IFactor> Triggers { get { yield return valueSource; } }
 
         #endregion
 

@@ -6,7 +6,14 @@ namespace Factors.Modifiers
 {
     public abstract class FactorModifier<T> : Factor<IFactorCore>, IFactorModifier<T>
     {
+        #region Instance Fields
+
         private bool isEnabled;
+
+        #endregion
+        
+
+        #region Properties
 
         public string Description { get; }
         public int    ModPriority { get; set; }
@@ -23,6 +30,11 @@ namespace Factors.Modifiers
                 }
             }
         }
+
+        #endregion
+
+        
+        #region Instance Methods
 
         public virtual int CompareTo(IFactorModifier<T> other)
         {
@@ -48,11 +60,17 @@ namespace Factors.Modifiers
         
         public abstract T ModifyValue(T valueToModify);
 
+        #endregion
+
+
+        #region Constructors
 
         protected FactorModifier(IFactorCore factorCore, string factorsName = nameof(FactorModifier<T>)) : 
             base(factorCore, factorsName)
         {
         }
+
+        #endregion
     }
 
     public static class FactorModifier

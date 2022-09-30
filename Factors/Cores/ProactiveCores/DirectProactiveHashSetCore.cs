@@ -7,6 +7,8 @@ namespace Factors.Cores.ProactiveCores
 {
     public class DirectProactiveHashSetCore<T> : DirectProactiveCollectionCore<HashSet<T>, T>
     {
+        #region Instance Methods
+
         protected override bool AddItem(T itemToAdd, out long additionalNotifyFlags, out long additionalChangeFlags)
         {
             collection.Add(itemToAdd);
@@ -105,25 +107,24 @@ namespace Factors.Cores.ProactiveCores
         public HashSet<T> AsNormalSet() => new HashSet<T>(Collection);
         public void       TrimExcess()  => Collection.TrimExcess();
 
+        #endregion
 
+        
         #region Constructors
 
         protected DirectProactiveHashSetCore(HashSet<T> hashSet) : base(hashSet)
         {
-            
         }
         
-        public DirectProactiveHashSetCore(
-            IEnumerable<T> collectionToCopy, IEqualityComparer<T> comparerForElements = null) :
+        public DirectProactiveHashSetCore(IEnumerable<T>       collectionToCopy, 
+                                          IEqualityComparer<T> comparerForElements = null) :
                 this(new HashSet<T>(collectionToCopy, comparerForElements))
         {
-            
         }
         
         public DirectProactiveHashSetCore(HashSet<T> setToCopy, IEqualityComparer<T> comparerForElements = null) : 
             this(new HashSet<T>(setToCopy, comparerForElements ?? setToCopy.Comparer))
         {
-            
         }
         
         public DirectProactiveHashSetCore(IEqualityComparer<T> comparer) : this(new HashSet<T>(comparer))

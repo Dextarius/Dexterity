@@ -15,7 +15,7 @@ namespace Factors.Time
 
         protected static          Action<Action> queueActionToBeExecuted = QueueActionUsingSyncContext;
         protected static readonly DateTime       Cancelled               = DateTime.MinValue;
-        protected static readonly DateTime       NoActiveTriggers          = DateTime.MaxValue;
+        protected static readonly DateTime       NoActiveTriggers        = DateTime.MaxValue;
 
         #endregion
 
@@ -49,7 +49,7 @@ namespace Factors.Time
         #region Static Methods
 
         private static void QueueActionUsingSyncContext(Action actionToQueue) => 
-            SynchronizationContext.Current.Post(state => actionToQueue(), null);
+            SynchronizationContext.Current.Post(_ => actionToQueue(), null);
 
         #endregion
 
@@ -103,7 +103,7 @@ namespace Factors.Time
             }
 
             DateTimeTrigger createdTrigger = null; // new DateTimeTrigger(triggerExpiration); 
-            //^ TODO : I haven't finished making constructors for the triggers yet, so I commented it out for now.
+            //^ TODO : I haven't finished making constructors for the triggers yet, so they're commented out for now.
             throw new NotImplementedException();
 
             triggersByExpirationTime[triggerExpiration] = new WeakReference(createdTrigger);

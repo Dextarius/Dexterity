@@ -36,18 +36,22 @@ namespace Factors
     
     public class Proactor : Proactor<ProactorCore>
     {
+        #region Instance Methods
+
         public override bool CoresAreNotEqual(ProactorCore oldCore, ProactorCore newCore) => false;
+
+        #endregion
+        
         
         #region Constructors
 
-        public Proactor(ProactorCore factorCore, string factorsName = "Proactor") : base(factorCore, factorsName)
+        public Proactor(ProactorCore factorCore, string factorsName = nameof(Proactor)) : base(factorCore, factorsName)
         {
             factorCore.SetCallback(this);
         }
         
-        public Proactor(string factorsName = "Proactor") : base(new ProactorCore(), factorsName)
+        public Proactor(string factorsName = nameof(Proactor)) : base(new ProactorCore(), factorsName)
         {
-            
         }
 
         #endregion

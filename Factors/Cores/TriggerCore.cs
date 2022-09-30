@@ -154,7 +154,8 @@ namespace Factors.Cores
         }
 
         protected bool AddTrigger(IFactor trigger, bool necessary) => trigger.Subscribe(subscriber, necessary);
-        protected void RemoveTrigger(IFactor trigger)              => trigger.Unsubscribe(subscriber);
+
+        protected void RemoveTrigger(IFactor trigger) => trigger.Unsubscribe(subscriber);
 
         // public override bool Reconcile()
         // {

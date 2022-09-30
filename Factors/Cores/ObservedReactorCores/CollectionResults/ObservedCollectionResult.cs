@@ -14,12 +14,6 @@ namespace Factors.Cores.ObservedReactorCores.CollectionResults
         #region Instance Fields
 
         protected TCollection currentCollection;
-        
-        //- TODO : We could also make Processes that convert an IEnumerable into the target collection type.  That would
-        //         allow us to change the reactionProcess to an IProcess<TCollection>.  As a result we would also be
-        //         able to accept IProcess<TCollection> arguments in the constructor, and those could get collections
-        //         directly, without having to make a new collection out of an IEnumerable.
-        //         
 
         #endregion
 
@@ -31,7 +25,7 @@ namespace Factors.Cores.ObservedReactorCores.CollectionResults
         {
             get
             {
-              //  AttemptReaction();
+            //  AttemptReaction();
                 NotifyInvolved();
                 return currentCollection;
             }
@@ -121,17 +115,7 @@ namespace Factors.Cores.ObservedReactorCores.CollectionResults
         protected abstract bool                AreCollectionsEqual(TCollection collection1, TCollection collection2, out long triggerFlags);
 
         #endregion
-        
-        
-        #region Constructors
 
-        protected ObservedCollectionResult() : base()
-        {
-            
-        }
-
-        #endregion
-        
 
         #region Explicit Implementations
 

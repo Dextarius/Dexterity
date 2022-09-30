@@ -67,7 +67,6 @@ namespace Core.Tools
             T1 argument1, T2 argument2, T3 argument3, T4 argument4, Delegate delegateToUse) =>
                 $"{GetClassAndMethodName(delegateToUse)}({argument1}, {argument2}, {argument3}, {argument4})";
         
-
         public static Func<TInstance, TField> MakeFieldGetter<TInstance, TField>(FieldInfo fieldToGetValueOf)
         {
             ParameterExpression instanceToAccessFieldOf_Parameter = Expression.Parameter(typeof(TInstance));

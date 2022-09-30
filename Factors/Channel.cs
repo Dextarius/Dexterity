@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Core.Factors;
 using Factors.Cores.ProactiveCores;
 
 namespace Factors
@@ -62,6 +63,8 @@ namespace Factors
         #endregion
     }
     
+    
+    
     public class Channel<T> : ChannelBase<T, IChannelSubscriber<T>>, IChannel<T>
     {
         protected override void SendToSubscribers(T value)
@@ -79,52 +82,5 @@ namespace Factors
                 subscriber.Receive(values);
             }
         }
-    }
-    
-    
-    public class ModifiableChannel<T> : ChannelBase<T, IChannelModifier<T>>, IModifiableChannel<T>
-    {
-        //- Add a priority system for subscribers.
-        
-        protected override void SendToSubscribers(T value)
-        {
-            foreach (var subscriber in subscribers)
-            {
-               value = subscriber.Receive(value);
-            }
-        }
-        
-        protected override void SendToSubscribers(IEnumerable<T> values)
-        {
-            foreach (var subscriber in subscribers)
-            {
-                subscriber.Receive(values);
-            }
-        }
-    }
-
-    public interface IModifiableChannel<T> 
-    {
-        bool   Subscribe(IChannelModifier<T> subscriberToAdd);
-        bool Unsubscribe(IChannelModifier<T> subscriberToRemove);
-    }
-    
-    public interface IChannel<T> 
-    {
-        bool   Subscribe(IChannelSubscriber<T> subscriberToAdd);
-        bool Unsubscribe(IChannelSubscriber<T> subscriberToRemove);
-    }
-    
-    public interface IChannelSubscriber<T>
-    {
-        void Receive(T value);
-        void Receive(IEnumerable<T> values);
-    }
-    
-    public interface IChannelModifier<T>
-    {
-        T    Receive(T value);
-        void Receive(IEnumerable<T> values);
-
     }
 }

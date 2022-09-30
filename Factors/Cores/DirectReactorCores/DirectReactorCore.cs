@@ -7,13 +7,6 @@ namespace Factors.Cores.DirectReactorCores
 {
     public abstract class DirectReactorCore : ReactorCore
     {
-        #region Static Properties
-
-        protected static CausalObserver Observer => CausalObserver.ForThread;
-
-        #endregion
-        
-        
         #region Instance Properties
 
         public override bool HasTriggers => true;
@@ -51,6 +44,4 @@ namespace Factors.Cores.DirectReactorCores
 
         #endregion
     }
-
-    
 }

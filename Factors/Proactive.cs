@@ -3,7 +3,6 @@ using Core.Causality;
 using Core.States;
 using Factors.Cores.ProactiveCores;
 using JetBrains.Annotations;
-using static Core.InterlockedUtils;
 using static Core.Tools.Types;
 
 namespace Factors
@@ -46,7 +45,6 @@ namespace Factors
 
         public Proactive(IProactiveCore<T> core, string name = null) : base(core, name?? NameOf<Proactive<T>>())
         {
-
         }
 
         public Proactive(T initialValue, IEqualityComparer<T> comparer = null, string name = null) : 

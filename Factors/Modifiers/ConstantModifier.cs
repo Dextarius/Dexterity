@@ -18,7 +18,7 @@ namespace Factors.Modifiers
         }
     }
     
-    public abstract class AddConstantModifier<T> : ConstantModifier<T>, IFactorModifier<T>
+    public abstract class AddConstantModifier<T> : ConstantModifier<T>
     {
         public readonly T valueToAdd;
 

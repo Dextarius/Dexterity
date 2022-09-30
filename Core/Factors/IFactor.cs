@@ -13,7 +13,7 @@ namespace Core.Factors
         
         //- Most of the Factor's will throw an error if they have no subscribers when NotifyNecessary() is called,
         //  because NotifyNecessary is supposed to communicate that one of its subscribers relies on it.
-        //  Perhaps it's a mistake in the interface that non-subscribers can call the method.  
+        //  Perhaps it's a mistake for the interface to allow non-subscribers to call the method.  
         //- TODO : Consider making Subscribe() return some sort of 'subscription' object and put
         //         the method on there instead.  This may make unsubscribing simpler as well.
     }
@@ -21,11 +21,5 @@ namespace Core.Factors
     public interface IFactor<T> : IFactor,  IValue<T>, IValueEquatable<T>
     {
         T Peek();
-    }
-    
-    public interface ITrigger 
-    {
-        bool Subscribe(IFactorSubscriber subscriberToAdd, bool isNecessary);
-        void Unsubscribe(IFactorSubscriber subscriberToRemove);
     }
 }

@@ -24,16 +24,15 @@ namespace Factors.Cores.ObservedReactorCores
         
         #region Instance Methods
 
-        protected override void ExecuteResponse() => actionToTake();
-
-        public override string ToString() => Delegates.GetClassAndMethodName(actionToTake);
+        protected override void   ExecuteResponse() => actionToTake();
+        public    override string ToString()        => Delegates.GetClassAndMethodName(actionToTake);
         
         #endregion
 
         
         #region Constructors
 
-        public ObservedActionResponse(Action actionToExecute) : base()
+        public ObservedActionResponse(Action actionToExecute) 
         {
             actionToTake = actionToExecute ??  throw new ArgumentNullException(nameof(actionToExecute));
         }

@@ -9,17 +9,6 @@ using static Core.Settings;
 
 namespace Factors.Cores
 {
-    //- What if we made a version of a Result that subscribed to Channel<T>s and
-    //  used the Observer and trigger flags to identify whether to process a new
-    //  value based on how it interacted with the previous value from that channel
-    //  (i.e. if a channel sent out an int, and all the result did was compare
-    //  that int to see if it was lower than something else, if it was lower
-    //  we could ignore all further values from that channel until one had
-    //  an ValueIncreased flag.
-    //   
-    //- We could even set up an object that receive a particular channel's values on behalf of 
-    //  the Result, and then uses its own process to determine a set of appropriate flags.
-
     public abstract class ReactorCore : FactorCore, IReactorCore, IUpdateable
     {
         #region Instance Fields
@@ -158,7 +147,6 @@ namespace Factors.Cores
                 if (TryStabilizeOutcome())
                 {
                     Debug.Assert(IsTriggered is false);
-
                     return false;
                 }
                 else
@@ -320,7 +308,8 @@ namespace Factors.Cores
             trigger.Subscribe(subscriber, necessary);
         
         protected bool AddTrigger(IFactor trigger, bool necessary) => trigger.Subscribe(subscriber, necessary);
-        protected void RemoveTrigger(IFactor trigger)              => trigger.Unsubscribe(subscriber);
+
+        protected void RemoveTrigger(IFactor trigger) => trigger.Unsubscribe(subscriber);
 
         public override bool Reconcile()
         {
@@ -401,5 +390,16 @@ namespace Factors.Cores
         //- We're going to have to add something to the ReactorCores that causes them to
         //  periodically check their UpdatePriority.  Maybe we can add an
         //  UpdatePriorityChanged() method to the IFactorSubscriber interface.
+        
+        //- What if we made a version of a Result that subscribed to Channel<T>s and
+        //  used the Observer and trigger flags to identify whether to process a new
+        //  value, based on how it interacted with the previous value from that channel
+        //  (i.e. if a channel sent out an int, and all the result did was compare
+        //  that int to see if it was lower than something else, if it was lower
+        //  we could ignore all further values from that channel until one had
+        //  an ValueIncreased flag.
+        //   
+        //- We could even set up an object that receive a particular channel's values on behalf of 
+        //  the Result, and then uses its own process to determine a set of appropriate flags.
     }
 }

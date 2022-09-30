@@ -10,6 +10,51 @@ namespace Tests.Class_Tests
         where TModifiable        : ValueController<TValue>
         where TController        : IFactor_T_Controller<TModifiable, TValue>, new()
     {
+        [Test]
+        public void WhenBaseValueIsChangedToANonEqualValue_SubscribersAreDestabilized()
+        {
+            TController controller               = new TController();
+            TModifiable factorBeingTested        = controller.ControlledInstance;
+            TValue      initializeValue          = factorBeingTested.Value; //- Values for non-necessary Reactors are lazily calculated.
+            int         numberOfSubscribersToAdd = 10;
+            var         subscribers              = AddSubscribersTo(factorBeingTested, numberOfSubscribersToAdd);
+            
+            foreach (var subscriber in subscribers)
+            {
+                Assert.That(subscriber.IsUnstable, Is.False);
+            }
+
+            controller.ChangeValueToANonEqualValue();
+            
+            foreach (var subscriber in subscribers)
+            {
+                Assert.That(subscriber.IsUnstable, Is.True);
+            }
+        }
+        
+        [Test]
+        public void WhenChangingBaseValue_CausesModifiedValueToChangeToANonEqualValue_SubscribersAreTriggered()
+        {
+            TController controller               = new TController();
+            TModifiable factorBeingTested        = controller.ControlledInstance;
+            TValue      initializeValue          = factorBeingTested.Value;
+            int         numberOfSubscribersToAdd = 10;
+            var         subscribers              = AddSubscribersTo(factorBeingTested, numberOfSubscribersToAdd);
+            
+            foreach (var subscriber in subscribers)
+            {
+                Assert.That(subscriber.HasBeenTriggered, Is.False);
+            }
+
+            controller.ChangeValueToANonEqualValue();
+            initializeValue = factorBeingTested.Value;
+            
+            foreach (var subscriber in subscribers)
+            {
+                Assert.That(subscriber.HasBeenTriggered, Is.True);
+            }
+        }
+        
        //  public void WhenModifiedValueIsRetrieved_WhileFactorIsInATriggeredState_Reacts()
        //  {
        //      TController controller        = new TController();
@@ -95,50 +140,5 @@ namespace Tests.Class_Tests
        //          Assert.That(factorBeingTested.Value, Is.EqualTo(newValue));
        //      }
        //  }
-        
-        [Test]
-        public void WhenBaseValueIsChangedToANonEqualValue_SubscribersAreDestabilized()
-        {
-            TController controller               = new TController();
-            TModifiable factorBeingTested        = controller.ControlledInstance;
-            TValue      initializeValue          = factorBeingTested.Value; //- Values for non-necessary Reactors are lazily calculated.
-            int         numberOfSubscribersToAdd = 10;
-            var         subscribers              = AddSubscribersTo(factorBeingTested, numberOfSubscribersToAdd);
-            
-            foreach (var subscriber in subscribers)
-            {
-                Assert.That(subscriber.IsUnstable, Is.False);
-            }
-
-            controller.ChangeValueToANonEqualValue();
-            
-            foreach (var subscriber in subscribers)
-            {
-                Assert.That(subscriber.IsUnstable, Is.True);
-            }
-        }
-        
-        [Test]
-        public void WhenChangingBaseValue_CausesModifiedValueToChangeToANonEqualValue_SubscribersAreTriggered()
-        {
-            TController controller               = new TController();
-            TModifiable factorBeingTested        = controller.ControlledInstance;
-            TValue      initializeValue          = factorBeingTested.Value;
-            int         numberOfSubscribersToAdd = 10;
-            var         subscribers              = AddSubscribersTo(factorBeingTested, numberOfSubscribersToAdd);
-            
-            foreach (var subscriber in subscribers)
-            {
-                Assert.That(subscriber.HasBeenTriggered, Is.False);
-            }
-
-            controller.ChangeValueToANonEqualValue();
-            initializeValue = factorBeingTested.Value;
-            
-            foreach (var subscriber in subscribers)
-            {
-                Assert.That(subscriber.HasBeenTriggered, Is.True);
-            }
-        }
     }
 }

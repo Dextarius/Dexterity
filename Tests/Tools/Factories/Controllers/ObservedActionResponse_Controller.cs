@@ -22,7 +22,6 @@ namespace Tests.Tools.Factories.Controllers
 
         public ObservedActionResponse_Controller() : this(new Proactive_Controller<ObservedProactiveCore_Controller, int>())
         {
-            
         }
     }
 }

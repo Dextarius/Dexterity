@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 
 namespace Factors
 {
-    public abstract class Factor<TCore> : Factor, IDeterminant, IInfluenceOwner
+    public abstract class Factor<TCore> : IDeterminant, IInfluenceOwner
         where TCore : IFactorCore
     {
         #region Constants
@@ -126,15 +126,11 @@ namespace Factors
         }
 
         public void TriggerSubscribers(long triggerFlags) => influence?.TriggerSubscribers(this, triggerFlags);
-        public void TriggerSubscribers()                  => TriggerSubscribers(TriggerFlags.Default);
 
-        protected virtual void OnFirstSubscriberGained() { }
-        protected virtual void OnLastSubscriberLost()    { }
-        protected virtual void OnNecessary()             { }
-        protected virtual void OnNotNecessary()          { }
-
+        public void TriggerSubscribers() => TriggerSubscribers(TriggerFlags.Default);
+        
         public virtual bool Reconcile() => core.Reconcile();
-
+        
         protected virtual void OnUpdated(long triggerFlags)
         {
             VersionNumber++;
@@ -171,6 +167,11 @@ namespace Factors
         public abstract bool CoresAreNotEqual(TCore oldCore, TCore newCore);
 
         public override string ToString() => $"{Name} : {core.ToString()}";
+        
+        protected virtual void OnFirstSubscriberGained() { }
+        protected virtual void OnLastSubscriberLost()    { }
+        protected virtual void OnNecessary()             { }
+        protected virtual void OnNotNecessary()          { }
 
         #endregion
 
@@ -194,18 +195,5 @@ namespace Factors
         void IInfluenceOwner.OnNotNecessary()          => OnNotNecessary();
 
         #endregion
-    }
-
-    
-    public abstract class Factor
-    {
-        // #region Constants
-        //
-        // public const long TriggerFlags.Default        = ~0;
-        // public const long NoTriggerFlags             =  0;
-        // public const int  NumberOfBitsInTriggerFlags = 64;
-        //
-        //
-        // #endregion
     }
 }

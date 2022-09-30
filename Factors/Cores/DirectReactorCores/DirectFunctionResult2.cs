@@ -38,8 +38,9 @@ namespace Factors.Cores.DirectReactorCores
         
         #region Static Methods
 
-        protected static string CreateNameFrom(
-            Func<TInput1, TInput2, TOutput> valueDelegate, IFactor<TInput1> input1, IFactor<TInput2> input2) => 
+        protected static string CreateNameFrom(Func<TInput1, TInput2, TOutput> valueDelegate, 
+                                               IFactor<TInput1> input1, 
+                                               IFactor<TInput2> input2) => 
                 Delegates.CreateStringShowingArgumentBeingPassedToDelegate(input1, input2, valueDelegate);
 
         #endregion
@@ -71,11 +72,9 @@ namespace Factors.Cores.DirectReactorCores
                                     IEqualityComparer<TOutput>      comparer = null)
             : base(comparer)
         {
-            valueFunction = functionThatDeterminesValue??  
-                            throw new ArgumentNullException(nameof(functionThatDeterminesValue));
-
-            inputSource1 = firstInput;
-            inputSource2 = secondInput;
+            inputSource1  = firstInput;
+            inputSource2  = secondInput;
+            valueFunction = functionThatDeterminesValue ?? throw new ArgumentNullException(nameof(functionThatDeterminesValue));
         }
 
         #endregion

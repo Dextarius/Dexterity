@@ -11,13 +11,12 @@ namespace Core.States
         ICollection<TValue> Values         { get; }
         TValue              this[TKey key] { get; }
 
-        Dictionary<TKey, TValue> AsNormalDictionary();
-        bool                     TryGetValue(TKey key, out TValue value);
-        bool                     ContainsKey(TKey key);
-        bool                     ContainsValue(TValue key);
-        ICollection              GetKeysAsICollection();
-        ICollection              GetValuesAsICollection();
-        
-        new IDictionaryEnumerator GetEnumerator();
+        new IDictionaryEnumerator    GetEnumerator();
+            Dictionary<TKey, TValue> AsNormalDictionary();
+            bool                     TryGetValue(TKey key, out TValue value);
+            bool                     ContainsKey(TKey key);
+            bool                     ContainsValue(TValue key);
+            ICollection              GetKeysAsICollection();
+            ICollection              GetValuesAsICollection();
     }
 }

@@ -24,7 +24,6 @@ namespace Factors.Time
         
         public TimeSpanUntil(FloatingTimeZone zone, DateTime startPoint) : base(zone, startPoint)
         {
-            
         }
     }
 }

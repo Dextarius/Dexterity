@@ -44,7 +44,6 @@ namespace Factors.Collections
         public ProactiveDictionary(IDictionaryCore<TKey, TValue> dictionaryCore, string name = null) : 
             base(dictionaryCore, name)
         {
-            
         }
         
         public ProactiveDictionary(string name)  :  

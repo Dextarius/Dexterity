@@ -42,7 +42,8 @@ namespace Factors.Modifiers.Cores
         protected override bool IsGreaterThan(TimeSpan baseValue, TimeSpan valueToCheck) => valueToCheck > baseValue;
         protected override bool IsLessThan(TimeSpan baseValue, TimeSpan valueToCheck)    => valueToCheck < baseValue;
 
-        public TimeSpanRangeLimiterModCore(IFactor<TimeSpan> minimumValueFactor, IFactor<TimeSpan> maximumValueFactor) : base(minimumValueFactor, maximumValueFactor)
+        public TimeSpanRangeLimiterModCore(IFactor<TimeSpan> minimumValueFactor, IFactor<TimeSpan> maximumValueFactor) : 
+            base(minimumValueFactor, maximumValueFactor)
         {
         }
     }

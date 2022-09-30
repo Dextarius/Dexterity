@@ -25,8 +25,7 @@ namespace Factors.Collections
                 return core;
             }
         }
-        
-        
+
         //- TODO : public bool UsesRecycling { get; set; } 
 
         #endregion
@@ -49,7 +48,6 @@ namespace Factors.Collections
 
         protected ReactiveCollection(TCore collectionCore, string name = null) : base(collectionCore, name)
         {
-
         }
 
         #endregion
@@ -66,11 +64,11 @@ namespace Factors.Collections
         //  We can't guarantee it'll be the same object every time.  
         //- TODO : Come back to this later and decide if it's worthwhile/possible to implement SyncRoot.
         
-        void        ICollection.        CopyTo(Array array, int index) => Collection.CopyTo(array, index);
-        void        ICollection<TValue>.Add(TValue item)               => throw new CannotModifyReactiveValueException();
-        bool        ICollection<TValue>.Remove(TValue item)            => throw new CannotModifyReactiveValueException();
-        void        ICollection<TValue>.Clear()                        => throw new CannotModifyReactiveValueException();
-        IEnumerator IEnumerable.GetEnumerator()                        => GetEnumerator();
+        void        ICollection.CopyTo(Array array, int index) => Collection.CopyTo(array, index);
+        void        ICollection<TValue>.Add(TValue item)       => throw new CannotModifyReactiveValueException();
+        bool        ICollection<TValue>.Remove(TValue item)    => throw new CannotModifyReactiveValueException();
+        void        ICollection<TValue>.Clear()                => throw new CannotModifyReactiveValueException();
+        IEnumerator IEnumerable.GetEnumerator()                => GetEnumerator();
 
 
         #endregion

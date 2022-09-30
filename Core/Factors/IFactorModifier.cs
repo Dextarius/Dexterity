@@ -7,7 +7,7 @@ namespace Core.Factors
         string Description { get; }
         int    ModPriority { get; }
         
-        T      Modify(T valueToModify);
+        T Modify(T valueToModify);
 
         //- Should we add a method so that modifiers can undo their changes?
         //  Since modifiers are executed in Priority order I don't think it would work right.

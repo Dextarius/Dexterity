@@ -12,8 +12,13 @@ namespace Factors
     public abstract class Reactor<TCore> : Factor<TCore>, IReactor, IReactorCoreCallback
         where TCore : IReactorCore
     {
+        #region Instance Fields
+
         private bool isReflexive;
 
+        #endregion
+
+        
         #region Instance Properties
 
         public          bool HasTriggers      => core.HasTriggers;
@@ -85,7 +90,8 @@ namespace Factors
 
         public override bool Subscribe(IFactorSubscriber subscriberToAdd, bool isNecessary)
         {
-         // if (IsReacting) { throw new InvalidOperationException("Recursive dependency"); } //- TODO : Better error message.
+            //- TODO : Write a better error message.
+         // if (IsReacting) { throw new InvalidOperationException("Recursive dependency"); } 
 
             bool successfullySubscribed = base.Subscribe(subscriberToAdd, isNecessary);
 
@@ -155,7 +161,6 @@ namespace Factors
 
         #region Constructors
 
-        //- TODO : We shouldn't need to give the core a name and ourselves a name as well.
         protected Reactor(TCore reactorCore, string nameToGive) : base(reactorCore, nameToGive)
         {
             reactorCore.SetCallback(this);

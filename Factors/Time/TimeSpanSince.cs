@@ -23,7 +23,6 @@ namespace Factors.Time
         
         public TimeSpanSince(FloatingTimeZone zone, DateTime startPoint) : base(zone, startPoint)
         {
-            
         }
     }
 }

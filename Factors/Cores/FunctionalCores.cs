@@ -9,8 +9,9 @@ namespace Factors.Cores
     {
         #region Static Methods
         
-        public static DirectFunctionResult<TArg, TReturn> CreateFrom<TArg, TReturn>(
-            IFactor<TArg> argSource, Func<TArg, TReturn> function, IEqualityComparer<TReturn> comparer = null)
+        public static DirectFunctionResult<TArg, TReturn> CreateFrom<TArg, TReturn>(IFactor<TArg>              argSource, 
+                                                                                    Func<TArg, TReturn>        function, 
+                                                                                    IEqualityComparer<TReturn> comparer = null)
         {
             if (function is null) { throw new ArgumentNullException(nameof(function)); }
             
@@ -18,8 +19,10 @@ namespace Factors.Cores
         }
 
         public static DirectFunctionResult<TArg1, TArg2, TReturn> CreateFrom<TArg1, TArg2, TReturn>(
-            Func<TArg1, TArg2, TReturn> function, IFactor<TArg1> arg1Source, IFactor<TArg2> arg2Source,
-            IEqualityComparer<TReturn> comparer = null)
+            Func<TArg1, TArg2, TReturn> function, 
+            IFactor<TArg1>              arg1Source, 
+            IFactor<TArg2>              arg2Source,
+            IEqualityComparer<TReturn>  comparer = null)
         {
             if (function is null) { throw new ArgumentNullException(nameof(function)); }
             
@@ -27,8 +30,11 @@ namespace Factors.Cores
         }
         
         public static DirectFunctionResult<TArg1, TArg2, TArg3, TReturn> CreateFrom<TArg1, TArg2, TArg3, TReturn>(
-            Func<TArg1, TArg2, TArg3, TReturn> function, IFactor<TArg1> arg1Source, IFactor<TArg2> arg2Source,
-            IFactor<TArg3> arg3Source, IEqualityComparer<TReturn> comparer = null)
+            Func<TArg1, TArg2, TArg3, TReturn> function, 
+            IFactor<TArg1>                     arg1Source, 
+            IFactor<TArg2>                     arg2Source,
+            IFactor<TArg3>                     arg3Source, 
+            IEqualityComparer<TReturn>         comparer = null)
         {
             if (function is null) { throw new ArgumentNullException(nameof(function)); }
             

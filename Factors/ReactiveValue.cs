@@ -34,18 +34,15 @@ namespace Factors
 
         #region Instance Methods
 
-        public bool ValueEquals(TValue valueToCompare) => core.ValueEquals(valueToCompare);
-
-        public override void SwapCore(TCore newCore)
-        {
-
-        }
-
-        public override bool CoresAreNotEqual(TCore oldCore, TCore newCore) => newCore.ValueEquals(oldCore.Value) is false;
-
         public TValue Peek() => core.Peek();
+
+        public bool ValueEquals(TValue valueToCompare) => core.ValueEquals(valueToCompare);
         
         public override string ToString() => $"{Name} => {Value}";
+        
+        public override bool CoresAreNotEqual(TCore oldCore, TCore newCore) => newCore.ValueEquals(oldCore.Value) is false;
+
+        public override void SwapCore(TCore newCore) { }
 
         #endregion
 
@@ -61,7 +58,6 @@ namespace Factors
 
         protected ReactiveValue([NotNull] TCore valueSource, string name = null) : base(valueSource, name)
         {
-            
         }
 
         #endregion

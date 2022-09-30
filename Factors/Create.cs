@@ -11,6 +11,8 @@ namespace Factors
 {
     public static class Create
     {
+        //- TODO : Come up with a better naming scheme.
+        
         public static class A_Modifier
         {
             public static Modifier<double> ThatLimitsResultToValuesBetween(IFactor<double> minimum, IFactor<double> maximum)
@@ -28,7 +30,6 @@ namespace Factors
 
                 return modifier;
             }
-
 
             public static Modifier<uint> ThatLimitsResultToValuesBetween(IFactor<uint> minimum, IFactor<uint> maximum)
             {

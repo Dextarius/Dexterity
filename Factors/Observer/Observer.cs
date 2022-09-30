@@ -26,7 +26,7 @@ namespace Factors.Observer
         protected const string ObserverNotPaused     = "A process attempted to resume the Observer, but it was not paused.";
         protected const string NextOutcomeIsNotNull  = "A process attempted to move to a new event, but the next event already had an Outcome.";
      // private const string NoCurrentInfluences   = "A process attempted to clear the influences for the current" + 
-     //                                                  nameof(ObserverInstance) +" event, but no event was being observed. ";
+     //                                               nameof(ObserverInstance) +" event, but no event was being observed. ";
         #endregion
 
         
@@ -69,10 +69,7 @@ namespace Factors.Observer
 
             #if DEBUG
             
-            if (IsCurrentlyObserving)
-            {
-                Debug.WriteLine($"The factor {changedObject} was changed during an observation.");
-            }
+            if (IsCurrentlyObserving) { Debug.WriteLine($"The factor {changedObject} was changed during an observation."); }
             
             #endif
         }
@@ -154,8 +151,8 @@ namespace Factors.Observer
         }
         
         public TValue ObserveInteractions<TInteraction, TValue>(TInteraction outcomeToObserve)
-            where TInteraction : TObserved, IProcess<TValue> =>
-            ObserveInteractions(outcomeToObserve, outcomeToObserve);
+            where TInteraction : TObserved, IProcess<TValue> => 
+                ObserveInteractions(outcomeToObserve, outcomeToObserve);
         
         //- TODO: Make sure these work correctly
         public PauseToken PauseObservation()

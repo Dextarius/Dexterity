@@ -5,7 +5,6 @@ namespace Core
 {
     class ImmutableExtensions
     {
-
         public static ImmutableHashSet<T> AddUntilSuccessful<T>(ref ImmutableHashSet<T> destination, T valueToAdd) 
         {
             ImmutableHashSet<T> formerCollection = Volatile.Read(ref destination);

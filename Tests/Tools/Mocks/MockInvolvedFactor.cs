@@ -8,8 +8,11 @@ namespace Tests.Tools.Mocks
     {
         protected readonly CausalObserver observer;
 
+        
         public void NotifyInvolved(long triggerFlags) => observer.NotifyInvolved(this, TriggerFlags.Default);
-        public void NotifyInvolved()                  => NotifyInvolved(TriggerFlags.Default);
+
+        public void NotifyInvolved() => NotifyInvolved(TriggerFlags.Default);
+        
         
         public MockInvolvedFactor(CausalObserver observerToCall)
         {

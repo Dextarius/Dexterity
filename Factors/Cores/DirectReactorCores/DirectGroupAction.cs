@@ -20,7 +20,7 @@ namespace Factors.Cores.DirectReactorCores
         #region Properties
 
         public    override    int               NumberOfTriggers => inputs.Count;
-     //   public    override    int               UpdatePriority   => inputs.UpdatePriority + 1;
+   //   public    override    int               UpdatePriority   => inputs.UpdatePriority + 1;
         protected override IEnumerable<IFactor> Triggers         => inputs;
 
         #endregion

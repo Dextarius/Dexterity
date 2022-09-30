@@ -11,9 +11,8 @@ using static Core.Tools.Types;
 namespace Factors.Collections
 {
     public class DictionaryImplementer <TKey, TValue> : 
-        CollectionImplementer<Dictionary<TKey,TValue>, KeyValuePair<TKey, TValue>>, 
-        IDictionary<TKey, TValue>, IDictionary
-
+        CollectionImplementer<Dictionary<TKey,TValue>, KeyValuePair<TKey, TValue>, IDictionaryOwner<TKey, TValue>>, 
+        IDictionaryImplementer<TKey, TValue>, IDictionary<TKey, TValue>, IDictionary
     {
         #region Instance Fields
 
@@ -28,7 +27,7 @@ namespace Factors.Collections
 
         public ICollection<TKey>   Keys        => keys   ??= new StateKeyConservator(this);
         public ICollection<TValue> Values      => values ??= new StateValueConservator(this);
-        public bool                IsFixedSize { get; }
+        public bool                IsFixedSize => false;
         
         public TValue this[TKey key]
         {
@@ -104,8 +103,8 @@ namespace Factors.Collections
             //- Hmm, the very fact of this method succeeded means it's already
             //  set up for the return value to be different the next time it's
             //  called.  So what do we consider that in terms of trigger flags?
-            //  Well if they call it again before this new key is removed the
-            //  dictionary will explode anyways, so I guess the only reasonable
+            //  If they call it again before this new key is removed the
+            //  dictionary will throw anyways, so I guess the only reasonable
             //  trigger would be when an item is removed.
             
             notifyInvolvedFlags   = TriggerFlags.ItemRemoved;
@@ -147,7 +146,7 @@ namespace Factors.Collections
 
         public override bool CollectionEquals(IEnumerable<KeyValuePair<TKey, TValue>> collectionToCompare)
         {
-            var dictionaryToCompare = CreateDictionaryFrom(collectionToCompare, collection.Comparer);
+            var  dictionaryToCompare = CreateDictionaryFrom(collectionToCompare, collection.Comparer);
             bool isEqual = this.collection.HasSameKeysAndValuesAs(dictionaryToCompare, valueComparer);
             
             NotifyInvolved(TriggerWhenItemRemoved | TriggerWhenItemReplaced | TriggerWhenItemAdded);
@@ -156,64 +155,64 @@ namespace Factors.Collections
             return isEqual;
         }
         
-        public     ICollection           GetKeysAsICollection() => keys   ??= new StateKeyConservator(this);
+        public     ICollection           GetKeysAsICollection()   => keys   ??= new StateKeyConservator(this);
 
         public     ICollection           GetValuesAsICollection() => values ??= new StateValueConservator(this);
         
         public new IDictionaryEnumerator GetEnumerator()          => new FactorDictionaryEnumerator(this, Collection.GetEnumerator());
         
-        //^ TODO : Decide if we really want to make an enumerator object every time someone calls this method.  If not then 
-        //         we can just cast Collection to IDictionary and get the enumerator from it.
+        //^ TODO : Decide if we really want to make our own enumerator object every time someone calls this method.
+        //        If not then we can just cast Collection to IDictionary and get the enumerator from it.
         
         #endregion
         
 
         #region Constructors
         
-        protected DictionaryImplementer(ICollectionOwner<Dictionary<TKey, TValue>, KeyValuePair<TKey, TValue>> owner,
-                                        Dictionary<TKey, TValue> dictionaryToCopy, IEqualityComparer<TValue> comparerForValues) : 
+        protected DictionaryImplementer(IDictionaryOwner<TKey, TValue> owner,
+                                        Dictionary<TKey, TValue>       dictionaryToCopy, 
+                                        IEqualityComparer<TValue>      comparerForValues) : 
             base(dictionaryToCopy, owner)
         {
             valueComparer = comparerForValues ?? EqualityComparer<TValue>.Default;
         }
         
-        public DictionaryImplementer(ICollectionOwner<Dictionary<TKey, TValue>, KeyValuePair<TKey, TValue>> owner,
+        public DictionaryImplementer(IDictionaryOwner<TKey, TValue>          owner,
                                      IEnumerable<KeyValuePair<TKey, TValue>> collectionToCopy  = null,
                                      IEqualityComparer<TKey>                 comparerForKeys   = null, 
                                      IEqualityComparer<TValue>               comparerForValues = null) : 
             this(owner, CreateDictionaryFrom(collectionToCopy, comparerForKeys ?? EqualityComparer<TKey>.Default), 
                  comparerForValues)
         {
-            
         }
         
-        public DictionaryImplementer(ICollectionOwner<Dictionary<TKey, TValue>, KeyValuePair<TKey, TValue>> owner,
+        public DictionaryImplementer(IDictionaryOwner<TKey, TValue>          owner,
                                      ICollection<KeyValuePair<TKey, TValue>> collectionToCopy, 
                                      IEqualityComparer<TValue>               comparerForValues) : 
             this(owner, collectionToCopy, null, comparerForValues)
         {
         }
         
-        public DictionaryImplementer(ICollectionOwner<Dictionary<TKey, TValue>, KeyValuePair<TKey, TValue>> owner,
-                                     IEqualityComparer<TKey>   comparerForKeys, 
-                                     IEqualityComparer<TValue> comparerForValues = null) : 
+        public DictionaryImplementer(IDictionaryOwner<TKey, TValue> owner,
+                                     IEqualityComparer<TKey>        comparerForKeys, 
+                                     IEqualityComparer<TValue>      comparerForValues = null) : 
             this(owner, new Dictionary<TKey, TValue>(comparerForKeys ?? EqualityComparer<TKey>.Default), comparerForValues)
         {
         }
 
-        public DictionaryImplementer(ICollectionOwner<Dictionary<TKey, TValue>, KeyValuePair<TKey, TValue>> owner,
-                                     IEqualityComparer<TValue> comparerForValues) : 
+        public DictionaryImplementer(IDictionaryOwner<TKey, TValue> owner,
+                                     IEqualityComparer<TValue>      comparerForValues) : 
             this(owner, null, null, comparerForValues)
         {
         }
 
-        public DictionaryImplementer(ICollectionOwner<Dictionary<TKey, TValue>, KeyValuePair<TKey, TValue>> owner,
-                                     Dictionary<TKey, TValue>  dictionaryToCopy,
-                                     IEqualityComparer<TKey>   comparerForKeys = null,
-                                     IEqualityComparer<TValue> comparerForValues = null) :
+        public DictionaryImplementer(IDictionaryOwner<TKey, TValue> owner,
+                                     Dictionary<TKey, TValue>       dictionaryToCopy,
+                                     IEqualityComparer<TKey>        comparerForKeys = null,
+                                     IEqualityComparer<TValue>      comparerForValues = null) :
             this(owner,
                 new Dict<TKey, TValue>(dictionaryToCopy,
-                comparerForKeys ?? dictionaryToCopy.Comparer),
+                    comparerForKeys ?? dictionaryToCopy.Comparer),
                 comparerForValues)
         {
         }

@@ -21,9 +21,10 @@ namespace Factors.Cores.DirectReactorCores
 
         #region Properties
 
-        protected override IEnumerable<IFactor> Triggers         { get { yield return factorToSetValueOf; } }
-        public    override int                  NumberOfTriggers => 1;
-        public    override int                  UpdatePriority   => factorToSetValueOf.UpdatePriority + 1;
+        public    override int NumberOfTriggers => 1;
+        public override    int UpdatePriority   => factorToSetValueOf.UpdatePriority + 1;
+        
+        protected override IEnumerable<IFactor> Triggers { get { yield return factorToSetValueOf; } }
 
         #endregion
 

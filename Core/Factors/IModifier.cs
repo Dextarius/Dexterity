@@ -11,11 +11,4 @@ namespace Core.Factors
 
         T Modify(T valueToModify);
     }
-
-    public interface IModifierCore<T> : IModifierBase<T>, IReactorCore
-    {
-        
-    }
-    
-    
 }

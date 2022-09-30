@@ -18,8 +18,7 @@ namespace Factors.Cores.ObservedReactorCores.CollectionResults
         #region Instance Methods
 
         protected override IEnumerable<T> GetElements() => elementGenerator();
-
-        public override string ToString() => Delegates.GetClassAndMethodName(elementGenerator);
+        public    override string         ToString()    => Delegates.GetClassAndMethodName(elementGenerator);
 
         #endregion
         

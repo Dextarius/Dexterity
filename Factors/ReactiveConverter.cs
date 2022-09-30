@@ -8,6 +8,5 @@
         
         //- Actually, regular DirectResults can already do this as long as all the factors involved are provided
         //  as arguments.
-        
     }
 }

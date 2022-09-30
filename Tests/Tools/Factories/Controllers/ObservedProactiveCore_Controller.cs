@@ -29,7 +29,6 @@ namespace Tests.Tools.Factories.Controllers
 
         public ObservedProactiveCore_Controller() : base( new ObservedProactiveCore<int>(Tools.GenerateRandomInt()))
         {
-
         }
     }
 }

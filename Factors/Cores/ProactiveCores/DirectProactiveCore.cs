@@ -6,13 +6,6 @@ namespace Factors.Cores.ProactiveCores
 {
     public class DirectProactiveCore<T> : ProactiveCore<T>
     {
-        #region Instance Properties
-
-
-        
-        #endregion
-
-
         #region Constructors
 
         public DirectProactiveCore(T initialValue, IEqualityComparer<T> comparer = null) : 

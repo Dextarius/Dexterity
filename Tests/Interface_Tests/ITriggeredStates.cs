@@ -206,8 +206,6 @@ namespace Tests.Interface_Tests
             //- TODO : Is there a better way of testing if the reaction goes off?
         }
         
-        
-        
         [Test]
         public void WhenAutomaticallyReacts_IsSetToTrue_WhileTriggered_WillReact()
         {
@@ -275,6 +273,7 @@ namespace Tests.Interface_Tests
             Assert.That(reactorBeingTested.IsUnstable,        Is.False);
         }
 
+     // [Test]
         public void WhenCreated_IsReflexive_IsFalse()
         {
             

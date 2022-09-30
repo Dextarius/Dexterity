@@ -33,9 +33,9 @@ namespace Tests.Tools.Mocks
     //
     //     #endregion
     //     
-    //     public int    UpdatePriority           => 0;
-    //     public string Name               => nameof(MockFactor);
-    //     public bool   IsNecessary        => numberOfNecessarySubscribers > 0;
+    //     public int    UpdatePriority      => 0;
+    //     public string Name                => nameof(MockFactor);
+    //     public bool   IsNecessary         => numberOfNecessarySubscribers > 0;
     //     public bool   HasSubscribers      => subscribers.Count > 0;
     //     public int    NumberOfSubscribers => subscribers.Count;
     //     

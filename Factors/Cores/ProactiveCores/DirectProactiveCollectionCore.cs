@@ -63,7 +63,6 @@ namespace Factors.Cores.ProactiveCores
             OnCollectionChanged(triggerFlags);
             ItemWasRemoved.Send(oldItem);
             ItemWasAdded.Send(newItem);
-
         }
 
         public bool Add(TValue item)
@@ -163,12 +162,5 @@ namespace Factors.Cores.ProactiveCores
         }
 
         #endregion
-        
-
-        //- TODO : We should implement a mechanic where if a collection of factors updates,
-        //         the message it sends to invalidate its dependents should include what action
-        //         was taken on the collection (Add, Remove, etc) an we should make Reactive 
-        //         collections that depend on them handle those different cases.  This might
-        //         simplify the work we have to do for enabling Recycling considerably.
     }
 }

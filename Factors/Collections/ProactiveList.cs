@@ -75,12 +75,10 @@ namespace Factors.Collections
         public ProactiveList(IProactiveListCore<T> listCore, string name) : 
             base(listCore, name?? NameOf<ProactiveList<T>>())
         {
-            
         }
         
         public ProactiveList(string name = null) : this(new ObservedProactiveListCore<T>(), name)
         {
-            
         }
 
         #endregion

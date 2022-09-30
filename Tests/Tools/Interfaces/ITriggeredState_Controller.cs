@@ -6,7 +6,7 @@ namespace Tests.Tools.Interfaces
     public interface ITriggeredState_Controller
     {
         ITriggeredState ControlledInstance { get; }
-       // int             UpdateCount        { get; }
+     // int             UpdateCount        { get; }
 
        void SetOffInstancesTriggers();
     }
@@ -14,13 +14,11 @@ namespace Tests.Tools.Interfaces
     public interface IReactorCore_Controller : ITriggeredState_Controller
     {
         new IReactorCore ControlledInstance { get; }
-
     }
     
     public interface IReactor_Controller : ITriggeredState_Controller
     {
         new IReactor ControlledInstance { get; }
-
     }
     
     public interface IResult_Controller<TValue> : IReactorCore_Controller

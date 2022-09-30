@@ -10,7 +10,7 @@
          T Execute();
     }
     
-    public interface IProcess<out TResult, TArg>
+    public interface IProcess<out TResult, in TArg>
     {
         TResult Execute(TArg argument);
     }

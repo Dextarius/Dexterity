@@ -13,19 +13,16 @@ namespace Factors.Cores.ObservedReactorCores.CollectionResults
         private readonly Func<IEnumerable<KeyValuePair<TKey, TValue>>> elementGenerator;
 
         #endregion
-
-
+        
 
         #region Instance Methods
 
         protected override IEnumerable<KeyValuePair<TKey, TValue>> GetElements() => elementGenerator();
         
         public override string ToString() => Delegates.GetClassAndMethodName(elementGenerator);
-
-
+        
         #endregion
-
-
+        
         
         #region Constructors
 

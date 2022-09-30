@@ -20,7 +20,6 @@ namespace Tests.Tools.Factories.Controllers
 
         public DirectActionResponse_Controller() : this(new Proactive_Controller<DirectProactiveCore_Controller, int>())
         {
-            
         }
     }
 }

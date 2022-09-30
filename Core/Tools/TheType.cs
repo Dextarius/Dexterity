@@ -23,7 +23,7 @@ namespace Core.Tools
                                                                                       typeof(ICollection  ).IsAssignableFrom(typeof(T));
                   public static readonly bool           IsDisposable                = typeof(IDisposable  ).IsAssignableFrom(typeof(T));
                   public static readonly bool           IsEnumerableOtherThanString = IsEnumerable && typeof(T) != typeof(string);
-                  public static readonly bool           IsNullable                  = default(T) == null;
+                  public static readonly bool           IsNullable                  = default(T) is null;
                   public static readonly bool           IsNotNullable               = !IsNullable;
 
 
@@ -123,7 +123,8 @@ namespace Core.Tools
         }
 
        private static MissingMethodException MissingConstructorException(string nameOfType) =>
-            new MissingMethodException($" The class {nameof(TheType)}.{nameOfType} was expected to have a default constructor, but none was found.");
+            new MissingMethodException(
+                $" The class {nameof(TheType)}.{nameOfType} was expected to have a default constructor, but none was found.");
     }
 
     public interface ITheType
@@ -150,9 +151,4 @@ namespace Core.Tools
 
         bool CanBeCastTo<TResult>();
     }
-
-    
-    
-    
-    
 }

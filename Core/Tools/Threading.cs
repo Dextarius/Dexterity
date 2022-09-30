@@ -7,7 +7,7 @@ namespace Core.Tools
     {
         public static void StartNewThreadThatRuns(ThreadStart delegateToRun, bool useBackgroundThread = false)
         {
-            _ = delegateToRun ?? throw new ArgumentNullException(nameof(delegateToRun));
+            if (delegateToRun is null) { throw new ArgumentNullException(nameof(delegateToRun)); }
             
             Thread setValueThread = new Thread(delegateToRun) { IsBackground = useBackgroundThread };
             setValueThread.Start();

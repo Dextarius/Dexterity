@@ -8,7 +8,8 @@ namespace Factors.Cores
     public class DoubleControllerModCore : ValueControllerModCore<double>
     {
         protected override double Multiply(double valueToModify, double multiplier) => valueToModify * multiplier;
-        protected override double Add(double valueToModify, double amountToAdd)     => valueToModify + amountToAdd;
+
+        protected override double Add(double valueToModify, double amountToAdd) => valueToModify + amountToAdd;
         
         protected override bool ValuesAreDifferent(double first, double second, out long triggerFlags)
         {
@@ -42,22 +43,21 @@ namespace Factors.Cores
             else return valueToModify;        
         }
         
-        public DoubleControllerModCore(double initialBaseValue, IModTypeOrder modOrder) : 
-            base(initialBaseValue, modOrder)
+        public DoubleControllerModCore(double initialBaseValue, IModTypeOrder modOrder) : base(initialBaseValue, modOrder)
         {
-
         }
 
         public DoubleControllerModCore(double initialBaseValue = default) : base(initialBaseValue)
         {
-            
         }
     }
+    
     
     public class IntControllerModCore : ValueControllerModCore<int>
     {
         protected override int Multiply(int valueToModify, double multiplier) => (int)(valueToModify * multiplier);
-        protected override int Add(int valueToModify, int amountToAdd)        => (valueToModify + amountToAdd);
+
+        protected override int Add(int valueToModify, int amountToAdd) => (valueToModify + amountToAdd);
         
         protected override bool ValuesAreDifferent(int first, int second, out long triggerFlags)
         {
@@ -91,17 +91,15 @@ namespace Factors.Cores
             else return valueToModify;        
         }
         
-        public IntControllerModCore(int initialBaseValue, IModTypeOrder modOrder) : 
-            base(initialBaseValue, modOrder)
+        public IntControllerModCore(int initialBaseValue, IModTypeOrder modOrder) : base(initialBaseValue, modOrder)
         {
-
         }
 
         public IntControllerModCore(int initialBaseValue = default) : base(initialBaseValue)
         {
-            
         }
     }
+    
     
     public class UIntControllerModCore : ValueControllerModCore<uint>
 
@@ -119,9 +117,10 @@ namespace Factors.Cores
                 return false;
             }
         }
-        
-        protected override uint Multiply(uint valueToModify, double multiplier)                    => (uint)(valueToModify * multiplier);
-        protected override uint Add(uint valueToModify, uint amountToAdd)                          => valueToModify + amountToAdd;
+
+        protected override uint Multiply(uint valueToModify, double multiplier) => (uint) (valueToModify * multiplier);
+
+        protected override uint Add(uint valueToModify, uint amountToAdd) => valueToModify + amountToAdd;
         
         protected override uint ApplyMaximum(uint valueToModify, uint maximum)
         {
@@ -141,17 +140,15 @@ namespace Factors.Cores
             else return valueToModify;        
         }
         
-        public UIntControllerModCore(uint initialBaseValue, IModTypeOrder modOrder) : 
-            base(initialBaseValue, modOrder)
+        public UIntControllerModCore(uint initialBaseValue, IModTypeOrder modOrder) : base(initialBaseValue, modOrder)
         {
-
         }
 
         public UIntControllerModCore(uint initialBaseValue = default) : base(initialBaseValue)
         {
-            
         }
     }
+    
     
     public class TimeSpanControllerModCore : ValueControllerModCore<TimeSpan>
     {
@@ -196,12 +193,10 @@ namespace Factors.Cores
         public TimeSpanControllerModCore(TimeSpan initialBaseValue, IModTypeOrder modOrder) : 
             base(initialBaseValue, modOrder)
         {
-
         }
 
         public TimeSpanControllerModCore(TimeSpan initialBaseValue = default) : base(initialBaseValue)
         {
-            
         }
     }
 }

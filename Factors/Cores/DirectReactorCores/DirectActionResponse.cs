@@ -45,8 +45,9 @@ namespace Factors.Cores.DirectReactorCores
 
         #region Constructors
 
-        public DirectActionResponse(Action<TArg> actionToTake, IFactor<TArg> inputArgSource, 
-                                    bool useWeakSubscriber = true) : 
+        public DirectActionResponse(Action<TArg>  actionToTake, 
+                                    IFactor<TArg> inputArgSource, 
+                                    bool          useWeakSubscriber = true) : 
             base(useWeakSubscriber)
         {
             responseAction = actionToTake;
@@ -74,13 +75,7 @@ namespace Factors.Cores.DirectReactorCores
         public override int NumberOfTriggers => 1;
         public override int UpdatePriority   => trigger.UpdatePriority + 1;
 
-        protected override IEnumerable<IFactor> Triggers
-        {
-            get
-            {
-                yield return trigger;
-            }
-        }
+        protected override IEnumerable<IFactor> Triggers { get { yield return trigger; } }
 
         #endregion
 
@@ -102,12 +97,13 @@ namespace Factors.Cores.DirectReactorCores
 
         #region Constructors
 
-        public DirectActionResponse(IFactor inputArgSource, Action actionToTake, 
-                                    bool useWeakSubscriber = true) : 
+        public DirectActionResponse(IFactor inputArgSource, 
+                                    Action  actionToTake, 
+                                    bool    useWeakSubscriber = true) : 
             base(useWeakSubscriber)
         {
             responseAction = actionToTake;
-            trigger    = inputArgSource;
+            trigger        = inputArgSource;
         }
 
         #endregion

@@ -1,7 +1,5 @@
 ﻿// using System;
 // using System.Collections.Generic;
-// using Causality;
-// using Causality.Processes;
 // using Core.Causality;
 // using Core.Factors;
 //
@@ -38,8 +36,8 @@
 //             {
 //                 if (value != isImpulsive)
 //                 {
-//                     if (value) { AssumeImpulsiveStance(); }
-//                     else       {   DropImpulsiveStance(); }
+//                     if (value) { MakeImpulsive(); }
+//                     else       {   MakePassive(); }
 //                 }
 //             }
 //         }
@@ -69,14 +67,14 @@
 //             }
 //         }
 //
-//         private void AssumeImpulsiveStance()
+//         private void MakeImpulsive()
 //         {
 //             isImpulsive = true;
 //             IsReflexive = true;
 //             //conditionsMet.SubscribeToUpdates(ExecuteIfTrue);
 //         }
 //
-//         private void DropImpulsiveStance()
+//         private void MakePassive()
 //         {
 //             isImpulsive = false;
 //             IsReflexive = false;
@@ -103,9 +101,10 @@
 //         //- Subscriptions => 
 //         
 //         #endregion
+//
 //         
-//         
-//         
+//         #region Constructors
+//
 //         public Contingency(IProcess<bool> processToDetermineValue, IProcess processToExecute, string name = null) : base(processToDetermineValue, name)
 //         {
 //             command = processToExecute??  throw new ArgumentNullException(nameof(processToExecute));
@@ -137,10 +136,7 @@
 //                 throw new ArgumentNullException(nameof(processToExecute));
 //             }
 //         }
+//
+//         #endregion
 //     }
-//     
-//     
-//         
-//     //- TODO : Make a fluent interface for users to easily create Contingencies
-//     public static class ContingencyPlanner {}
 // }

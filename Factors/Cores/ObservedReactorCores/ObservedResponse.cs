@@ -16,19 +16,14 @@ namespace Factors.Cores.ObservedReactorCores
         }
 
         protected abstract void ExecuteResponse();
-
         
         #endregion
 
-        
-        #region Constructors
 
-        protected ObservedResponse() : base()
-        {
-        }
-
-        #endregion
+        #region Explicit Implementations
 
         void IProcess.Execute() => ExecuteResponse();
+
+        #endregion
     }
 }

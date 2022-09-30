@@ -142,7 +142,7 @@ namespace Factors.Cores
 
             if (maximumValue is null)
             {
-              //  maximumValue = new Aggregator<INumericMod<T>>();
+            //  maximumValue = new Aggregator<INumericMod<T>>();
                 AddTrigger(maximumValue, IsReflexive);
             }
 
@@ -155,7 +155,7 @@ namespace Factors.Cores
 
             if (minimumValue is null)
             {
-              //  minimumValue = new Aggregator<INumericMod<T>>();
+            //  minimumValue = new Aggregator<INumericMod<T>>();
                 AddTrigger(minimumValue, IsReflexive);
             }
 
@@ -168,7 +168,7 @@ namespace Factors.Cores
 
             if (constantValue is null)
             {
-               // constantValue = new Aggregator<INumericMod<T>>();
+             // constantValue = new Aggregator<INumericMod<T>>();
                 AddTrigger(constantValue, IsReflexive);
             }
 
@@ -377,13 +377,12 @@ namespace Factors.Cores
 
         public T Peek() => modifiedValue;
 
-        protected abstract T    ApplyMaximum(T valueToModify, T maximumValue);
         protected abstract T    ApplyMinimum(T valueToModify, T minimumValue);
+        protected abstract T    ApplyMaximum(T valueToModify, T maximumValue);
         protected abstract T    Multiply(T valueToModify, double multiplier);
         protected abstract T    Add(T valueToModify, T amountToAdd);
         protected abstract bool ValuesAreDifferent(T first, T second, out long triggerFlags);
         
-
         #endregion
 
 
@@ -391,13 +390,12 @@ namespace Factors.Cores
 
         protected ValueControllerModCore(T initialBaseValue, IModTypeOrder modOrder)
         {
-            baseValue = initialBaseValue;
             modTypeOrder = modOrder;
+            baseValue    = initialBaseValue;
         }
 
         protected ValueControllerModCore(T initialBaseValue = default) : this(initialBaseValue, defaultModTypeOrder)
         {
-            
         }
 
         #endregion

@@ -8,8 +8,8 @@ namespace Factors.Time
         public TimeSpan InitialDelay { get; set; } = Timeout.InfiniteTimeSpan;
         public TimeSpan RepeatDelay  { get; set; } = Timeout.InfiniteTimeSpan;
 
-        //- Consider making it so that if you change the repeat delay while the timer is repeating, it
-        //  modifies the current timer.
+        //- TODO : Consider making it so that if you change the repeat delay while
+        //         the timer is repeating, it modifies the current timer.
         
         public void Start()
         {
@@ -20,12 +20,10 @@ namespace Factors.Time
         }
         public RepeatingTimerCore(FloatingTimeZone timeZoneToUse) : base(timeZoneToUse)
         {
-            
         }
         
         public RepeatingTimerCore() : this(FloatingTimeZone.Default)
         {
-            
         }
     }
 }

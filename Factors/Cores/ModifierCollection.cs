@@ -13,8 +13,7 @@ namespace Factors.Cores
         public void      Add(IModifier<T> modifierToAdd)    => core.Add(modifierToAdd);
         public void   Remove(IModifier<T> modifierToRemove) => core.Remove(modifierToRemove);
         public bool Contains(IModifier<T> modifierToFind)   => core.Contains(modifierToFind);
-
-        public T Modify(T valueToModify) => core.Modify(valueToModify);
+        public T      Modify(T valueToModify)               => core.Modify(valueToModify);
         
         public IEnumerator<IModifier<T>> GetEnumerator() => core.GetEnumerator();
 

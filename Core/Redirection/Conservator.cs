@@ -37,52 +37,9 @@ namespace Core.Redirection
 
         public abstract ICollection<TValue> ManagedCollection { get; }
 
-        public int Count
-        {
-            get
-            {
-                OnAccessed();
-                return ManagedCollection.Count;
-            }
-        }
-
-        bool ICollection.IsSynchronized
-        {
-            get
-            {
-                OnAccessed();
-                
-                if (ManagedCollection is ICollection castCollection)
-                {
-                    return castCollection.IsSynchronized;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-        }
-
-        object ICollection.SyncRoot
-        {
-            get
-            {
-                OnAccessed();
-                
-                if (ManagedCollection is ICollection castCollection)
-                {
-                    return castCollection.SyncRoot;
-                }
-                else
-                {
-                    throw new NotSupportedException(
-                        $"The collection managed by this {NameOf<Conservator<TValue>>()} " +
-                        $"does not implement {nameof(ICollection)} meaning a {nameof(ICollection.SyncRoot)} " +
-                        $"cannot be provided.");
-                }
-            }
-        }
-
+        public int Count { get { OnAccessed();
+                                 return ManagedCollection.Count; } }
+        
         public bool IsReadOnly
         {
             get
@@ -93,8 +50,8 @@ namespace Core.Redirection
         }
 
         #endregion
-
-
+        
+        
         #region Instance Methods
 
         protected abstract void OnAccessed();
@@ -233,6 +190,37 @@ namespace Core.Redirection
 
         #region Explicit Implementations
 
+        bool ICollection.IsSynchronized
+        {
+            get
+            {
+                OnAccessed();
+                
+                if (ManagedCollection is ICollection castCollection) { return castCollection.IsSynchronized; }
+                else                                                 { return false; }
+            }
+        }
+
+        object ICollection.SyncRoot
+        {
+            get
+            {
+                OnAccessed();
+                
+                if (ManagedCollection is ICollection castCollection)
+                {
+                    return castCollection.SyncRoot;
+                }
+                else
+                {
+                    throw new NotSupportedException(
+                        $"The collection managed by this {NameOf<Conservator<TValue>>()} " +
+                        $"does not implement {nameof(ICollection)} meaning a {nameof(ICollection.SyncRoot)} " +
+                        $"cannot be provided.");
+                }
+            }
+        }
+        
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         #endregion

@@ -23,7 +23,7 @@ namespace Factors.Cores.DirectReactorCores
         #region Properties
 
         public override int NumberOfTriggers => 3;
-        public override int UpdatePriority         => priority;
+        public override int UpdatePriority   => priority;
 
         protected override IEnumerable<IFactor> Triggers
         {
@@ -40,12 +40,14 @@ namespace Factors.Cores.DirectReactorCores
 
         #region Static Methods
 
-        protected static string CreateNameFrom(
-            Func<TInput1, TInput2, TInput3, TOutput> valueDelegate, 
-            IFactor<TInput1> input1, IFactor<TInput2> input2, IFactor<TInput3> input3) => 
-                Delegates.CreateStringShowingArgumentBeingPassedToDelegate(input1, input2, input3, valueDelegate);
+        protected static string CreateNameFrom(Func<TInput1, TInput2, TInput3, TOutput> valueDelegate, 
+                                               IFactor<TInput1> input1, 
+                                               IFactor<TInput2> input2, 
+                                               IFactor<TInput3> input3) => 
+            Delegates.CreateStringShowingArgumentBeingPassedToDelegate(input1, input2, input3, valueDelegate);
 
         #endregion
+        
         
         #region Instance Methods
 
@@ -74,12 +76,10 @@ namespace Factors.Cores.DirectReactorCores
                                     IEqualityComparer<TOutput>               comparer = null)
             : base(comparer)
         {
-            valueFunction = functionThatDeterminesValue??  
-                            throw new ArgumentNullException(nameof(functionThatDeterminesValue));
-
-            inputSource1 = firstInput;
-            inputSource2 = secondInput;
-            inputSource3 = thirdInput;
+            inputSource1  = firstInput;
+            inputSource2  = secondInput;
+            inputSource3  = thirdInput;
+            valueFunction = functionThatDeterminesValue ?? throw new ArgumentNullException(nameof(functionThatDeterminesValue));
         }
         
         #endregion

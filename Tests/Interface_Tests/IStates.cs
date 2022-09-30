@@ -41,12 +41,12 @@ namespace Tests.Interface_Tests
             WriteExpectedAndActualValuesToTestContext(updatedValue, actualValue);
         }
 
-        #endregion
-
-
+      // [Test]
         public void WhenGivenANewValue_UsesComparerToDetermineIfNewValueIsEqualToCurrentValue()
         {
             
         }
+
+        #endregion
     }
 }

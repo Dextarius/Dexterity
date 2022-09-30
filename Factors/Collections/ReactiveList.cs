@@ -61,7 +61,6 @@ namespace Factors.Collections
         public ReactiveList([NotNull] IListResult<T> collectionSource, string name = null) : 
             base(collectionSource, name ?? DefaultName)
         {
-            
         }
 
         #endregion

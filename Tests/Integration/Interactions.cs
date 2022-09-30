@@ -35,36 +35,6 @@ namespace Tests.Integration
             TestContext.WriteLine($"Expected Value {expectedValue}, Actual Value {actualValue}");
         }
         
-        // [Test]
-        // public void WhenDependentOnMultipleProactivesAndAnyChange_ValueChangesCorrectly(
-        //     [Random(1)] int initialValueOne, [Random(1)] int initialValueTwo, [Random(1)] int increment)
-        // {
-        //     Proactive<int> firstProactive      = new Proactive<int>(initialValueOne);
-        //     Proactive<int> secondProactive     = new Proactive<int>(initialValueTwo);
-        //     Func<int>      sumValues           = () => firstProactive.Value + secondProactive.Value;
-        //     Reactive<int>  reactiveBeingTested = new Reactive<int>(sumValues);
-        //     int            expectedValue       = sumValues();
-        //     int            actualValue         = reactiveBeingTested.Value;
-        //     
-        //     
-        //     Assert.That(actualValue, Is.EqualTo(expectedValue));
-        //     TestContext.WriteLine($"Expected Value {expectedValue}, Actual Value {actualValue}");
-        //
-        //     firstProactive.Value += increment;
-        //     expectedValue         = sumValues();
-        //     actualValue           = reactiveBeingTested.Value;
-        //     
-        //     Assert.That(actualValue, Is.EqualTo(expectedValue));
-        //     TestContext.WriteLine($"Expected Value {expectedValue}, Actual Value {actualValue}");
-        //
-        //     secondProactive.Value += increment;
-        //     expectedValue          = sumValues();
-        //     actualValue            = reactiveBeingTested.Value;
-        //     
-        //     Assert.That(actualValue, Is.EqualTo(expectedValue));
-        //     TestContext.WriteLine($"Expected Value {expectedValue}, Actual Value {actualValue}");
-        // }
-
         [Test]
         public void AfterParentFactorChangesItsValue_IsTriggered()
         {
@@ -81,7 +51,7 @@ namespace Tests.Integration
             
             Assert.That(reactiveBeingTested.IsTriggered, Is.True,
                 "The reactive was not marked as triggered after being invalidated.");
-            TestContext.WriteLine($"The {nameof(Reactive)} was triggered => {reactiveBeingTested.IsTriggered}");
+            TestContext.WriteLine($"The {nameof(Reactive<int>)} was triggered => {reactiveBeingTested.IsTriggered}");
         }
         
         [Test]
@@ -128,7 +98,36 @@ namespace Tests.Integration
         //     
         //     Assert.That(factorToTest.IsNecessary, Is.True);
         // }
-
+        
+        // [Test]
+        // public void WhenDependentOnMultipleProactivesAndAnyChange_ValueChangesCorrectly(
+        //     [Random(1)] int initialValueOne, [Random(1)] int initialValueTwo, [Random(1)] int increment)
+        // {
+        //     Proactive<int> firstProactive      = new Proactive<int>(initialValueOne);
+        //     Proactive<int> secondProactive     = new Proactive<int>(initialValueTwo);
+        //     Func<int>      sumValues           = () => firstProactive.Value + secondProactive.Value;
+        //     Reactive<int>  reactiveBeingTested = new Reactive<int>(sumValues);
+        //     int            expectedValue       = sumValues();
+        //     int            actualValue         = reactiveBeingTested.Value;
+        //     
+        //     
+        //     Assert.That(actualValue, Is.EqualTo(expectedValue));
+        //     TestContext.WriteLine($"Expected Value {expectedValue}, Actual Value {actualValue}");
+        //
+        //     firstProactive.Value += increment;
+        //     expectedValue         = sumValues();
+        //     actualValue           = reactiveBeingTested.Value;
+        //     
+        //     Assert.That(actualValue, Is.EqualTo(expectedValue));
+        //     TestContext.WriteLine($"Expected Value {expectedValue}, Actual Value {actualValue}");
+        //
+        //     secondProactive.Value += increment;
+        //     expectedValue          = sumValues();
+        //     actualValue            = reactiveBeingTested.Value;
+        //     
+        //     Assert.That(actualValue, Is.EqualTo(expectedValue));
+        //     TestContext.WriteLine($"Expected Value {expectedValue}, Actual Value {actualValue}");
+        // }
     }
     
     

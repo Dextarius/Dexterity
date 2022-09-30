@@ -35,13 +35,6 @@ namespace Factors.Cores.ObservedReactorCores.CollectionResults
         //  This does not return a static copy of what keys/values were present when this was called!
 
         #endregion
-
-
-        #region Static Methods
-
-
-
-        #endregion
         
 
         #region Instance Methods
@@ -62,7 +55,7 @@ namespace Factors.Cores.ObservedReactorCores.CollectionResults
 
         protected override bool AreCollectionsEqual(Dictionary<TKey, TValue> newCollection, 
                                                     Dictionary<TKey, TValue> oldCollection, 
-                                                out long                     triggerFlags) =>
+                                                    out long                 triggerFlags) =>
             HaveSameKeysAndValues(newCollection, oldCollection, valueComparer, out triggerFlags);
 
         #endregion

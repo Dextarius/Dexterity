@@ -7,20 +7,9 @@ using static Factors.TriggerFlags;
 
 namespace Factors.Collections
 {
-    public interface ICollectionOwner<TCollection, TValue> : IInvolved
+    public abstract class CollectionImplementer<TCollection, TValue, TOwner> : ICollectionImplementer<TValue> 
         where TCollection : ICollection<TValue>
-    {
-        void OnItemAdded(TValue itemAdded);
-        void OnMultipleItemsAdded(IEnumerable<TValue> itemsAdded);
-        void OnMultipleItemsRemoved(IEnumerable<TValue> itemsAdded);
-        void OnRangeOfItemsAdded(int startingIndex, int count);
-        void OnRangeOfItemsRemoved(int startingIndex, int count);
-        void OnItemRemoved(TValue itemRemoved);
-        void OnCollectionChanged(long triggerFlags);
-    }
-    
-    public abstract class CollectionImplementer<TCollection, TValue> : ICollection<TValue>, ICollection, IInvolved
-        where TCollection : ICollection<TValue>
+        where TOwner      : ICollectionOwner<TValue>
     {
         #region Instance Fields
 
@@ -28,13 +17,13 @@ namespace Factors.Collections
         
         #endregion
         
+        
         #region Properties
 
-        public ICollectionOwner<TCollection, TValue> Owner { get; }
-
-        public bool   IsSynchronized { get; }
-        public object SyncRoot       { get; }
-        public bool   IsReadOnly     => false;
+        protected TOwner Owner          { get; }
+        public    bool   IsSynchronized => false;
+        public    object SyncRoot       => this;
+        public    bool   IsReadOnly     => false;
 
         protected TCollection Collection
         {
@@ -60,15 +49,15 @@ namespace Factors.Collections
 
         public void NotifyInvolved(long triggerFlags) => Owner.NotifyInvolved(triggerFlags);
         
-        public void NotifyInvolved()                  => NotifyInvolved(TriggerFlags.Default);
+        public void NotifyInvolved() => NotifyInvolved(TriggerFlags.Default);
 
         public bool Add(TValue itemToAdd)
         {
-            if (AddItem(itemToAdd, out long involveFlags, out long additionalChangeFlags))
+            if (AddItem(itemToAdd, out long additionalInvolveFlags, out long additionalChangeFlags))
             {
                 Owner.OnItemAdded(itemToAdd);
                 Owner.OnCollectionChanged(ItemAdded   | additionalChangeFlags);
-                NotifyInvolved(TriggerWhenItemRemoved | TriggerWhenItemReplaced | involveFlags);
+                NotifyInvolved(TriggerWhenItemRemoved | TriggerWhenItemReplaced | additionalInvolveFlags);
 
                 return true;
             }
@@ -181,11 +170,10 @@ namespace Factors.Collections
 
         protected void NotifyInvolved_NumberOfItems() => NotifyInvolved(TriggerWhenItemRemoved | TriggerWhenItemAdded);
         
-        
         protected void NotifyInvolved_Rearranged()    => NotifyInvolved(TriggerWhenItemRemoved | TriggerWhenItemReplaced);
         
         protected void NotifyInvolved_Iterator()      => NotifyInvolved(TriggerWhenItemRemoved | TriggerWhenItemReplaced | 
-                                                                        TriggerWhenItemAdded); 
+                                                                        TriggerWhenItemAdded);
         
         protected void NotifyInvolved_All()           => NotifyInvolved(TriggerWhenItemRemoved | TriggerWhenItemReplaced | 
                                                                         TriggerWhenItemAdded   | TriggerWhenItemMoved);
@@ -209,7 +197,7 @@ namespace Factors.Collections
         
         #region Constructors
 
-        protected CollectionImplementer(TCollection initialValue, ICollectionOwner<TCollection, TValue> owner)
+        protected CollectionImplementer(TCollection initialValue, TOwner owner)
         {
             collection = initialValue;
             Owner      = owner;
@@ -225,12 +213,6 @@ namespace Factors.Collections
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         #endregion
-
-        //- TODO : We should implement a mechanic where if a collection of factors updates,
-        //         the message it sends to invalidate its dependents should include what action
-        //         was taken on the collection (Add, Remove, etc) an we should make Reactive 
-        //         collections that depend on them handle those different cases.  This might
-        //         simplify the work we have to do for enabling Recycling considerably.
     }
 
 }

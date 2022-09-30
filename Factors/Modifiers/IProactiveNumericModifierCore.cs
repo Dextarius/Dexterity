@@ -11,7 +11,5 @@
 //     {
 //         new NumericModType ModType     { get; set; }
 //         new int            ModPriority { get; set; }
-//         
-//         
 //     }
 // }

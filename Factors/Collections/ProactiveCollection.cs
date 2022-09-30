@@ -10,27 +10,6 @@ using static Core.Tools.Types;
 
 namespace Factors.Collections
 {
-    //- What if we made it so that when a Factor added a CollectionFactor as a 
-    //  trigger, they specified what operations (Add,Move,Remove,etc) were 
-    //  relevant to the dependency they had (i.e. a dependency on the Count property
-    //  of the collection would want to know if something was added or removed
-    //  but not if an element just moved to a different index in the list).
-    //
-    //  Then when the collection changed something, it would pass an enum as an
-    //  argument to the Trigger() method indicating what type of change had occurred.
-    
-    //  This could work with ObservedFactors as well, by having the collection
-    //  call a version of NotifyInvolved() that passed different enum values
-    //  based on what types of operations would invalidate the involved
-    //  aspect (i.e. if the dependent Reactor had called Contains() on the
-    //  collection and it returned false, the collection would pass an enum value
-    //  indicating that when the dependency was Triggered() later, that 
-    //  trigger was only relevant if the enum argument passed to the Trigger() method 
-    //  indicated that the collection had Added a new element, since the fact that the
-    //  collection doesn't contain that requested element won't change if the collection
-    //  moves an existing element to another index, or removes an element from the collection).
-
-    
     public abstract class ProactiveCollection<TCore, TValue> : Proactor<TCore>, ICollectionFactor<TValue>, 
                                                                ICollection<TValue>, ICollection
         where TCore : IProactiveCollectionCore<TValue>, IProactorCore
@@ -81,19 +60,25 @@ namespace Factors.Collections
         
         #endregion
         
-        //- TODO : We should implement a mechanic where if a collection of factors updates,
-        //         the message it sends to invalidate its dependents should include what action
-        //         was taken on the collection (Add, Remove, etc) and we should make Reactive 
-        //         collections that depend on them handle those different cases.  This might
-        //         simplify the work we have to do for enabling Recycling considerably.
-    }
-
+        
+        //- What if we made it so that when a Factor added a CollectionFactor as a 
+        //  trigger, they specified what operations (Add,Move,Remove,etc) were 
+        //  relevant to the dependency they had (i.e. a dependency on the Count property
+        //  of the collection would want to know if something was added or removed
+        //  but not if an element just moved to a different index in the list).
+        //
+        //  Then when the collection changed something, it would pass an enum as an
+        //  argument to the Trigger() method indicating what type of change had occurred.
     
-    public interface IAdvancedCollectionCreator<TCollection, TValue>  where TCollection : ICollection<TValue>
-    {
-        TCollection WithoutElementsWhere(Func<bool> predicate);
-        TCollection CombinedWith(ICollectionFactor<TValue> otherCollection);
-        TCollection IntersectedWith(ICollectionFactor<TValue> predicate);
-        TCollection Subtracting(ICollectionFactor<TValue> collectionToSubtract);
+        //  This could work with ObservedFactors as well, by having the collection
+        //  call a version of NotifyInvolved() that passed different enum values
+        //  based on what types of operations would invalidate the involved
+        //  aspect (i.e. if the dependent Reactor had called Contains() on the
+        //  collection and it returned false, the collection would pass an enum value
+        //  indicating that when the dependency was Triggered() later, that 
+        //  trigger was only relevant if the enum argument passed to the Trigger() method 
+        //  indicated that the collection had Added a new element, since the fact that the
+        //  collection doesn't contain that requested element won't change if the collection
+        //  moves an existing element to another index, or removes an element from the collection).
     }
 }

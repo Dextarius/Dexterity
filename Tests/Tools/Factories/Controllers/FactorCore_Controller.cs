@@ -15,13 +15,6 @@ namespace Tests.Tools.Factories.Controllers
 
         #endregion
         
-        
-        #region Instance Methods
-        
-        
-
-        #endregion
-
 
         #region Explicit Implementations
 

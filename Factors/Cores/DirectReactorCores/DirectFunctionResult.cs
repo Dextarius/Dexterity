@@ -22,13 +22,7 @@ namespace Factors.Cores.DirectReactorCores
         public override int NumberOfTriggers => 1;
         public override int UpdatePriority   => inputSource.UpdatePriority + 1;
         
-        protected override IEnumerable<IFactor> Triggers
-        {
-            get
-            {
-                yield return inputSource;
-            }
-        }
+        protected override IEnumerable<IFactor> Triggers { get { yield return inputSource; } }
 
         #endregion
         
@@ -64,6 +58,4 @@ namespace Factors.Cores.DirectReactorCores
 
         #endregion
     }
-    
-  
 }

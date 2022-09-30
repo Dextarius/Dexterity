@@ -4,7 +4,7 @@ using Core.Tools;
 
 namespace Core.Causality
 {
-    public interface IObserver<TInfluence, TObserved>  
+    public interface IObserver<in TInfluence, in TObserved>  
         where TInfluence : IFactor  
         where TObserved  : IObserved
     {

@@ -10,8 +10,9 @@ namespace Tests.Tools.Factories.Controllers
     {
         #region Properties
 
-        public TCoreController        CoreController { get; }
-        public IProactiveCore<TValue> Core           => CoreController.ControlledInstance;
+        public TCoreController CoreController { get; }
+
+        public IProactiveCore<TValue> Core => CoreController.ControlledInstance;
 
         #endregion
 

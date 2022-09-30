@@ -7,8 +7,7 @@ namespace Tests.Tools.Mocks.Processes
         #region Properties
 
         public T Value { get; set; }
-
-
+        
         #endregion
         
 

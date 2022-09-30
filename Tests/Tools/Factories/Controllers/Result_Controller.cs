@@ -15,7 +15,6 @@ namespace Tests.Tools.Factories.Controllers
 
         protected Result_Controller(TCore controlledInstance) : base(controlledInstance)
         {
-
         }
 
         IResult<TValue> IResult_Controller<TValue>.ControlledInstance => ControlledInstance;

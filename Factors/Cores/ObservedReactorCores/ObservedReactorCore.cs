@@ -5,7 +5,6 @@ using Core.States;
 using Dextarius.Collections;
 using Factors.Observer;
 using JetBrains.Annotations;
-using static Factors.Factor;
 
 namespace Factors.Cores.ObservedReactorCores
 {
@@ -63,7 +62,8 @@ namespace Factors.Cores.ObservedReactorCores
         }
 
         public void NotifyInvolved(long triggerFlags) => NotifyInvolved(Callback, triggerFlags);
-        public void NotifyInvolved()                  => NotifyInvolved(TriggerFlags.Default);
+
+        public void NotifyInvolved() => NotifyInvolved(TriggerFlags.Default);
         
         public void NotifyChanged(IFactor changedFactor)
         {
@@ -81,16 +81,6 @@ namespace Factors.Cores.ObservedReactorCores
 
         #endregion
 
-
-        #region Constructors
-
-        protected ObservedReactorCore() : base()
-        {
-            
-        }
-
-        #endregion
-        
 
         #region Explicit Implementations
 

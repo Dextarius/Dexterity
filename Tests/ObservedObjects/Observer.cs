@@ -200,27 +200,5 @@ namespace Tests.ObservedObjects
                 involvedFactor.NotifyInvolved();
             }
         }
-
-        //[Test]
-        //public void SetInMotion_WhenGivenATrackerAlreadyInMotion_ReturnsFalse()
-        //{
-        //
-        //}
-        
-        //[Test]
-        //public void SetInMotion_WhenGivenATrackerNotInPlay_SetsTheTrackerInMotion()
-        //{
-        //
-        //}
-        
-        //public void SetInMotion_AfterPuttingAConsequenceInMotion_EnsuresThatTrackerIsNoLongerTriggered()
-        //{
-        //
-        //}
-        
-        //public void SetInMotion_AfterPuttingAConsequenceInMotion_EnsuresThatTrackerIsMarkedAsInMotion()
-        //{
-        //
-        //}
     }
 }

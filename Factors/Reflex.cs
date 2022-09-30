@@ -14,6 +14,7 @@ namespace Factors
     //  the Reflex staying alive for the lifetime of the triggering Factor (no weak
     //  references are used, so the Reflex will just sit in the triggering Factor's
     //  subscriber pool indefinitely). 
+    
     //- As a note, since these object go off every time their parent triggers them
     //  if the Reflex' response interacts with the parent in a way that causes it
     //  to react (for example trying to get the value of a Reactive<T> will cause it to

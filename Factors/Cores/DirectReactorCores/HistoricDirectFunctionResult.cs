@@ -19,10 +19,11 @@ namespace Factors.Cores.DirectReactorCores
 
 
         #region Properties
+
+        public override int NumberOfTriggers => 1;
+        public override int UpdatePriority   => inputSource.UpdatePriority + 1;
         
-        protected override IEnumerable<IFactor> Triggers         { get { yield return inputSource; } }
-        public override    int                  NumberOfTriggers => 1;
-        public override    int                  UpdatePriority   => inputSource.UpdatePriority + 1;
+        protected override IEnumerable<IFactor> Triggers { get { yield return inputSource; } }
 
         #endregion
         
@@ -60,8 +61,8 @@ namespace Factors.Cores.DirectReactorCores
                                             IEqualityComparer<TOutput>    comparer = null)
             : base(comparer)
         {
-            valueFunction = functionThatDeterminesValue?? throw new ArgumentNullException(nameof(functionThatDeterminesValue));
-            inputSource   = factorToUseAsInput         ?? throw new ArgumentNullException(nameof(factorToUseAsInput));
+            valueFunction = functionThatDeterminesValue ?? throw new ArgumentNullException(nameof(functionThatDeterminesValue));
+            inputSource   = factorToUseAsInput          ?? throw new ArgumentNullException(nameof(factorToUseAsInput));
         }
 
         #endregion

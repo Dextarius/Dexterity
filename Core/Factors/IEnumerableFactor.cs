@@ -2,7 +2,7 @@
 
 namespace Core.Factors
 {
-    public interface IEnumerableFactor<TValue> : IFactor, IEnumerable<TValue>
+    public interface IEnumerableFactor<out TValue> : IFactor, IEnumerable<TValue>
     {
 
     }

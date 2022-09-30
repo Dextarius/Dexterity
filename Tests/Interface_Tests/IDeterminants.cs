@@ -295,17 +295,6 @@ namespace Tests.Interface_Tests
 
         }
         
-        
-
-        
-        
-        
-        
-        //- This may seem like a strange test, but the nature of Proactives is to store references to the
-        //  things they affect, and the nature of Reactives to store reference to things that affect them
-        //  can easily lead to a bunch of objects never being collected because they all reference each other.
-        //  Both classes are structured in a way that prevents them from creating circular references
-        //  to each other, and this is here to make sure that is/remains true. 
         // [Test]
         // public void WhenAffectedFactorsNoLongerInUse_CanBeGarbageCollected()
         // {
@@ -323,8 +312,13 @@ namespace Tests.Interface_Tests
         //
         //     proactiveReference.TryGetTarget(out var proactive);
         //     Assert.That(proactive, Is.Null);
+        //     
+        //     //- This may seem like a strange test, but the nature of Proactives is to store references to the
+        //     //  things they affect, and the nature of Reactives to store reference to things that affect them
+        //     //  can easily lead to a bunch of objects never being collected because they all reference each other.
+        //     //  Both classes are structured in a way that prevents them from creating circular references
+        //     //  to each other, and this is here to make sure that is/remains true. 
         // }
-        //
         //
         // [MethodImpl(MethodImplOptions.NoInlining)]
         // private static WeakReference<Proactive<int>> GenerateChainOfFactors(HashSet<WeakReference<Reactive<int>>> references)
@@ -370,10 +364,12 @@ namespace Tests.Interface_Tests
 
         #endregion
     }
+
     
     
     
-    //     [TestFixture(typeof(ObservedStateCore_Int_Factory),      typeof(ObservedFunctionResult_Int_Factory))]
+    
+    // [TestFixture(typeof(ObservedStateCore_Int_Factory),      typeof(ObservedFunctionResult_Int_Factory))]
     // [TestFixture(typeof(DirectStateCore_Int_Factory),        typeof(DirectFunctionResult_Int_Factory))]
     // [TestFixture(typeof(ObservedFunctionResult_Int_Factory), typeof(ObservedFunctionResult_Int_Factory))]
     // [TestFixture(typeof(DirectFunctionResult_Int_Factory),   typeof(DirectFunctionResult_Int_Factory))]

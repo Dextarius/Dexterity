@@ -57,7 +57,6 @@ namespace Tests.Tools.Factories.Controllers
         public DirectFunctionResult2_Controller() : this(new Proactive_Controller<DirectProactiveCore_Controller, int>(), 
                                                          new Proactive_Controller<DirectProactiveCore_Controller, int>())
         {
-            
         }
     }
     
@@ -94,7 +93,6 @@ namespace Tests.Tools.Factories.Controllers
                                                          new Proactive_Controller<DirectProactiveCore_Controller, int>(),
                                                          new Proactive_Controller<DirectProactiveCore_Controller, int>())
         {
-            
         }
     }
 }

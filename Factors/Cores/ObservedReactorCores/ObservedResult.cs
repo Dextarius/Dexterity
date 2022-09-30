@@ -28,8 +28,7 @@ namespace Factors.Cores.ObservedReactorCores
         }
         
         public IModifierCollection<TValue> Modifiers => modifiers ??= CreateModifierCollection<TValue>();
-
-
+        
         #endregion
 
 
@@ -96,7 +95,7 @@ namespace Factors.Cores.ObservedReactorCores
 
         #region Constructors
 
-        protected ObservedResult(IEqualityComparer<TValue> comparer = null) : base()
+        protected ObservedResult(IEqualityComparer<TValue> comparer = null) 
         {
             valueComparer = comparer ?? EqualityComparer<TValue>.Default;
         }

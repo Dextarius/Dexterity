@@ -14,11 +14,13 @@ namespace Factors.Cores.DirectReactorCores.CollectionResults
 
         #endregion
         
+        
         #region Properties
 
         public T this[int index] => Collection[index];
 
         #endregion
+        
         
         #region Instance Methods
 
@@ -62,7 +64,7 @@ namespace Factors.Cores.DirectReactorCores.CollectionResults
 
         #region Constructors
 
-        protected DirectListResult(IEqualityComparer<T> comparerForElements = null) : base()
+        protected DirectListResult(IEqualityComparer<T> comparerForElements = null)
         {
             elementComparer   = comparerForElements ?? EqualityComparer<T>.Default;
             currentCollection = new List<T>();

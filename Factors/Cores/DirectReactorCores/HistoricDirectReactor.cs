@@ -11,16 +11,17 @@ namespace Factors.Cores.DirectReactorCores
 
         [NotNull]
         protected readonly IFactor<TInput> inputSource;
-        protected TInput lastKnownValueOfInput;
+        protected          TInput          lastKnownValueOfInput;
 
         #endregion
 
 
         #region Properties
 
-        protected override IEnumerable<IFactor> Triggers         { get { yield return inputSource; } }
-        public override    int                  NumberOfTriggers => 1;
-        public override    int                  UpdatePriority   => inputSource.UpdatePriority + 1;
+        public override int NumberOfTriggers => 1;
+        public override int UpdatePriority   => inputSource.UpdatePriority + 1;
+        
+        protected override IEnumerable<IFactor> Triggers { get { yield return inputSource; } }
 
         #endregion
 

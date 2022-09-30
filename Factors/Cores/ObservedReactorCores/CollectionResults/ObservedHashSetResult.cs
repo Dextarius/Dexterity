@@ -12,6 +12,7 @@ namespace Factors.Cores.ObservedReactorCores.CollectionResults
 
         #endregion
         
+        
         #region Instance Methods
 
         public HashSet<T> AsNormalSet() => new HashSet<T>(Collection);
@@ -34,13 +35,12 @@ namespace Factors.Cores.ObservedReactorCores.CollectionResults
 
         #region Constructors
 
-        protected ObservedHashSetResult(IEqualityComparer<T> comparerForElements = null) : base()
+        protected ObservedHashSetResult(IEqualityComparer<T> comparerForElements = null)
         {
             elementComparer   = comparerForElements ?? EqualityComparer<T>.Default;
             currentCollection = new HashSet<T>();
         }
 
         #endregion
-
     }
 }

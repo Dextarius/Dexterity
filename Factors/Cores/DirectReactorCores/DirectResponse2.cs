@@ -24,13 +24,7 @@ namespace Factors.Cores.DirectReactorCores
         public override int NumberOfTriggers => 2;
         public override int UpdatePriority   => priority;
 
-        protected override IEnumerable<IFactor> Triggers
-        {
-            get
-            {
-                yield return inputSource1;
-            }
-        }
+        protected override IEnumerable<IFactor> Triggers { get { yield return inputSource1; } }
 
         #endregion
 
@@ -48,7 +42,6 @@ namespace Factors.Cores.DirectReactorCores
         
         public override string ToString() => Delegates.GetClassAndMethodName(responseAction);
 
-
         #endregion
 
 
@@ -60,8 +53,7 @@ namespace Factors.Cores.DirectReactorCores
         {
             inputSource1   = firstInput;
             inputSource2   = secondInput;
-            responseAction = actionToTake??  
-                             throw new ArgumentNullException(nameof(actionToTake));
+            responseAction = actionToTake ?? throw new ArgumentNullException(nameof(actionToTake));
         }
 
         #endregion

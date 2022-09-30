@@ -9,14 +9,8 @@ namespace Tests.Tools.Mocks
         
         public void ResetWasInfluenced_ToFalse() => WasInfluenced = false;
         
-        public void Notify_InfluencedBy(IFactor determinant)
-        {
-            WasInfluenced = true;
-        }
+        public void Notify_InfluencedBy(IFactor determinant) => WasInfluenced = true;
 
-        public void Notify_InfluencedBy(IFactor determinant, long triggerFlags)
-        {
-            WasInfluenced = true;
-        }
+        public void Notify_InfluencedBy(IFactor determinant, long triggerFlags) => WasInfluenced = true;
     }
 }

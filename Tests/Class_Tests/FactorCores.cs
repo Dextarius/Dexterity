@@ -69,7 +69,6 @@ namespace Tests.Class_Tests
         
         #endregion
         
-        
         //protected abstract TFactor[] CallAllConstructors
     }
 }

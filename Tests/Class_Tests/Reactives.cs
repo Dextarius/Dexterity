@@ -40,6 +40,32 @@ namespace Tests.Class_Tests
             Assert.That(actualValue, Is.EqualTo(expectedValue));
             TestContext.WriteLine($"Expected Value {expectedValue}, Actual Value {actualValue}");
         }
+
+        [Test]
+        public void WhenCreated_DoesNotReactUntilValueIsRequested()
+        {
+            bool          processExecuted = false;
+            Reactive<int> reactiveToTest  = new Reactive<int>(UpdateBoolAndReturn);
+            
+            Assert.That(processExecuted, Is.False, "The reactive executed its process during construction.");
+            TestContext.WriteLine($"The process was executed prior to retrieving value => {processExecuted}");
+            
+            int triggerProcess = reactiveToTest.Value;
+            
+            Assert.That(processExecuted, "The method used to conduct this test does not mark that the process was executed.");
+            TestContext.WriteLine($"The process was executed after retrieving value => {processExecuted}");
+
+            int UpdateBoolAndReturn()
+            {
+                processExecuted = true;
+                return 42;
+            }
+        }
+
+        public void BeforeReturningValue_AttemptsReaction()
+        {
+            
+        }
         
         // [Test]
         // public void IfRecalculatingReturnsAValueEqualToCurrentValue_SubscribersAreNotInvalidated()
@@ -77,32 +103,6 @@ namespace Tests.Class_Tests
         //         Assert.That(createdSubscriber.IsValid, Is.True);
         //     }
         // }
-        
-        [Test]
-        public void WhenCreated_DoesNotReactUntilValueIsRequested()
-        {
-            bool          processExecuted = false;
-            Reactive<int> reactiveToTest  = new Reactive<int>(UpdateBoolAndReturn);
-            
-            Assert.That(processExecuted, Is.False, "The reactive executed its process during construction.");
-            TestContext.WriteLine($"The process was executed prior to retrieving value => {processExecuted}");
-            
-            int triggerProcess = reactiveToTest.Value;
-            
-            Assert.That(processExecuted, "The method used to conduct this test does not mark that the process was executed.");
-            TestContext.WriteLine($"The process was executed after retrieving value => {processExecuted}");
-
-            int UpdateBoolAndReturn()
-            {
-                processExecuted = true;
-                return 42;
-            }
-        }
-
-        public void BeforeReturningValue_AttemptsReaction()
-        {
-            
-        }
 
         #endregion
     }

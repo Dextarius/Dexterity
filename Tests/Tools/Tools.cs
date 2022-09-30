@@ -169,8 +169,7 @@ namespace Tests.Tools
         public static string CreateIncorrectPropertyValueDuringConstructionString<T>(string propertyName, T incorrectValue) =>
             $"The property {propertyName} was marked as {incorrectValue} during construction.";
             
-
-
+        
         public static int GenerateRandomInt() => numberGenerator.Next();
         
         public static int GenerateRandomIntNotEqualTo(int valueToAvoid) 

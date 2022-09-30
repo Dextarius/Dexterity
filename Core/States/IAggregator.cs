@@ -13,16 +13,4 @@ namespace Core.States
         void IncludeAll(IEnumerable<IFactor<T>> factorsToInclude);
         void RemoveAll(IEnumerable<IFactor<T>> factorsToRemove);
     }
-    
-    
-    public interface IAggregateResult<TValue> : IAggregator<TValue>, IResult<TValue>
-    {
-        TValue BaseValue { get; set; }
-    }
-    
-    
-    public interface IAggregateValue<T> : IAggregator<T>, IFactor<T> 
-    {
-
-    }
 }

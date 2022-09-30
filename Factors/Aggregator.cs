@@ -7,9 +7,9 @@ namespace Factors
 {
     public class Aggregator<TValue> : ReactiveValue<TValue, IAggregateResult<TValue>>, IAggregateValue<TValue>
     {
-        public bool   HasInputs      => core.HasInputs;
-        public bool   NumberOfInputs => core.NumberOfInputs;
-        
+        public bool NumberOfInputs => core.NumberOfInputs;
+        public bool HasInputs      => core.HasInputs;
+
         public TValue BaseValue
         {
             get => core.BaseValue;
@@ -17,7 +17,7 @@ namespace Factors
         }
         
         public bool Include(IFactor<TValue> factorToInclude) => core.Include(factorToInclude);
-        public bool Remove(IFactor<TValue> factorToRemove)   => core.Remove(factorToRemove);  
+        public bool  Remove(IFactor<TValue> factorToRemove)  => core.Remove(factorToRemove);  
         
         public void IncludeAll(IEnumerable<IFactor<TValue>> factorsToInclude)
         {
@@ -44,7 +44,6 @@ namespace Factors
 
         public Aggregator([NotNull] IAggregateResult<TValue> valueSource, string name = null) : base(valueSource, name)
         {
-            
         }
     }
 }

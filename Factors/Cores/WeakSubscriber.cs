@@ -18,11 +18,11 @@ namespace Factors.Cores
         
         #region Properties
 
-        public bool IsNecessary             { get; set; }
-        public bool IsUnstable              { get; set; }
-        public bool IsTriggered             { get; set; } = true;
-      //  public bool UsesTriggerFlags.Default { get; set; } = true;
+        public bool IsNecessary { get; set; }
+        public bool IsUnstable  { get; set; }
+        public bool IsTriggered { get; set; } = true;
         
+      //  public bool UsesTriggerFlags.Default { get; set; } = true;
 
         #endregion
 
