@@ -6,20 +6,32 @@ namespace Factors.Time
 {
     public abstract class TimeDistance
     {
+        #region Instance Fields
+
         protected readonly FloatingTimeZone timeZone;
         protected          DateTime         dateToCompare;
 
+        #endregion
+
+        
+        #region Properties
+
         protected FloatingTimeZone TimeZone      => timeZone;
         protected DateTime         DateToCompare => dateToCompare;
-        protected int              Days          => InvolveTimersForNextAndPreviousIncrement(Snapshot.Days,    new TimeSpan(Snapshot.Days, 0,                             0,                0), OneDay);
-        protected int              Hours         => InvolveTimersForNextAndPreviousIncrement(Snapshot.Hours,   new TimeSpan(Snapshot.Days, Snapshot.Hours,                0,                0), OneHour);
-        protected int              Minutes       => InvolveTimersForNextAndPreviousIncrement(Snapshot.Minutes, new TimeSpan(Snapshot.Days, Snapshot.Hours, Snapshot.Minutes,                0), OneMinute);
-        protected int              Seconds       => InvolveTimersForNextAndPreviousIncrement(Snapshot.Seconds, new TimeSpan(Snapshot.Days, Snapshot.Hours, Snapshot.Minutes, Snapshot.Seconds), OneSecond);
+        
+        protected int Days    => InvolveTimersForNextAndPreviousIncrement(Snapshot.Days,    Snapshot.TrimToDays(),    OneDay);
+        protected int Hours   => InvolveTimersForNextAndPreviousIncrement(Snapshot.Hours,   Snapshot.TrimToHours(),   OneHour);
+        protected int Minutes => InvolveTimersForNextAndPreviousIncrement(Snapshot.Minutes, Snapshot.TrimToMinutes(), OneMinute);
+        protected int Seconds => InvolveTimersForNextAndPreviousIncrement(Snapshot.Seconds, Snapshot.TrimToSeconds(), OneSecond);
         
         protected abstract TimeSpan Snapshot { get; }
 
-        protected abstract int InvolveTimersForNextAndPreviousIncrement(
-            int returnValue, TimeSpan cut, TimeSpan incrementLength);
+        #endregion
+
+        #region Instance Methods
+
+        protected abstract int InvolveTimersForNextAndPreviousIncrement(int returnValue, TimeSpan cut, 
+                                                                        TimeSpan incrementLength);
 
         protected void ThrowIfComparedInstanceBelongsToADifferentTimeZone(TimeDistance instanceToCompare)
         {
@@ -30,9 +42,16 @@ namespace Factors.Time
             }
         }
 
-        protected TimeDistance(FloatingTimeZone zone, DateTime startPoint)
+        #endregion
+
+        #region Constructors
+
+        protected TimeDistance(FloatingTimeZone zone, DateTime comparedDate)
         {
-            
+            timeZone = zone;
+            dateToCompare = comparedDate;
         }
+
+        #endregion
     }
 }

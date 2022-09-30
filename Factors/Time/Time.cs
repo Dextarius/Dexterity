@@ -10,6 +10,30 @@ namespace Factors.Time
         public static readonly TimeSpan OneHour   = TimeSpan.FromHours(1);
         public static readonly TimeSpan OneDay    = TimeSpan.FromDays(1);
         public static readonly TimeSpan OneWeek   = TimeSpan.FromDays(7);
+
+
+
+
+        public static TimeSpan TrimToDays(this TimeSpan timeSpan)
+        {
+            return new TimeSpan(timeSpan.Days, 0, 0, 0);
+        }
+        
+        public static TimeSpan TrimToHours(this TimeSpan timeSpan)
+        {
+            return new TimeSpan(timeSpan.Days, timeSpan.Hours, 0, 0);
+        }
+        
+        public static TimeSpan TrimToMinutes(this TimeSpan timeSpan)
+        {
+            return new TimeSpan(timeSpan.Days, timeSpan.Hours, timeSpan.Minutes, 0);
+        }
+        
+        public static TimeSpan TrimToSeconds(this TimeSpan timeSpan)
+        {
+            return new TimeSpan(timeSpan.Days, timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds);
+        }
+        
         
         // public static readonly FloatingDateTime OneSecondFromNow = TimeSpan.FromSeconds(1);
         // public static readonly FloatingDateTime OneMinuteFromNow = TimeSpan.FromMinutes(1);
@@ -27,6 +51,9 @@ namespace Factors.Time
         //     
         //     return new ReactiveTimer();
         // }
+        
+        
+        
 
     }
 }
