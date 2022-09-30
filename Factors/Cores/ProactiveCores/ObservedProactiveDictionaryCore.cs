@@ -10,48 +10,19 @@ using static Core.Tools.Collections;
 namespace Factors.Cores.ProactiveCores
 {
     public class ObservedProactiveDictionaryCore<TKey, TValue> : 
-        ObservedProactiveCollectionCore<Dictionary<TKey,TValue>, KeyValuePair<TKey, TValue>>, IDictionaryCore<TKey, TValue>
+        ObservedProactiveCollectionCore<Dictionary<TKey,TValue>, KeyValuePair<TKey, TValue>, 
+                                        IDictionaryImplementer<TKey, TValue>>, 
+        IDictionaryCore<TKey, TValue>, IDictionaryOwner<TKey, TValue>
     {
-        #region Instance Fields
-
-        private readonly IEqualityComparer<TValue> valueComparer;
-        private          StateKeyConservator       keys;
-        private          StateValueConservator     values;
-
-        #endregion
-        
-
         #region Instance Properties
-        
-        public ICollection<TKey>   Keys   => keys   ??= new StateKeyConservator(this);
-        public ICollection<TValue> Values => values ??= new StateValueConservator(this);
 
-        public TValue this[TKey key]
+        public ICollection<TKey>   Keys   => implementer.Keys;
+        public ICollection<TValue> Values => implementer.Values;
+
+        public TValue this[TKey index]
         {
-            get => Collection[key];
-            set
-            {
-                long triggerFlags = TriggerFlags.None;
-                
-                if (collection.TryGetValue(key, out TValue currentValue) is false)
-                {
-                    if (valueComparer.Equals(value, currentValue) is false)
-                    {
-                        collection[key] = value;
-                        triggerFlags    = TriggerFlags.ItemReplaced;
-                    }
-                }
-                else
-                {
-                    collection[key] = value;
-                    triggerFlags = TriggerFlags.ItemAdded;
-                }
-
-                if (triggerFlags is not TriggerFlags.None)
-                {
-                    OnCollectionChanged(triggerFlags);
-                }
-            }
+            get => implementer[index];
+            set => implementer[index] = value;
         }
 
         #endregion
@@ -59,126 +30,34 @@ namespace Factors.Cores.ProactiveCores
 
         #region Instance Methods
 
-        public void Add(TKey key, TValue value)
-        {
-            collection.Add(key, value);
-            OnCollectionChanged(TriggerFlags.ItemAdded);
-        }
-
-        public bool Remove(TKey key)
-        {
-            if (collection.Remove(key))
-            {
-                OnCollectionChanged(TriggerFlags.ItemRemoved);
-                return true;
-            }
-            else return false;
-        }
-        
-        protected override bool AddItem(KeyValuePair<TKey, TValue> item, out long notifyInvolvedFlags, 
-                                                                         out long additionalChangeFlags)
-        {
-            collection.Add(item.Key, item.Value);
-            //- If it already exists the collection will throw an exception.
-            //- TODO : Consider if we want to deviate from the behavior of the standard dictionary
-            //         by not exploding when someone tries to add an existing key.
-            //         If the key already exists, should we replace the value?
-            //         Not sure whether I'd return true or false in that case though. 
-
-            //- Hmm, the very fact of this method succeeded means it's already
-            //  set up for the return value to be different the next time it's
-            //  called.  So what do we consider that in terms of trigger flags?
-            //  Well if they call it again before this new key is removed the
-            //  dictionary will explode anyways, so I guess the only reasonable
-            //  trigger would be when an item is removed.
-            
-            notifyInvolvedFlags   = TriggerFlags.ItemRemoved;
-            additionalChangeFlags = TriggerFlags.None;
-            return true;
-        }
-        
-        protected override bool RemoveItem(KeyValuePair<TKey, TValue> item, out long additionalTriggerFlags)
-        {
-            additionalTriggerFlags = TriggerFlags.None;
-            return collection.Remove(item.Key);
-        }
-
-        public bool TryGetValue(TKey key, out TValue value)
-        {
-            bool wasSuccessful = Collection.TryGetValue(key, out value);
-
-            if (wasSuccessful)
-            {
-                NotifyInvolved(TriggerFlags.ItemRemoved | TriggerFlags.ItemReplaced);
-            }
-            else
-            {
-                NotifyInvolved(TriggerFlags.ItemAdded | TriggerFlags.ItemReplaced);
-            }
-            
-            return wasSuccessful;
-        }
-        
-        public bool ContainsKey(TKey keyToLookFor)
-        {
-            bool wasSuccessful = Collection.ContainsKey(keyToLookFor);
-
-            if (wasSuccessful)
-            {
-                NotifyInvolved(TriggerFlags.ItemRemoved);
-            }
-            else
-            {
-                NotifyInvolved(TriggerFlags.ItemAdded | TriggerFlags.ItemReplaced);
-            }
-            
-            return wasSuccessful;
-        }
-        
-        public bool ContainsValue(TValue valueToLookFor)
-        {
-            bool wasSuccessful = Collection.ContainsValue(valueToLookFor);
-
-            if (wasSuccessful)
-            {
-                NotifyInvolved(TriggerFlags.ItemRemoved | TriggerFlags.ItemReplaced);
-            }
-            else
-            {
-                NotifyInvolved(TriggerFlags.ItemAdded | TriggerFlags.ItemReplaced);
-            }
-            
-            return wasSuccessful;
-        }
-
-        public ICollection GetKeysAsICollection()   => keys   ??= new StateKeyConservator(this);
-        public ICollection GetValuesAsICollection() => values ??= new StateValueConservator(this);
-        
-        public override bool CollectionEquals(IEnumerable<KeyValuePair<TKey, TValue>> collectionToCompare)
-        {
-            var dictionaryToCompare = CreateDictionaryFrom(collectionToCompare, collection.Comparer);
-
-            return this.collection.HasSameKeysAndValuesAs(dictionaryToCompare, valueComparer);
-        }
-
-        public new IDictionaryEnumerator GetEnumerator() => new FactorDictionaryEnumerator(this, Collection.GetEnumerator());
-        //- TODO : Decide if we really want to make an enumerator object every time someone calls this method.  If not then 
-        //         we can just cast Collection to IDictionary and get the enumerator from it.
+        public     void                  Add(TKey key, TValue value)             => implementer.Add(key, value);
+        public     bool                  Remove(TKey key)                        => implementer.Remove(key);
+        public     bool                  TryGetValue(TKey key, out TValue value) => implementer.TryGetValue(key, out value);
+        public     bool                  ContainsKey(TKey keyToLookFor)          => implementer.ContainsKey(keyToLookFor);
+        public     bool                  ContainsValue(TValue valueToLookFor)    => implementer.ContainsValue(valueToLookFor);
+        public     ICollection           GetKeysAsICollection()                  => implementer.GetKeysAsICollection();
+        public     ICollection           GetValuesAsICollection()                => implementer.GetValuesAsICollection();
+        public new IDictionaryEnumerator GetEnumerator()                         => implementer.GetEnumerator();
 
         #endregion
         
 
         #region Constructors
         
-        protected ObservedProactiveDictionaryCore(Dictionary<TKey, TValue> dictionaryToCopy, IEqualityComparer<TValue> comparerForValues) : 
-            base(dictionaryToCopy)
+        protected ObservedProactiveDictionaryCore(IDictionaryImplementer<TKey, TValue> implementation)
         {
-            valueComparer = comparerForValues ?? EqualityComparer<TValue>.Default;
+            implementer = implementation;
+        }
+        
+        protected ObservedProactiveDictionaryCore(Dictionary<TKey, TValue>  dictionaryToCopy, 
+                                                  IEqualityComparer<TValue> comparerForValues)
+        {
+            implementer = new DictionaryImplementer<TKey, TValue>(this, dictionaryToCopy, comparerForValues);
         }
         
         public ObservedProactiveDictionaryCore(IEnumerable<KeyValuePair<TKey, TValue>> collectionToCopy  = null,
-                                      IEqualityComparer<TKey>                 comparerForKeys   = null, 
-                                      IEqualityComparer<TValue>               comparerForValues = null) : 
+                                               IEqualityComparer<TKey>                 comparerForKeys   = null, 
+                                               IEqualityComparer<TValue>               comparerForValues = null) : 
             this(CreateDictionaryFrom(collectionToCopy, comparerForKeys ?? EqualityComparer<TKey>.Default), 
                  comparerForValues)
         {
@@ -186,13 +65,13 @@ namespace Factors.Cores.ProactiveCores
         }
         
         public ObservedProactiveDictionaryCore(ICollection<KeyValuePair<TKey, TValue>> collectionToCopy, 
-                                      IEqualityComparer<TValue>               comparerForValues) : 
+                                               IEqualityComparer<TValue>               comparerForValues) : 
             this(collectionToCopy, null, comparerForValues)
         {
         }
         
         public ObservedProactiveDictionaryCore(IEqualityComparer<TKey>   comparerForKeys, 
-                                      IEqualityComparer<TValue> comparerForValues = null) : 
+                                               IEqualityComparer<TValue> comparerForValues = null) : 
             this(new Dictionary<TKey, TValue>(comparerForKeys ?? EqualityComparer<TKey>.Default), comparerForValues)
         {
         }
@@ -203,38 +82,14 @@ namespace Factors.Cores.ProactiveCores
         }
         
         public ObservedProactiveDictionaryCore(Dictionary<TKey, TValue>  dictionaryToCopy,
-                                      IEqualityComparer<TKey>   comparerForKeys   = null, 
-                                      IEqualityComparer<TValue> comparerForValues = null) : 
+                                               IEqualityComparer<TKey>   comparerForKeys   = null, 
+                                               IEqualityComparer<TValue> comparerForValues = null) : 
             this(new Dict<TKey, TValue>(dictionaryToCopy, comparerForKeys ?? dictionaryToCopy.Comparer), comparerForValues)
         {
         }
 
         public ObservedProactiveDictionaryCore() : this(new Dictionary<TKey, TValue>(), null)
         {
-        }
-
-        #endregion
-
-
-        #region Nested Classes
-
-        protected class StateKeyConservator : ReadOnlyConservator< ObservedProactiveDictionaryCore<TKey, TValue>, TKey>
-        {
-            public override ICollection<TKey> ManagedCollection => collectionSource.Collection.Keys;
-            
-            protected override string GetCollectionDescription() => "The Keys collection of a ProactiveDictionary";
-            
-            internal StateKeyConservator(ObservedProactiveDictionaryCore<TKey, TValue> creator) : base(creator) { }
-        }
-
-
-        protected class StateValueConservator : ReadOnlyConservator< ObservedProactiveDictionaryCore<TKey, TValue>, TValue>
-        {
-            public override ICollection<TValue> ManagedCollection => collectionSource.Collection.Values;
-
-            protected override string GetCollectionDescription() => "The Values collection of a ProactiveDictionary";
-
-            internal StateValueConservator(ObservedProactiveDictionaryCore<TKey, TValue> creator) : base(creator) { }
         }
 
         #endregion
