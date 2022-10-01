@@ -6,7 +6,7 @@ using Core.Causality;
 using Core.Factors;
 using Core.States;
 using Factors.Cores.ProactiveCores;
-using static Core.Tools.Types;
+using static Dextarius.Utilities.Types;
 
 namespace Factors.Collections
 {

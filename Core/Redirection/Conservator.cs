@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using static Core.Tools.Types;
+using static Dextarius.Utilities.Types;
 
 
 namespace Core.Redirection

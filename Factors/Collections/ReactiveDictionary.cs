@@ -7,7 +7,7 @@ using Core.States;
 using Core.Tools;
 using Factors.Exceptions;
 using JetBrains.Annotations;
-using static Core.Tools.Types;
+using static Dextarius.Utilities.Types;
 
 namespace Factors.Collections
 {

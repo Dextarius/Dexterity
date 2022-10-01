@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using Core.Factors;
 using Core.States;
-using static Core.Tools.Types;
+using static Dextarius.Utilities.Types;
 
 namespace Core
 {

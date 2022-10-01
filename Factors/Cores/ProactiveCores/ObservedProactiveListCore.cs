@@ -8,7 +8,7 @@ using Core.Tools;
 using JetBrains.Annotations;
 using Dextarius.Collections;
 using Factors.Collections;
-using static Core.Tools.Types;
+using static Dextarius.Utilities.Types;
 using static Factors.TriggerFlags;
 
 namespace Factors.Cores.ProactiveCores

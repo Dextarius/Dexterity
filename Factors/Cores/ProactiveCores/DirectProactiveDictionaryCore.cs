@@ -4,7 +4,7 @@ using Core.Redirection;
 using Core.States;
 using Dextarius.Collections;
 using Factors.Collections;
-using static Core.Tools.Collections;
+using static Dextarius.Collections.Utilities;
 using static Factors.TriggerFlags;
 
 namespace Factors.Cores.ProactiveCores

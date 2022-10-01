@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using Core.Causality;
 using Core.States;
+using static Dextarius.Collections.Utilities;
 
 namespace Core
 {
@@ -171,7 +172,7 @@ namespace Core
 
             for (int i = lowestCreatedPriority + 1; i <= priority; ++i)
             {
-                Tools.Collections.Add(ref priorityLevels, new PriorityLevel(i), i);
+                Add(ref priorityLevels, new PriorityLevel(i), i);
             }
 
             lowestCreatedPriority = priority;

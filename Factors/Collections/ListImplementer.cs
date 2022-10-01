@@ -4,9 +4,10 @@ using System.Diagnostics;
 using System.Linq;
 using Core.Tools;
 using Dextarius.Collections;
+using Dextarius.Utilities;
 using JetBrains.Annotations;
 using static Factors.TriggerFlags;
-using static Core.Tools.Types;
+using static Dextarius.Utilities.Types;
 
 namespace Factors.Collections
 {

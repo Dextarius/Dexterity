@@ -4,7 +4,7 @@ using System.Diagnostics;
 using Core;
 using Core.Factors;
 using Core.States;
-using static Core.Tools.Types;
+using static Dextarius.Utilities.Types;
 using static Core.Settings;
 
 namespace Factors.Cores

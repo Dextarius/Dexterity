@@ -1,5 +1,5 @@
 ﻿using Core.States;
-using static Core.Tools.Collections;
+using static Dextarius.Collections.Utilities;
 
 namespace Core
 {

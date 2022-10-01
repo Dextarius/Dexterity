@@ -9,7 +9,6 @@ using Tests.Tools.Factories.Controllers;
 using Tests.Tools.Interfaces;
 using Tests.Tools.Mocks;
 using static Tests.Tools.Tools;
-using static Core.Tools.Types;
 
 namespace Tests.Interface_Tests
 {

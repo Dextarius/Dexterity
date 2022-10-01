@@ -5,7 +5,7 @@ using System.Linq;
 using Core.Factors;
 using Factors.Exceptions;
 using JetBrains.Annotations;
-using static Core.Tools.Types;
+using static Dextarius.Utilities.Types;
 using Core.States;
 
 namespace Factors.Collections

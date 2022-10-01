@@ -10,7 +10,7 @@ using Tests.Tools.Interfaces;
 using Tests.Tools.Mocks;
 using static Tests.Tools.Tools;
 using static Tests.Tools.ErrorMessages;
-using static Core.Tools.Types;
+using static Dextarius.Utilities.Types;
 
 namespace Tests.Interface_Tests
 {

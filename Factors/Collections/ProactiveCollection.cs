@@ -5,7 +5,7 @@ using Core.Causality;
 using Core.Factors;
 using Core.States;
 using JetBrains.Annotations;
-using static Core.Tools.Types;
+using static Dextarius.Utilities.Types;
 
 
 namespace Factors.Collections

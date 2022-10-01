@@ -8,7 +8,7 @@ using NUnit.Framework;
 using Tests.Tools.Factories.Controllers;
 using Tests.Tools.Interfaces;
 using Tests.Tools.Mocks.Processes;
-using static Core.Tools.Types;
+using static Dextarius.Utilities.Types;
 using static Tests.Tools.Tools;
 
 namespace Tests.Interface_Tests

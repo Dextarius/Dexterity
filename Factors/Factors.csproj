@@ -18,6 +18,9 @@
       <Reference Include="Collections">
         <HintPath>..\..\..\..\Programming\Code\Dextarius\Collections\bin\Release\netstandard2.0\Collections.dll</HintPath>
       </Reference>
+      <Reference Include="Utilities, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <HintPath>..\..\..\..\Programming\Code\Dextarius\Utilities\bin\Release\netstandard2.0\Utilities.dll</HintPath>
+      </Reference>
     </ItemGroup>
 
 </Project>
