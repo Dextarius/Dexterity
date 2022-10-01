@@ -1,5 +1,5 @@
 ﻿using Core.Tools;
-using static Core.Tools.Types;
+using static Dextarius.Utilities.Types;
 
 namespace Tests.Tools
 {

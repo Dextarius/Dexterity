@@ -1,6 +1,6 @@
 ﻿using System;
 using static Core.Tools.Delegates;
-using static Core.Tools.Types;
+using static Dextarius.Utilities.Types;
 
 namespace Factors
 {

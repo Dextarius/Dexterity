@@ -4,7 +4,7 @@ using Core.Factors;
 using Core.States;
 using JetBrains.Annotations;
 using static Core.Tools.Delegates;
-using static Core.Tools.Types;
+using static Dextarius.Utilities.Types;
 
 
 namespace Factors

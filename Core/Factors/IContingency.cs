@@ -1,5 +1,4 @@
-﻿using Core.Subscriptions;
-
+﻿
 namespace Core.Factors
 {
     /// <summary>  A reactive object representing a method that will only execute under a given set of conditions.  </summary>

@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using Core.Factors;
 using Core.Redirection;
 using Dextarius.Collections;
-using static Core.Tools.Collections;
 using static Factors.TriggerFlags;
-using static Core.Tools.Types;
+using static Dextarius.Utilities.Types;
+using static Dextarius.Collections.Utilities;
 
 namespace Factors.Collections
 {

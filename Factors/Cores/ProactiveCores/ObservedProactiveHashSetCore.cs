@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using Core.States;
 using Dextarius.Collections;
 using Factors.Collections;
-using static Core.Tools.Types;
+using static Dextarius.Utilities.Types;
 
 namespace Factors.Cores.ProactiveCores
 {

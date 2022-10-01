@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Core.Factors;
 using Core.States;
-using static Core.Tools.Types;
+using static Dextarius.Utilities.Types;
 
 namespace Factors.Cores
 {

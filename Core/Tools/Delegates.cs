@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Linq.Expressions;
 using System.Reflection;
-using static Core.Tools.Types;
+using Dextarius.Utilities;
+using static Dextarius.Utilities.Types;
 
 namespace Core.Tools
 {

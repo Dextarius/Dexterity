@@ -6,7 +6,7 @@ using Tests.Tools;
 using Tests.Tools.Factories;
 using Tests.Tools.Interfaces;
 using Tests.Tools.Mocks;
-using static Core.Tools.Types;
+using static Dextarius.Utilities.Types;
 using static Tests.Tools.Tools;
 
 namespace Tests.Interface_Tests

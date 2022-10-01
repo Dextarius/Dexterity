@@ -4,8 +4,8 @@ using Core.Redirection;
 using Core.States;
 using Dextarius.Collections;
 using Factors.Collections;
-using static Core.Tools.Types;
-using static Core.Tools.Collections;
+using static Dextarius.Utilities.Types;
+using static Dextarius.Collections.Utilities;
 
 namespace Factors.Cores.ProactiveCores
 {
