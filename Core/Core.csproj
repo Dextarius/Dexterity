@@ -28,6 +28,7 @@
       <Content Include="obj\Debug\netstandard2.0\Core.csproj.CoreCompileInputs.cache" />
       <Content Include="obj\Debug\netstandard2.0\Core.csproj.FileListAbsolute.txt" />
       <Content Include="obj\Debug\netstandard2.0\Core.dll" />
+      <Content Include="obj\Debug\netstandard2.0\Core.GeneratedMSBuildEditorConfig.editorconfig" />
       <Content Include="obj\Debug\netstandard2.0\Core.pdb" />
       <Content Include="obj\project.assets.json" />
       <Content Include="obj\project.nuget.cache" />

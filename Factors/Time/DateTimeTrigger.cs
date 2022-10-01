@@ -80,8 +80,10 @@ namespace Factors.Time
 
         #region Constructors
 
-        public DateTimeTrigger(ProactorCore factorCore, FloatingTimeZone zone, DateTime expirationTime, 
-                               string factorsName = nameof(DateTimeTrigger)) : 
+        public DateTimeTrigger(ProactorCore     factorCore, 
+                               FloatingTimeZone zone, 
+                               DateTime         expirationTime, 
+                               string           factorsName = nameof(DateTimeTrigger)) : 
             base(factorCore, factorsName)
         {
             timeZone = zone;

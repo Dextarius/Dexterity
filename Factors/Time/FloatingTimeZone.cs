@@ -25,7 +25,7 @@ namespace Factors.Time
         private Dictionary<DateTime, WeakReference> triggersByExpirationTime = new Dictionary<DateTime, WeakReference>();
         private HashSet<DateTimeTrigger>            expiredTriggers          = new HashSet<DateTimeTrigger>();
         private HashSet<DateTimeTrigger>            activeTriggers           = new HashSet<DateTimeTrigger>();
-        private int                                 purgePressure;
+        private int                                 pressure;
         private DateTime                            zoneTimerExpiration;
         private DateTime?                           stableTime;
         
@@ -87,7 +87,7 @@ namespace Factors.Time
                 }
             }
 
-            if (purgePressure * 2 >= triggersByExpirationTime.Count)
+            if (pressure * 2 >= triggersByExpirationTime.Count)
             {
                 foreach (var time in triggersByExpirationTime.Keys.ToList())
                 {
@@ -99,7 +99,7 @@ namespace Factors.Time
                     }
                 }
 
-                purgePressure = 0;
+                pressure = 0;
             }
 
             DateTimeTrigger createdTrigger = null; // new DateTimeTrigger(triggerExpiration); 
@@ -107,7 +107,7 @@ namespace Factors.Time
             throw new NotImplementedException();
 
             triggersByExpirationTime[triggerExpiration] = new WeakReference(createdTrigger);
-            purgePressure++;
+            pressure++;
 
             return createdTrigger;
         }

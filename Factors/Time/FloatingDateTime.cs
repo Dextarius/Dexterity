@@ -8,16 +8,14 @@ namespace Factors.Time
                                   //   IComparable<DateTime>,         IEquatable<DateTime>,
                                   //   IComparable
     {
+        #region Properties
+
         public FloatingTimeZone TimeZone  { get; }
         public TimeSpan         Offset    { get; }
         public DateTime         Snapshot  => TimeZone.GetStableTime() + Offset;
         public DateTime         Date      => FloorCurrentDateAndNotifyInvolved(OneDay);
-        public int              Year      => InvolveTimersSetTo(new DateTime(Snapshot.Year,     1, 1), 
-                                                                new DateTime(Snapshot.Year + 1, 1, 1), 
-                                                                Snapshot.Year);
-        public int              Month     => InvolveTimersSetTo(new DateTime(Snapshot.Year, Snapshot.Month, 1), 
-                                                                new DateTime(Snapshot.Year, Snapshot.Month, 1).AddMonths(1), 
-                                                                Snapshot.Month);
+        public int              Year      => InvolveTimersSetTo(Snapshot.TrimToYear(),  Snapshot.NextYear(),  Snapshot.Year);
+        public int              Month     => InvolveTimersSetTo(Snapshot.TrimToMonth(), Snapshot.NextMonth(), Snapshot.Month);
         public int              Day       => Date.Day;
         public int              DayOfYear => Date.DayOfYear;
         public DayOfWeek        DayOfWeek => Date.DayOfWeek;
@@ -25,6 +23,10 @@ namespace Factors.Time
         public int              Minute    => FloorCurrentDateAndNotifyInvolved(OneMinute).Minute;
         public int              Second    => FloorCurrentDateAndNotifyInvolved(OneSecond).Second;
 
+        #endregion
+        
+
+        #region Instance Methods
 
         protected DateTime FloorCurrentDateAndNotifyInvolved(TimeSpan intervalToRoundTo)
         {
@@ -63,15 +65,27 @@ namespace Factors.Time
 
         public override string ToString() => Snapshot.ToString(CultureInfo.CurrentCulture);
 
+        #endregion
+
+        
+        #region Operators
+
+        // public static bool operator >=(FloatingDateTime floatingDateTime, DateTime dateToCompare) =>
+        //     floatingDateTime.GetAndInvolveTimer(dateToCompare).IsExpired;
+        //
+        // public static bool operator <=(FloatingDateTime floatingDateTime, DateTime dateToCompare) =>;
+
+        #endregion
+        
+
+        #region Constructors
+
         public FloatingDateTime(FloatingTimeZone timeZone, TimeSpan offset = default)
         {
             TimeZone = timeZone;
             Offset   = offset;
         }
 
-        // public static bool operator >=(FloatingDateTime floatingDateTime, DateTime dateToCompare) =>
-        //     floatingDateTime.GetAndInvolveTimer(dateToCompare).IsExpired;
-        //
-        // public static bool operator <=(FloatingDateTime floatingDateTime, DateTime dateToCompare) =>;
+        #endregion
     }
 }
